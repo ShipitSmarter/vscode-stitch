@@ -4,12 +4,14 @@
 	"description": "Helper to create Stitch Integrations",
 	"publisher": "ShipitSmarter",
 	"author": {
-		"name": "Jeffrey Tummers"
+		"name": "Jeffrey Tummers",
+		"url": "https://github.com/ThumNet"
 	},
 	"repository": {
+		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"engines": {
 		"vscode": "^1.53.0"
 	},
