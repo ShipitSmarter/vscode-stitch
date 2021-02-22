@@ -1,0 +1,222 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "Imports": {
+      "$ref": "#/definitions/Imports"
+    },
+    "Request": {
+      "$ref": "#/definitions/Request"
+    },
+    "Steps": {
+      "$ref": "#/definitions/Steps"
+    },
+    "Response": {
+      "$ref": "#/definitions/Response"
+    }
+  },
+  "required": [
+    "Request",
+    "Steps",
+    "Response"
+  ],
+  "definitions": {
+    "Imports": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "Request": {
+      "type": "object",
+      "properties": {
+        "AuthenticationMethods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AuthenticationMethod"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "default": [],
+      "required": [
+        "AuthenticationMethods"
+      ]
+    },
+    "AuthenticationMethod": {
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "string"
+        },
+        "Key": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "Id",
+        "Key",
+        "Description"
+      ],
+      "additionalProperties": false
+    },
+    "Steps": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/definitions/HttpStep"
+          },
+          {
+            "$ref": "#/definitions/SftpStep"
+          }
+        ]
+      },
+      "minItems": 1
+    },
+    "HttpStep": {
+      "type": "object",
+      "default": {
+        "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
+        "Id": "",
+        "Template": "",
+        "Method": "POST",
+        "Url": ""
+      },
+      "description": "Make a web-request",
+      "properties": {
+        "$type": {
+          "enum": [
+            "Core.Entities.Configs.Steps.HttpConfiguration, Core"
+          ]
+        },
+        "Id": {
+          "type": "string"
+        },
+        "Template": {
+          "type": "string"
+        },
+        "SuccessCondition": {
+          "type": "string"
+        },
+        "StartCondition": {
+          "type": "string"
+        },
+        "Method": {
+          "enum": [
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "PATCH",
+            "HEAD",
+            "OPTIONS",
+            "TRACE"
+          ]
+        },
+        "Headers": {
+          "$ref": "#/definitions/Headers"
+        },
+        "Url": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$type",
+        "Id",
+        "Template",
+        "Method",
+        "Url"
+      ]
+    },
+    "SftpStep": {
+      "type": "object",
+      "default": {
+        "$type": "Core.Entities.Configs.Steps.SftpConfiguration, Core",
+        "Id": "",
+        "Template": "",
+        "Host": "",
+        "Port": 21,
+        "Username": "",
+        "Password": "",
+        "Filename": ""
+      },
+      "description": "Put file on FTP location",
+      "properties": {
+        "$type": {
+          "enum": [
+            "Core.Entities.Configs.Steps.SftpConfiguration, Core"
+          ]
+        },
+        "Id": {
+          "type": "string"
+        },
+        "Template": {
+          "type": "string"
+        },
+        "SuccessCondition": {
+          "type": "string"
+        },
+        "StartCondition": {
+          "type": "string"
+        },
+        "Host": {
+          "type": "string"
+        },
+        "Port": {
+          "type": "number"
+        },
+        "Username": {
+          "type": "string"
+        },
+        "Password": {
+          "type": "string"
+        },
+        "Path": {
+          "type": "string"
+        },
+        "Filename": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$type",
+        "Id",
+        "Template",
+        "Host",
+        "Port",
+        "Username",
+        "Password",
+        "Filename"
+      ]
+    },
+    "Response": {
+      "type": "object",
+      "properties": {
+        "Body": {
+          "type": "string"
+        },
+        "Headers": {
+          "$ref": "#/definitions/Headers"
+        },
+        "StatusCode": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "Body"
+      ],
+      "additionalProperties": false
+    },
+    "Headers": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    }
+  }
+}

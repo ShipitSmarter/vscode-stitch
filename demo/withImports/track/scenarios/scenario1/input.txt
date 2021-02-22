@@ -1,0 +1,6 @@
+{
+    "Shipment": {
+        "CodeCompany": 43,
+        "AWB": "asghasd"
+    }
+}

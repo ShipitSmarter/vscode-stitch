@@ -1,0 +1,8 @@
+{{ include 'functions.sbn' }}
+
+{
+    "Who": "AutomationTesting",
+    "value": "{{Steps.TrackingXML.Model.Result.Time}}",
+    "input": "{{sub Model.prop1 5}}"
+}
+

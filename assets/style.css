@@ -1,0 +1,17 @@
+.error {
+    color: red;
+}
+
+th {
+    text-align: left;
+    padding-right: 1em;
+}
+
+html {
+  background-image: url("icon.png");
+  background-size: 6em;
+  background-repeat: no-repeat;
+  background-position: right 20px bottom 20px;
+  background-attachment: fixed;
+  height: 100%;
+}

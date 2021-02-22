@@ -1,0 +1,69 @@
+{{ include 'functions.sbn' }}
+
+<root>
+    <note>{{sub Model.prop1 121}}</note>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+</root>
+<root>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+</root>
+<root>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root><root>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+    <note>{{Model.prop1}}+1</note>
+</root><root>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+<note>{{Model.prop1}}+1</note>
+</root>

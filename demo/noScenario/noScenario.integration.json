@@ -1,0 +1,30 @@
+{
+    "$schema": "..\\..\\schemas\\integration.schema.json",
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Key": "hash-1-asd/asd",
+                "Id": "dummy-ConnectKeyId",
+                "Description": "dummy"
+            }
+        ]
+    },
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
+            "Id": "TrackingXML",
+            "Headers": {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "Method": "POST",
+            "Url": "https://express.tnt.com/expressconnect/track.do",
+            "Template": "{{ include 'request-body.json' }}"
+        }
+    ],
+    "Imports": [],
+    "Response": {
+        "Body": "{{ include 'response-body.json' }}",
+        "Headers": {},
+        "StatusCode": 200
+    }
+}

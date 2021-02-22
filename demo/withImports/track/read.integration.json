@@ -1,0 +1,30 @@
+{
+    "Imports": [
+        "../imports/codecompany-{{Model.Shipment.CodeCompany}}.json",
+        "../imports/{{Environment}}.json"
+    ],
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Id":"sis",
+                "Key": "{{Imports.SisApiKey}}",
+                "Description": "This is the main key that is send from carrier config in catch"
+            }
+        ]
+    },
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
+            "Id": "Track",
+            "Method": "GET",
+            "Headers":{},
+            "Url": "https://api-gw.dhlparcel.nl/track-trace?key={{Model.Shipment.AWB}}",
+            "Template": ""
+        }
+    ],
+    "Response": {
+        "Body": "{{include 'response-body.json'}}",
+        "Headers": {},
+        "StatusCode": 200
+    }
+}
