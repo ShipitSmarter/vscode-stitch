@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.2.1
+- Hashes and Secrets are now inserted to the active document, if there is none copied to the clipboard.
+
 ## 0.2.0
 - Published extension to Github
 
@@ -29,7 +32,6 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 - Preview pane and statusbar to switch scenario.
 - Auto configure json schema's for integration and integration metadata files.
 - Setting for test endpoint url.
-
 
 ### Note
 

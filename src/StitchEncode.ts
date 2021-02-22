@@ -17,8 +17,7 @@ export class StitchEncode {
 
         const data = { content };
         const result = await axios.post(`${endpoint}/encode/createhash`, data);
-        vscode.env.clipboard.writeText(result.data.encodedValue);
-		vscode.window.showInformationMessage(`Hash created and copied to clipboard!`);
+        this._insertEncodedValue(result.data.encodedValue, 'Secret created and copied to clipboard!');
 	}    
 
 	public async createSecret() {
@@ -36,8 +35,7 @@ export class StitchEncode {
 
         const data = { environment, content };
         const result = await axios.post(`${endpoint}/encode/createsecret`, data);
-        vscode.env.clipboard.writeText(result.data.encodedValue);
-		vscode.window.showInformationMessage(`Secret created and copied to clipboard!`);
+		this._insertEncodedValue(result.data.encodedValue, 'Secret created and copied to clipboard!');
 	}
 
 	async _showPickEnvironment(): Promise<string | undefined> {
@@ -51,4 +49,17 @@ export class StitchEncode {
 			placeHolder: 'Enter the value to be encrypted'
 		});
 	}
+
+	private _insertEncodedValue(encodedValue: string, clipboardMessage: string): void  {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) { 
+			vscode.env.clipboard.writeText(encodedValue);
+			vscode.window.showInformationMessage(clipboardMessage);	
+			return;
+		}
+        
+        editor.edit(editBuilder => {
+            editBuilder.replace(editor.selection, encodedValue);
+        });
+    }
 }

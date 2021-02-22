@@ -28,7 +28,7 @@ To secure an integration a `Hash` needs to be created, which functions as an acc
 
 You can create a hash using the *Command Palette* (`Ctrl`+`Shift`+`P`) and searching for `Stitch: Create Hash`.
 
-After you entered the value, the hash is copied to your `clipboard`.
+After you entered the value, the hash is inserted to you active document, or copied to your `clipboard`.
 
 ## Secrets
 
@@ -38,7 +38,7 @@ Passwords (or other sensitive data) should not be stored as plain text in the in
 
 You can create a secret using the *Command Palette* (`Ctrl`+`Shift`+`P`) and searching for `Stitch: Create Secret`.
 
-After you chose the environment and entered the value, the secret is copied to your `clipboard`.
+After you chose the environment and entered the value, the secret is inserted to you active document, or copied to your `clipboard`.
 
 ## Basic Integration structure
 
