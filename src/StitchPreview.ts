@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { StitchView } from './StitchView';
 import { FileScrambler } from './FileScrambler';
-import { COMMANDS, CONSTANTS } from './constants';
+import { COMMANDS, CONSTANTS, MESSAGES } from './constants';
 import { PreviewContext, ScenarioSource, StitchResponse, TreeItem } from './types';
 import axios from 'axios';
 
@@ -30,7 +30,7 @@ export class StitchPreview {
 
 	    const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
-            vscode.window.showErrorMessage(`The '${CONSTANTS.configKeyEndpointUrl}' is not configured, please set this up in Preferences -> Settings`);
+            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
             return;
         }
 
@@ -146,7 +146,7 @@ export class StitchPreview {
 
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
-            vscode.window.showErrorMessage(`The '${CONSTANTS.configKeyEndpointUrl}' is not configured, please set this up in Preferences -> Settings`);
+            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
             return;
         }
 
@@ -173,26 +173,21 @@ export class StitchPreview {
             return;
         }
 
-        const previewContext = FileScrambler.determinePreviewContext({
+        const activeFile = {
             filepath: activeEditor.document.fileName,
             filecontent: activeEditor.document.getText()
-        });
-
-        if (!previewContext) {
-            this._view.displayError({
-                title: `No ${CONSTANTS.integrationExtension} file found`,
-                description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
-            });
-            return;
-        }
-
-        return previewContext;
+        };
+        return FileScrambler.determinePreviewContext(activeFile, this._context);
     }
 
     private _update(textEditor?: vscode.TextEditor) {
 
         const integrationContext = this._getContext(textEditor);
         if (!integrationContext) { 
+            this._view.displayError({
+                title: `No ${CONSTANTS.integrationExtension} file found`,
+                description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
+            });
             vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
             return; 
         }

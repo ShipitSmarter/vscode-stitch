@@ -5,13 +5,14 @@ import { FileScrambler } from '../../../FileScrambler';
 import { ActiveFile, PreviewContext, ScenarioSource } from '../../../types';
 import * as path from 'path';
 
-const fileSystemStructure =  {
+const fileSystemStructure = {
     'some/path': {
         'scenarios': {
             'sample1': {
                 'input.txt': 'contents of input.txt',
                 'step.x.txt': 'contents of step.x.txt'
-            }
+            },
+            'my.feature': 'some cucumber'
         },
         'my.integration.json': 'contents of my.integration.json',
         'template.sbn': 'contents of template.sbn'
@@ -36,7 +37,7 @@ suite('FileScrambler Tests', () => {
             integrationFilename: 'my.integration.json'
         };
 
-        function noWorkspaceFile(filepath: string) : string | undefined {
+        function noWorkspaceFile(filepath: string): string | undefined {
             return undefined;
         }
 
@@ -78,7 +79,7 @@ suite('FileScrambler Tests', () => {
                         },
                         'my.integration.json': 'contents of my.integration.json',
                         'template.sbn': 'contents of template.sbn'
-                    }                    
+                    }
                 }
             });
 
@@ -267,13 +268,61 @@ suite('FileScrambler Tests', () => {
         okTests.forEach(({ file }) => {
             test(`OK with ${path.basename(file)} file`, () => {
                 const activeFile = <ActiveFile>{ filepath: path.normalize(file), filecontent: '' };
-                const result = FileScrambler.determinePreviewContext(activeFile) as PreviewContext;
+                const result = FileScrambler.determinePreviewContext(activeFile, undefined) as PreviewContext;
 
                 assert.isNotNull(result);
                 assert.equal(result.activeFile, activeFile);
                 assert.equal(result.integrationFilename, 'my.integration.json');
                 assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
             });
+        });
+
+        test('OK with currentContext', () => {
+            const activeFile = <ActiveFile>{ filepath: 'some/path/scenarios/my.feature', filecontent: '' };
+            const prevFile = <ActiveFile>{ filepath: 'some/path/template.sbn', filecontent: '' };
+            const currentContext = <PreviewContext>{
+                activeFile: prevFile,
+                integrationFilePath: path.normalize('some/path/my.integration.json'),
+                integrationFilename: 'my.integration.json'
+            };
+            const result = FileScrambler.determinePreviewContext(activeFile, currentContext) as PreviewContext;
+
+            assert.isNotNull(result);
+            assert.equal(result.activeFile, activeFile);
+            assert.equal(result.integrationFilename, 'my.integration.json');
+            assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
+        });
+
+        test('OK /imports/ with currentContext', () => {
+            mockFs({
+                'here': {
+                    'imports': {
+                        'env.json': ''
+                    },
+                    'track': {
+                        'scenarios/sample': {
+                            'input.txt': '',
+                            'step.x.txt': ''
+                        },
+                        'track.integration.json': '',
+                        'template.sbn': '',
+                    }
+                }
+            });
+
+            const activeFile = <ActiveFile>{ filepath: 'here/imports/env.json', filecontent: '' };            
+            const prevFile = <ActiveFile>{ filepath: 'here/track/template.sbn', filecontent: '' };
+            const currentContext = <PreviewContext>{
+                activeFile: prevFile,
+                integrationFilePath: path.normalize('here/track/track.integration.json'),
+                integrationFilename: 'track.integration.json'
+            };
+            const result = FileScrambler.determinePreviewContext(activeFile, currentContext) as PreviewContext;
+
+            assert.isNotNull(result);
+            assert.equal(result.activeFile, activeFile);
+            assert.equal(result.integrationFilename, 'track.integration.json');
+            assert.equal(result.integrationFilePath, path.normalize('here/track/track.integration.json'));
         });
 
         test('No integration available', () => {
@@ -283,10 +332,10 @@ suite('FileScrambler Tests', () => {
                 }
             });
             const activeFile = <ActiveFile>{ filepath: 'other/path/sample.pdf', filecontent: '' };
-            const result = FileScrambler.determinePreviewContext(activeFile);
+            const result = FileScrambler.determinePreviewContext(activeFile, undefined);
 
             assert.isUndefined(result);
         });
     });
-    
+
 });

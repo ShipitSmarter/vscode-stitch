@@ -11,7 +11,7 @@ export class FileScrambler {
         const integrationPath = previewContext.integrationFilePath;
         let root = path.dirname(integrationPath);
 
-        let importsPath = path.join(root, '../imports');
+        let importsPath = path.join(root, '../' + CONSTANTS.importsDirectoryName);
 
         let pathsToInclude = [
             ...glob.sync(`${root}/*.json`, undefined),  
@@ -81,15 +81,11 @@ export class FileScrambler {
         return { success: !invalid, scenarios: result };
     }
 
-    public static determinePreviewContext(activeFile: ActiveFile): PreviewContext | undefined {
-
-        // imports dir (name == imports) --> one up and scan
-        //  --> can't determine because next to import multiple directories might exist
-        // scenario's dir (has input.txt) --> one up an scan
-        // scan current dir --> *.integration.json
+    public static determinePreviewContext(activeFile: ActiveFile, currentPreview: PreviewContext | undefined): PreviewContext | undefined {
 
         const filepath = activeFile.filepath;
 
+        // 1) Active file is the integration file
         if (filepath.endsWith(CONSTANTS.integrationExtension)) {
             return <PreviewContext>{ 
                 activeFile: activeFile, 
@@ -100,19 +96,38 @@ export class FileScrambler {
 
         const parentFolder = path.dirname(filepath);
         let folderToCheck = parentFolder;
+        // 2) Active file is a scenario file
         if (this._isScenarioFile(filepath)) {
             folderToCheck = path.join(parentFolder, '../../');
         }
-
-        // filepath(vscode uri) => 'c:\\git\\Stitch\\vscode-stitch\\demo\\ups-booking\\scenarios\\0Simple\\step.ShipAccept.txt'
-        // glob returns => 'c:/git/Stitch/vscode-stitch/demo/ups-booking/UPSShipping.integration.json'
+        
         const integrations = glob.sync(`${folderToCheck}/*${CONSTANTS.integrationExtension}`, undefined);
         if (integrations && integrations.length > 0) {
+            // filepath(vscode uri) => 'c:\\git\\Stitch\\vscode-stitch\\demo\\ups-booking\\scenarios\\0Simple\\step.ShipAccept.txt'
+            // glob returns => 'c:/git/Stitch/vscode-stitch/demo/ups-booking/UPSShipping.integration.json'
             return <PreviewContext>{ 
                 activeFile: activeFile, 
                 integrationFilePath: path.normalize(integrations[0]),
                 integrationFilename: path.basename(integrations[0])
             };
+        }
+
+        if (currentPreview) {
+            // 3) we have an active preview, check if the active file is in the same path
+            const previewFolder = path.dirname(currentPreview.integrationFilePath);
+            const activeFolder = path.normalize(parentFolder);
+
+            // 4) activeFile is imports file
+            const isActiveImport = path.basename(activeFolder) === CONSTANTS.importsDirectoryName 
+                && path.dirname(previewFolder) === path.dirname(activeFolder);
+
+            if (activeFolder.startsWith(previewFolder) || isActiveImport) {
+                return <PreviewContext>{ 
+                    activeFile: activeFile, 
+                    integrationFilePath: currentPreview.integrationFilePath,
+                    integrationFilename: currentPreview.integrationFilename
+                };
+            }
         }
     }
 
