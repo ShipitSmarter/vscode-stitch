@@ -26,7 +26,7 @@ export class FileScrambler {
             ];
         }
 
-        const files: IntegrationFile[] = [];        
+        const files: IntegrationFile[] = [];
         pathsToInclude.forEach(includePath => {
             files.push({
                 filename: this._makeBlobStorageLikePath(includePath, root),
@@ -34,31 +34,28 @@ export class FileScrambler {
             });
         });
 
-        let scenarioInput = {
-            filename: CONSTANTS.scenarioInputFileName,
-            filecontent: this._readFile(previewContext, path.join(scenario.path, CONSTANTS.scenarioInputFileName), readWorkspaceFile)
-        };
-        let stepResults = glob.sync(`${scenario.path}/step.*.txt`, undefined)
-            .map(stepPath => {
-                return {
-                    filename: path.basename(stepPath),
-                    filecontent: this._readFile(previewContext, stepPath, readWorkspaceFile)
-                };
+        let scenarioFilesToInclude = [
+            ...glob.sync(`${scenario.path}/input.*`, undefined),  
+            ...glob.sync(`${scenario.path}/step.*.*`, undefined)
+        ];
+        const scenarioFiles: IntegrationFile[] = [];
+        scenarioFilesToInclude.forEach(includePath => {
+            scenarioFiles.push({
+                filename: path.basename(includePath), // scenario files don't require the path, only filename!
+                filecontent: this._readFile(previewContext, includePath, readWorkspaceFile)
             });
+        });
 
         return {
             integrationFilePath: this._makeBlobStorageLikePath(integrationPath, root),
             files,
-            scenario: { input: scenarioInput, stepResults }
+            scenarioFiles
         };
     }
 
     public static isValidScenario(scenario: ScenarioSource): boolean {
-        const inputFile = path.join(scenario.path, CONSTANTS.scenarioInputFileName);
-        if (!fs.existsSync(inputFile)) {
-            return false;
-        }
-        return glob.sync(`${scenario.path}/step.*.txt`, undefined).length >= 1;
+        return glob.sync(`${scenario.path}/input.*`, undefined).length >= 1
+            && glob.sync(`${scenario.path}/step.*.*`, undefined).length >= 1;
     }
 
     public static getScenarios(previewContext: PreviewContext): ScenarioResult {

@@ -28,7 +28,7 @@ export class StitchView {
 
             return this.displayError({
                 title: 'Render error',
-                description: data.message || `${data.Message}<br />${data.StackTraceString}`
+                description: data.message || `${data.Message}<br /><br />${data.StackTraceString}`
             }, contextHtml);
         }
 

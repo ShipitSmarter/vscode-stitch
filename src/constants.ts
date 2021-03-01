@@ -1,7 +1,6 @@
 export const CONSTANTS = {
 	integrationExtension: '.integration.json',
 	scenariosDirectoryName: 'scenarios',
-    scenarioInputFileName: 'input.txt',
 	importsDirectoryName: 'imports',
 
 	panelTitlePrefix: 'Preview: ',
