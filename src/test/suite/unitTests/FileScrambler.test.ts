@@ -5,13 +5,20 @@ import { FileScrambler } from '../../../FileScrambler';
 import { ActiveFile, PreviewContext, ScenarioSource } from '../../../types';
 import * as path from 'path';
 
-const fileSystemStructure =  {
+const fileSystemStructure = {
     'some/path': {
         'scenarios': {
             'sample1': {
                 'input.txt': 'contents of input.txt',
                 'step.x.txt': 'contents of step.x.txt'
-            }
+            },
+            'sample2': {
+                'input.xml': 'input',
+                'step.x.json': 'step.x',
+                'step.y.xml': 'step.y',
+                'step.z.txt': 'step.z',
+            },
+            'my.feature': 'some cucumber'
         },
         'my.integration.json': 'contents of my.integration.json',
         'template.sbn': 'contents of template.sbn'
@@ -36,7 +43,7 @@ suite('FileScrambler Tests', () => {
             integrationFilename: 'my.integration.json'
         };
 
-        function noWorkspaceFile(filepath: string) : string | undefined {
+        function noWorkspaceFile(filepath: string): string | undefined {
             return undefined;
         }
 
@@ -50,12 +57,28 @@ suite('FileScrambler Tests', () => {
             assert.equal(result.files.length, 2);
             expect(result.files).to.deep.include({ filename: 'my.integration.json', filecontent: 'contents of my.integration.json' });
             expect(result.files).to.deep.include({ filename: 'template.sbn', filecontent: 'contents of template.sbn' });
+            
+            assert.equal(result.scenarioFiles.length, 2);
+            assert.equal(result.scenarioFiles[0].filename, 'input.txt');
+            assert.equal(result.scenarioFiles[0].filecontent, 'contents of input.txt');
+            assert.equal(result.scenarioFiles[1].filename, 'step.x.txt');
+            assert.equal(result.scenarioFiles[1].filecontent, 'contents of step.x.txt');
+        });
 
-            assert.equal(result.scenario.input.filename, 'input.txt');
-            assert.equal(result.scenario.input.filecontent, 'contents of input.txt');
-            assert.equal(result.scenario.stepResults.length, 1);
-            assert.equal(result.scenario.stepResults[0].filename, 'step.x.txt');
-            assert.equal(result.scenario.stepResults[0].filecontent, 'contents of step.x.txt');
+        test('can handle (.txt, .json and .xml) extensions in scenario', () => {
+            mockFs(fileSystemStructure);
+            const sample2: ScenarioSource = {
+                name: 'sample2',
+                path: 'some/path/scenarios/sample2'
+            };
+            const result = FileScrambler.collectFiles(previewContext, sample2, noWorkspaceFile);
+
+            assert.isNotNull(result);
+            assert.equal(result.scenarioFiles.length, 4);
+            expect(result.scenarioFiles).to.deep.include({ filename: 'input.xml', filecontent: 'input'});
+            expect(result.scenarioFiles).to.deep.include({ filename: 'step.x.json', filecontent: 'step.x'});
+            expect(result.scenarioFiles).to.deep.include({ filename: 'step.y.xml', filecontent: 'step.y'});
+            expect(result.scenarioFiles).to.deep.include({ filename: 'step.z.txt', filecontent: 'step.z'});
         });
 
         test('can handle ../imports directory', () => {
@@ -71,14 +94,14 @@ suite('FileScrambler Tests', () => {
                                 'input.txt': 'contents of input.txt',
                                 'step.x.txt': 'contents of step.x.txt'
                             },
-                            'sample2': { // these files should not be includes
+                            'sample2': { // these files should not be includes!
                                 'input.txt': 'sample2 of input.txt',
                                 'step.y.txt': 'sample2 of step.y.txt'
                             }
                         },
                         'my.integration.json': 'contents of my.integration.json',
                         'template.sbn': 'contents of template.sbn'
-                    }                    
+                    }
                 }
             });
 
@@ -99,11 +122,11 @@ suite('FileScrambler Tests', () => {
             expect(result.files).to.deep.include({ filename: 'imports/acceptance.json', filecontent: 'acceptance' });
             expect(result.files).to.deep.include({ filename: 'imports/test.json', filecontent: 'test' });
 
-            assert.equal(result.scenario.input.filename, 'input.txt');
-            assert.equal(result.scenario.input.filecontent, 'contents of input.txt');
-            assert.equal(result.scenario.stepResults.length, 1);
-            assert.equal(result.scenario.stepResults[0].filename, 'step.x.txt');
-            assert.equal(result.scenario.stepResults[0].filecontent, 'contents of step.x.txt');
+            assert.equal(result.scenarioFiles.length, 2);
+            assert.equal(result.scenarioFiles[0].filename, 'input.txt');
+            assert.equal(result.scenarioFiles[0].filecontent, 'contents of input.txt');
+            assert.equal(result.scenarioFiles[1].filename, 'step.x.txt');
+            assert.equal(result.scenarioFiles[1].filecontent, 'contents of step.x.txt');
         });
 
         test('filecontent: first from activeFile', () => {
@@ -124,7 +147,7 @@ suite('FileScrambler Tests', () => {
             const result = FileScrambler.collectFiles(previewContext, scenario, (f) => {
                 if (f === path.normalize('some/path/scenarios/sample1/input.txt')) { return 'wait whut'; }
             });
-            assert.equal(result.scenario.input.filecontent, 'wait whut');
+            assert.equal(result.scenarioFiles[0].filecontent, 'wait whut');
         });
 
         test('filecontent: otherwise reads from filesystem', () => {
@@ -143,7 +166,7 @@ suite('FileScrambler Tests', () => {
             path: 'some/path'
         };
 
-        test('missing input.txt', () => {
+        test('missing input.*', () => {
             mockFs({
                 'some/path': {
                     'no-input.txt': 'nothing',
@@ -154,8 +177,8 @@ suite('FileScrambler Tests', () => {
             const result = FileScrambler.isValidScenario(scenario);
             assert.strictEqual(result, false);
         });
-
-        test('missing step.*.txt', () => {
+        
+        test('missing step.*.*', () => {
             mockFs({
                 'some/path': {
                     'input.txt': 'nothing',
@@ -179,13 +202,37 @@ suite('FileScrambler Tests', () => {
             assert.strictEqual(result, true);
         });
 
+        test('with input.json and step.x.txt', () => {
+            mockFs({
+                'some/path': {
+                    'input.json': 'nothing',
+                    'step.x.txt': 'stepx'
+                }
+            });
+
+            const result = FileScrambler.isValidScenario(scenario);
+            assert.strictEqual(result, true);
+        });
+
+        test('with input.xml and step.x.txt', () => {
+            mockFs({
+                'some/path': {
+                    'input.xml': 'nothing',
+                    'step.x.txt': 'stepx'
+                }
+            });
+
+            const result = FileScrambler.isValidScenario(scenario);
+            assert.strictEqual(result, true);
+        });
+
         test('with input.txt and multiple step files', () => {
             mockFs({
                 'some/path': {
                     'input.txt': 'nothing',
-                    'step.x.txt': 'stepx',
+                    'step.x.xml': 'stepx',
                     'step.y.txt': 'stepy',
-                    'step.z.txt': 'stepz',
+                    'step.z.json': 'stepz',
                 }
             });
 
@@ -267,13 +314,61 @@ suite('FileScrambler Tests', () => {
         okTests.forEach(({ file }) => {
             test(`OK with ${path.basename(file)} file`, () => {
                 const activeFile = <ActiveFile>{ filepath: path.normalize(file), filecontent: '' };
-                const result = FileScrambler.determinePreviewContext(activeFile) as PreviewContext;
+                const result = FileScrambler.determinePreviewContext(activeFile, undefined) as PreviewContext;
 
                 assert.isNotNull(result);
                 assert.equal(result.activeFile, activeFile);
                 assert.equal(result.integrationFilename, 'my.integration.json');
                 assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
             });
+        });
+
+        test('OK with currentContext', () => {
+            const activeFile = <ActiveFile>{ filepath: 'some/path/scenarios/my.feature', filecontent: '' };
+            const prevFile = <ActiveFile>{ filepath: 'some/path/template.sbn', filecontent: '' };
+            const currentContext = <PreviewContext>{
+                activeFile: prevFile,
+                integrationFilePath: path.normalize('some/path/my.integration.json'),
+                integrationFilename: 'my.integration.json'
+            };
+            const result = FileScrambler.determinePreviewContext(activeFile, currentContext) as PreviewContext;
+
+            assert.isNotNull(result);
+            assert.equal(result.activeFile, activeFile);
+            assert.equal(result.integrationFilename, 'my.integration.json');
+            assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
+        });
+
+        test('OK /imports/ with currentContext', () => {
+            mockFs({
+                'here': {
+                    'imports': {
+                        'env.json': ''
+                    },
+                    'track': {
+                        'scenarios/sample': {
+                            'input.txt': '',
+                            'step.x.txt': ''
+                        },
+                        'track.integration.json': '',
+                        'template.sbn': '',
+                    }
+                }
+            });
+
+            const activeFile = <ActiveFile>{ filepath: 'here/imports/env.json', filecontent: '' };            
+            const prevFile = <ActiveFile>{ filepath: 'here/track/template.sbn', filecontent: '' };
+            const currentContext = <PreviewContext>{
+                activeFile: prevFile,
+                integrationFilePath: path.normalize('here/track/track.integration.json'),
+                integrationFilename: 'track.integration.json'
+            };
+            const result = FileScrambler.determinePreviewContext(activeFile, currentContext) as PreviewContext;
+
+            assert.isNotNull(result);
+            assert.equal(result.activeFile, activeFile);
+            assert.equal(result.integrationFilename, 'track.integration.json');
+            assert.equal(result.integrationFilePath, path.normalize('here/track/track.integration.json'));
         });
 
         test('No integration available', () => {
@@ -283,10 +378,10 @@ suite('FileScrambler Tests', () => {
                 }
             });
             const activeFile = <ActiveFile>{ filepath: 'other/path/sample.pdf', filecontent: '' };
-            const result = FileScrambler.determinePreviewContext(activeFile);
+            const result = FileScrambler.determinePreviewContext(activeFile, undefined);
 
             assert.isUndefined(result);
         });
     });
-    
+
 });

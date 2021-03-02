@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as vscode from 'vscode';
-import { CONSTANTS } from './constants';
+import { CONSTANTS, MESSAGES } from './constants';
 
 export class StitchEncode {
 
@@ -8,7 +8,7 @@ export class StitchEncode {
         
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
-            vscode.window.showErrorMessage(`The '${CONSTANTS.configKeyEndpointUrl}' is not configured, please set this up in Preferences -> Settings`);
+            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
             return;
         }
 
@@ -24,7 +24,7 @@ export class StitchEncode {
 
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
-            vscode.window.showErrorMessage(`The '${CONSTANTS.configKeyEndpointUrl}' is not configured, please set this up in Preferences -> Settings`);
+            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
             return;
         }
 

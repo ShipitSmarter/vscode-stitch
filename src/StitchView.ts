@@ -19,9 +19,16 @@ export class StitchView {
         const contextHtml = this._getContextHtml(previewContext, scenario);
 
         if (!data.result) {
+            if (data.ClassName ==='Core.Exceptions.StitchResponseSerializationException') {
+                return this.displayError({
+                    title: data.Message,
+                    description: `<pre><code>${data.ResultBody}</code></pre><strong>Exception:</strong><br />${data.InnerException?.Message}`
+                }, contextHtml);
+            }
+
             return this.displayError({
                 title: 'Render error',
-                description: data.message || `${data.Message}<br />${data.StackTraceString}`
+                description: data.message || `${data.Message}<br /><br />${data.StackTraceString}`
             }, contextHtml);
         }
 

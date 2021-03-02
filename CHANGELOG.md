@@ -2,6 +2,11 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.3.0
+- Improve (active) preview context detection
+- Show response (output), even if it's not valid json
+- Scenario files now also support .json and .xml (next to .txt)
+
 ## 0.2.2
 - Hashes and Secrets are now inserted to the active document, if there is none copied to the clipboard.
 

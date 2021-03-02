@@ -24,17 +24,12 @@ export interface ScenarioSource {
 export interface IntegrationRequestModel {
 	integrationFilePath: string;
 	files: IntegrationFile[];
-	scenario: IntegrationScenario;
+	scenarioFiles: IntegrationFile[];
 }
 
 export interface IntegrationFile {
 	filename: string;
 	filecontent: string;
-}
-
-export interface IntegrationScenario {
-	input: IntegrationFile;
-	stepResults: IntegrationFile[];
 }
 
 export interface StitchError {

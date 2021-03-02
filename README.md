@@ -48,8 +48,8 @@ A typical intregration has the following project structure:
 /track                        // The actual integration folder
   /scenarios                  // Predefined folder to store scenarios under
     /scenario1                // A scenario to test the integration
-      - input.txt             // Input for the request
-      - step.*.txt            // Response for step with Id *
+      - input.txt             // Input for the request (.txt, .json and .xml are supported)
+      - step.*.txt            // Response for step with Id * (.txt, .json and .xml are supported)
   - track.integration.json    // Integration definition
   - request-body.json         // Scriban template for the request
   - response-body.json        // Scriban template for the response
@@ -67,12 +67,12 @@ A more complex structure might look like:
   /track
     /scenarios
       /sample1
-        - input.txt
-        - step.authenticate.txt
+        - input.json               
+        - step.authenticate.xml 
         - step.book.txt
       /sample2
-        - input.txt
-        - step.authenticate.txt
+        - input.json
+        - step.authenticate.xml
         - step.book.txt
     - track.integration.json
     - request-auth.json
@@ -89,7 +89,7 @@ A more complex structure might look like:
     - response-body.json
 ```
 
-Here the `track.integration.json` contains 2 steps, identified by the `Id` property. The scenario should contain a file for each defined step, which follows the naming convention `step.{Id}.txt`.
+Here the `track.integration.json` contains 2 steps, identified by the `Id` property. The scenario should contain a file for each defined step, which follows the naming convention `step.{Id}.(txt|json|xml)`.
 
 ```json
 // Modified example for brevity
