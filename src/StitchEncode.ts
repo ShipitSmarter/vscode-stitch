@@ -39,8 +39,8 @@ export class StitchEncode {
 	}
 
 	async _showPickEnvironment(): Promise<string | undefined> {
-		return await vscode.window.showQuickPick(['acceptance', 'production'], {
-			placeHolder: 'Select the environment for the Api key'
+		return await vscode.window.showQuickPick(['test', 'acceptance', 'production'], {
+			placeHolder: 'Select the environment for the Secret'
 		});
 	}
 
