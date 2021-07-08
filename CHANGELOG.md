@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.3.3
+- Add support for statusCode result
+
 ## 0.3.2
 - Add local and test environment for secret creation
 

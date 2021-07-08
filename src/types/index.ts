@@ -39,7 +39,7 @@ export interface StitchError {
 
 export interface StitchResponse {
 	result: any;
-	requests: Record<string, StepRequest>; //Dictionary<string, StepRequest>
+	requests: Record<string, StepRequest>;
 	integrationContext: IntegrationContext;
 }
 
