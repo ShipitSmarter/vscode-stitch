@@ -39,7 +39,7 @@ export class StitchEncode {
 	}
 
 	async _showPickEnvironment(): Promise<string | undefined> {
-		return await vscode.window.showQuickPick(['test', 'acceptance', 'production'], {
+		return await vscode.window.showQuickPick(['local', 'test', 'acceptance', 'production'], {
 			placeHolder: 'Select the environment for the Secret'
 		});
 	}

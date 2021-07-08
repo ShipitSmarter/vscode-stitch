@@ -2,8 +2,8 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
-## 0.3.1
-- Add test environment for secret creation
+## 0.3.2
+- Add local and test environment for secret creation
 
 ## 0.3.0
 - Improve (active) preview context detection
