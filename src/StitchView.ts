@@ -38,11 +38,10 @@ export class StitchView {
             .map(key => { return `<li>${this._getStepHtml(key, response.integrationContext.steps[key], response.requests)}</li>`; })
             .join('');
 
-        var resultValue = response.result && response.result.value ? response.result.value : response.result;
-        var resultStatusCode = response.result && response.result.statusCode ? response.result.statusCode : 200;
+        var resultStatusCode = response.resultStatusCode ? response.resultStatusCode : 200;
 
         const htmlBody = `<h1>Output</h1>
-                          <pre><code>${JSON.stringify(resultValue, null, 2)}</code></pre>
+                          <pre><code>${JSON.stringify(response.result, null, 2)}</code></pre>
                           <p>Statuscode: ${resultStatusCode}</p>
                           ${contextHtml}
                           <h3>Steps</h3>

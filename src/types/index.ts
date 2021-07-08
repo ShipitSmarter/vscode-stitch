@@ -39,6 +39,7 @@ export interface StitchError {
 
 export interface StitchResponse {
 	result: any;
+	resultStatusCode: any;
 	requests: Record<string, StepRequest>;
 	integrationContext: IntegrationContext;
 }
