@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.4.0
+- Add support for translation files (CSV based)
+
 ## 0.3.4
 - Add support for statusCode result
 

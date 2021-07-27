@@ -3,6 +3,10 @@
         "../imports/codecompany-{{Model.Shipment.CodeCompany}}.json",
         "../imports/{{Environment}}.json"
     ],
+    "Translations": [
+        "myDict",
+        "otherDict"
+    ],
     "Request": {
         "AuthenticationMethods": [
             {

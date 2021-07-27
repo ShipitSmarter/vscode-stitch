@@ -9,6 +9,15 @@ export class FileScrambler {
     public static collectFiles(previewContext: PreviewContext, scenario: ScenarioSource, readWorkspaceFile: ReadWorkspaceFileFunc): IntegrationRequestModel {
 
         const integrationPath = previewContext.integrationFilePath;
+        const integrationContent = this._readFile(previewContext, integrationPath, readWorkspaceFile);
+        let integration;
+        try {
+            integration = JSON.parse(integrationContent);
+        }
+        catch (e) {
+            throw new Error(`Integration file ${integrationPath} has invalid JSON`);
+        }        
+
         let root = path.dirname(integrationPath);
 
         let importsPath = path.join(root, '../' + CONSTANTS.importsDirectoryName);
@@ -34,6 +43,21 @@ export class FileScrambler {
             });
         });
 
+        // load translation files if required
+        if (integration.Translations && integration.Translations.length > 0) {
+            let translationsRoot = this._findWithinParent(root, 'translations', 5);
+            if (translationsRoot === undefined) {
+                throw new Error(`Unable to locate 'translations' folder!`);
+            }
+            integration.Translations.forEach((translation: String) => {
+                const translationFilePath = path.join(translationsRoot!, `${translation}.csv`);
+                files.push({
+                    filename: `translations/${translation}.csv`,
+                    filecontent: this._readFile(previewContext, translationFilePath, readWorkspaceFile)
+                });
+            });
+        }
+
         let scenarioFilesToInclude = [
             ...glob.sync(`${scenario.path}/input.*`, undefined),  
             ...glob.sync(`${scenario.path}/step.*.*`, undefined)
@@ -51,6 +75,15 @@ export class FileScrambler {
             files,
             scenarioFiles
         };
+    }
+
+    private static _findWithinParent(root: string, folderNameToLookFor: string, maxUp: number) : string | undefined  {
+        const pathCheck = path.join(root, folderNameToLookFor);
+        if (maxUp === 0) { return undefined; }
+        if (fs.existsSync(pathCheck)) { return pathCheck; }
+        else {
+            return this._findWithinParent(path.dirname(root), folderNameToLookFor, --maxUp);
+        }
     }
 
     public static isValidScenario(scenario: ScenarioSource): boolean {

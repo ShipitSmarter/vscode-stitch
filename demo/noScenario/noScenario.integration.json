@@ -1,5 +1,5 @@
 {
-    "$schema": "..\\..\\schemas\\integration.schema.json",
+    "Imports": [],
     "Request": {
         "AuthenticationMethods": [
             {
@@ -21,7 +21,6 @@
             "Template": "{{ include 'request-body.json' }}"
         }
     ],
-    "Imports": [],
     "Response": {
         "Body": "{{ include 'response-body.json' }}",
         "Headers": {},

@@ -1,0 +1,7 @@
+{
+    "Translations": {
+        "FromMyDict": "{{ translate 'abc' 'myDict' }}",
+        "FromOtherDict": "{{ translate 'abc' 'otherDict' }}"
+    },
+    "TrackingResult": "{{Steps.Track.Model.xml.result}}" 
+}
