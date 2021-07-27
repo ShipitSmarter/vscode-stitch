@@ -20,7 +20,7 @@ const fileSystemStructure = {
             },
             'my.feature': 'some cucumber'
         },
-        'my.integration.json': 'contents of my.integration.json',
+        'my.integration.json': '{}',
         'template.sbn': 'contents of template.sbn'
     }
 };
@@ -55,7 +55,7 @@ suite('FileScrambler Tests', () => {
             assert.equal(result.integrationFilePath, 'my.integration.json');
 
             assert.equal(result.files.length, 2);
-            expect(result.files).to.deep.include({ filename: 'my.integration.json', filecontent: 'contents of my.integration.json' });
+            expect(result.files).to.deep.include({ filename: 'my.integration.json', filecontent: '{}' });
             expect(result.files).to.deep.include({ filename: 'template.sbn', filecontent: 'contents of template.sbn' });
             
             assert.equal(result.scenarioFiles.length, 2);
@@ -99,7 +99,7 @@ suite('FileScrambler Tests', () => {
                                 'step.y.txt': 'sample2 of step.y.txt'
                             }
                         },
-                        'my.integration.json': 'contents of my.integration.json',
+                        'my.integration.json': '{}',
                         'template.sbn': 'contents of template.sbn'
                     }
                 }
@@ -117,7 +117,7 @@ suite('FileScrambler Tests', () => {
             assert.equal(result.integrationFilePath, 'track/my.integration.json');
 
             assert.equal(result.files.length, 4);
-            expect(result.files).to.deep.include({ filename: 'track/my.integration.json', filecontent: 'contents of my.integration.json' });
+            expect(result.files).to.deep.include({ filename: 'track/my.integration.json', filecontent: '{}' });
             expect(result.files).to.deep.include({ filename: 'track/template.sbn', filecontent: 'contents of template.sbn' });
             expect(result.files).to.deep.include({ filename: 'imports/acceptance.json', filecontent: 'acceptance' });
             expect(result.files).to.deep.include({ filename: 'imports/test.json', filecontent: 'test' });
@@ -154,7 +154,7 @@ suite('FileScrambler Tests', () => {
             mockFs(fileSystemStructure);
             const result = FileScrambler.collectFiles(previewContext, scenario, noWorkspaceFile);
 
-            expect(result.files).to.deep.include({ filename: 'my.integration.json', filecontent: 'contents of my.integration.json' });
+            expect(result.files).to.deep.include({ filename: 'my.integration.json', filecontent: '{}' });
         });
 
     });
@@ -253,7 +253,7 @@ suite('FileScrambler Tests', () => {
         test('no scenarios directory', () => {
             mockFs({
                 'some/path': {
-                    'my.integration.json': 'integration'
+                    'my.integration.json': '{}'
                 }
             });
 
@@ -266,7 +266,7 @@ suite('FileScrambler Tests', () => {
         test('a scenarios directory', () => {
             mockFs({
                 'some/path': {
-                    'my.integration.json': 'integration',
+                    'my.integration.json': '{}',
                     'scenarios': {
                         'sample1': {}
                     }
@@ -283,7 +283,7 @@ suite('FileScrambler Tests', () => {
         test('multiple scenarios directory', () => {
             mockFs({
                 'some/path': {
-                    'my.integration.json': 'integration',
+                    'my.integration.json': '{}',
                     'scenarios': {
                         'sample1': {},
                         'sample2': {}
@@ -350,7 +350,7 @@ suite('FileScrambler Tests', () => {
                             'input.txt': '',
                             'step.x.txt': ''
                         },
-                        'track.integration.json': '',
+                        'track.integration.json': '{}',
                         'template.sbn': '',
                     }
                 }
