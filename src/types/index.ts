@@ -97,3 +97,9 @@ export interface TreeItem {
     children?: TreeItem[];
     exampleValue?: string;
 }
+
+
+export interface ICommand {
+	action: string;
+	content: string;
+}

@@ -39,6 +39,7 @@ export class StitchPreview {
             preserveFocus: true
         };
         const options = {
+            enableScripts: true,
             localResourceRoots: [vscode.Uri.file(path.join(extensionUri.path, 'assets'))]
         };
         const panel = vscode.window.createWebviewPanel('stitchPreview', '', showOptions, options);

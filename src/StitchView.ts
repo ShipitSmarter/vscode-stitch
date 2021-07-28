@@ -1,13 +1,48 @@
 import * as vscode from 'vscode';
+import * as os from 'os';
+import * as path from 'path';
 import { CONSTANTS } from './constants';
-import { HttpStepResult, PreviewContext, ScenarioSource, StepRequest, StepResult, StitchError, StitchResponse } from './types';
+import { StitchPreview } from './StitchPreview';
+import { HttpStepResult, ICommand, PreviewContext, ScenarioSource, StepRequest, StepResult, StitchError, StitchResponse } from './types';
 
 export class StitchView {
 
     private _stylesMainUri: vscode.Uri;
+    private _disposables: vscode.Disposable[] = [];
+
 
     constructor(private _webview: vscode.Webview, extensionUri: vscode.Uri) {
         this._stylesMainUri = _webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'assets', 'style.css'));
+        _webview.onDidReceiveMessage(
+            (command: ICommand) => {
+                vscode.window.showInformationMessage("open file", command.action);
+                const currentResponse = StitchPreview.currentResponse();
+                if (!currentResponse) { return; }
+                if (command.action === 'viewStepInput') {
+                    const step = command.content;
+                    const stepInput = currentResponse.requests[step].content.trim();
+                    if (!stepInput) { return; }
+                    const ext = stepInput[0] === '<' ? '.xml' : stepInput[0] === '{' ? '.json' : '';
+                    const tmp = os.tmpdir();
+                    const tmpfile = path.join(tmp, `stitch-step-request-${step}${ext}`);
+
+                    const newFile = vscode.Uri.parse(`untitled:${tmpfile}`);
+                    vscode.workspace.openTextDocument(newFile).then(document => {
+                        const edit = new vscode.WorkspaceEdit();
+                        edit.insert(newFile, new vscode.Position(0,0), stepInput);
+                        return vscode.workspace.applyEdit(edit).then(success => {
+                            if (success) {
+                                vscode.window.showTextDocument(document);
+                            } else {
+                                vscode.window.showInformationMessage('Error!');
+                            }
+                        });
+                    });
+                }
+            },
+            undefined,
+            this._disposables
+        );
     }
 
     public displayError(error: StitchError, extraBody?: string): void {
@@ -69,6 +104,7 @@ export class StitchView {
             return `<div>
                         <h4>${stepId}</h4>
                         <p>${httpStep.request.method} - ${httpStep.request.url}</p>
+                        <button onclick="vscode.postMessage({action: 'viewStepInput', content: '${stepId}' });">view as file</button>
                         <pre><code>${this._escapeHtml(requests[stepId].content)}</code></pre>
                     </div>`;
         }
@@ -104,12 +140,25 @@ export class StitchView {
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
-                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${cspSource}; img-src ${cspSource} https:;">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-				<link href="${this._stylesMainUri}" rel="stylesheet">
                 <title>Stitch Preview</title>				
+
+                <meta http-equiv="Content-Security-Policy" content="
+                    default-src 'none';
+                    style-src ${cspSource};
+                    script-src 'unsafe-inline';
+                    img-src ${cspSource} https:;">
+                <link href="${this._stylesMainUri}" rel="stylesheet">
+                <script>
+                    window.acquireVsCodeApi = acquireVsCodeApi;
+                </script>
             </head>
-            <body>${htmlBody}</body>
+            <body>
+                ${htmlBody}
+                <script>
+                    const vscode = window.acquireVsCodeApi();
+                </script>
+            </body>
             </html>`;
     }
 }
