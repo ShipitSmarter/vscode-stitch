@@ -127,18 +127,21 @@ export class StitchPreview {
 
     static showRendered(options: { filename: string; content: string; }) {
         if (!options.content) { return; }
-        const firstChar = options.content[0];
-        const ext = firstChar === '<' ? '.xml' : firstChar === '{' ? '.json' : '';
-        const tmp = os.tmpdir();
-        const tmpfile = path.join(tmp, `${options.filename}${ext}`);
 
-        const newFile = vscode.Uri.parse(`untitled:${tmpfile}`);
-        vscode.workspace.openTextDocument(newFile).then(document => {
+        const firstChar = options.content[0];
+        const ext = firstChar === '<' ? '.xml' : firstChar === '{' ? '.json' : '.txt';
+
+        const untitledFile = vscode.Uri.parse(`untitled:${options.filename}${ext}`);
+        this.updateRendered(untitledFile, options.content, true);
+    }
+
+    static updateRendered(untitledUri: vscode.Uri, content: string, show: boolean = false) {
+        vscode.workspace.openTextDocument(untitledUri).then(document => {
             const lastLine = document.lineAt(document.lineCount-1);
             const edit = new vscode.WorkspaceEdit();
-            edit.replace(newFile, new vscode.Range(new vscode.Position(0,0), lastLine.range.end), options.content);
+            edit.replace(untitledUri, new vscode.Range(new vscode.Position(0,0), lastLine.range.end), content);
             return vscode.workspace.applyEdit(edit).then(success => {
-                if (success) {
+                if (success && show) {
                     vscode.window.showTextDocument(document);
                 } else {
                     vscode.window.showInformationMessage('Error!');
@@ -273,6 +276,7 @@ export class StitchPreview {
                 this._view.displayResult(res.data, integrationContext, scenario);
                 if (res.data.result) {
                     this._result = <StitchResponse>res.data;
+                    this._updateRenderedUntitled();
                     vscode.commands.executeCommand(COMMANDS.responseUpdated); // so other Components know to request the latest response
                 }
             })
@@ -283,6 +287,25 @@ export class StitchPreview {
                 });
             });
     }
+
+    private _updateRenderedUntitled() {
+
+        const open = vscode.workspace.textDocuments.filter(t => t.uri.scheme === 'untitled' && t.fileName.startsWith('stitch-'));
+        const response = this._result;
+        if (open.length === 0 || !response) {return;}
+
+        open.forEach(o => {
+            if (o.fileName.startsWith('stitch-response.')) {
+                StitchPreview.updateRendered(o.uri, JSON.stringify(response.result, null, 2));
+            } else {
+                let match = o.fileName.match(/^stitch-step-request-(.*?)\./);
+                if (match?.length === 2) {
+                    StitchPreview.updateRendered(o.uri, response.requests[match[1]].content.trim());
+                }
+            }
+        });
+    }
+
     private _isContextChanged(newContext: PreviewContext) {
         return this._context?.integrationFilePath !== newContext.integrationFilePath;
     }
