@@ -1,45 +1,17 @@
 import * as vscode from 'vscode';
-import * as os from 'os';
-import * as path from 'path';
 import { CONSTANTS } from './constants';
 import { StitchPreview } from './StitchPreview';
-import { HttpStepResult, ICommand, PreviewContext, ScenarioSource, StepRequest, StepResult, StitchError, StitchResponse } from './types';
+import { CommandAction, HttpStepResult, ICommand, PreviewContext, ScenarioSource, StepRequest, StepResult, StitchError, StitchResponse } from './types';
 
 export class StitchView {
 
     private _stylesMainUri: vscode.Uri;
     private _disposables: vscode.Disposable[] = [];
 
-
     constructor(private _webview: vscode.Webview, extensionUri: vscode.Uri) {
         this._stylesMainUri = _webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'assets', 'style.css'));
         _webview.onDidReceiveMessage(
-            (command: ICommand) => {
-                vscode.window.showInformationMessage("open file", command.action);
-                const currentResponse = StitchPreview.currentResponse();
-                if (!currentResponse) { return; }
-                if (command.action === 'viewStepInput') {
-                    const step = command.content;
-                    const stepInput = currentResponse.requests[step].content.trim();
-                    if (!stepInput) { return; }
-                    const ext = stepInput[0] === '<' ? '.xml' : stepInput[0] === '{' ? '.json' : '';
-                    const tmp = os.tmpdir();
-                    const tmpfile = path.join(tmp, `stitch-step-request-${step}${ext}`);
-
-                    const newFile = vscode.Uri.parse(`untitled:${tmpfile}`);
-                    vscode.workspace.openTextDocument(newFile).then(document => {
-                        const edit = new vscode.WorkspaceEdit();
-                        edit.insert(newFile, new vscode.Position(0,0), stepInput);
-                        return vscode.workspace.applyEdit(edit).then(success => {
-                            if (success) {
-                                vscode.window.showTextDocument(document);
-                            } else {
-                                vscode.window.showInformationMessage('Error!');
-                            }
-                        });
-                    });
-                }
-            },
+            (command: ICommand) => { StitchPreview.handleCommand(command); },
             undefined,
             this._disposables
         );
@@ -55,7 +27,7 @@ export class StitchView {
         const contextHtml = this._getContextHtml(previewContext, scenario);
 
         if (!data.result) {
-            if (data.ClassName ==='Core.Exceptions.StitchResponseSerializationException') {
+            if (data.ClassName === 'Core.Exceptions.StitchResponseSerializationException') {
                 return this.displayError({
                     title: data.Message,
                     description: `<pre><code>${data.ResultBody}</code></pre><strong>Exception:</strong><br />${data.InnerException?.Message}`
@@ -77,6 +49,7 @@ export class StitchView {
         var resultStatusCode = response.resultStatusCode ? response.resultStatusCode : 200;
 
         const htmlBody = `<h1>Output</h1>
+                          <button onclick="vscode.postMessage({action: ${CommandAction.viewIntegrationResponse} });">view as file</button>
                           <pre><code>${JSON.stringify(response.result, null, 2)}</code></pre>
                           <p>Statuscode: ${resultStatusCode}</p>
                           ${contextHtml}
@@ -104,7 +77,7 @@ export class StitchView {
             return `<div>
                         <h4>${stepId}</h4>
                         <p>${httpStep.request.method} - ${httpStep.request.url}</p>
-                        <button onclick="vscode.postMessage({action: 'viewStepInput', content: '${stepId}' });">view as file</button>
+                        <button onclick="vscode.postMessage({action: ${CommandAction.viewStepRequest}, content: '${stepId}' });">view as file</button>
                         <pre><code>${this._escapeHtml(requests[stepId].content)}</code></pre>
                     </div>`;
         }

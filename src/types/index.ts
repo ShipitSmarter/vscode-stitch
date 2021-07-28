@@ -98,8 +98,12 @@ export interface TreeItem {
     exampleValue?: string;
 }
 
-
 export interface ICommand {
-	action: string;
+	action: CommandAction;
 	content: string;
+}
+
+export enum CommandAction {
+	viewStepRequest,
+	viewIntegrationResponse
 }

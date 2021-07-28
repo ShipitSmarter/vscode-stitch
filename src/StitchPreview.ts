@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as os from 'os';
 import { StitchView } from './StitchView';
 import { FileScrambler } from './FileScrambler';
 import { COMMANDS, CONSTANTS, MESSAGES } from './constants';
-import { PreviewContext, ScenarioSource, StitchResponse, TreeItem } from './types';
+import { CommandAction, ICommand, PreviewContext, ScenarioSource, StitchResponse, TreeItem } from './types';
 import axios from 'axios';
 
 export class StitchPreview {
-	
+
     public static currentPreview: StitchPreview | undefined;
 
     private _disposables: vscode.Disposable[] = [];
@@ -28,14 +29,14 @@ export class StitchPreview {
             return;
         }
 
-	    const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
+        const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
             vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
             return;
         }
 
         const showOptions = {
-            viewColumn: vscode.ViewColumn.Two, 
+            viewColumn: vscode.ViewColumn.Two,
             preserveFocus: true
         };
         const options = {
@@ -78,7 +79,7 @@ export class StitchPreview {
         });
     }
 
-    public static currentResponse() : StitchResponse | undefined {
+    public static currentResponse(): StitchResponse | undefined {
         const current = StitchPreview.currentPreview;
         if (!current) { return; }
 
@@ -86,22 +87,65 @@ export class StitchPreview {
     }
 
     public static async openScenarioFile(treeItem: TreeItem): Promise<void> {
-		const current = StitchPreview.currentPreview;
+        const current = StitchPreview.currentPreview;
         if (!current || !current._scenario) { return; }
 
         if (treeItem.path === 'Model') {
             const uri = vscode.Uri.file(path.join(current._scenario.path, 'input.txt'));
             await vscode.window.showTextDocument(uri);
             return;
-        } 
-        
+        }
+
         const match = treeItem.path.match(/Steps.([a-zA-Z0-9_-]+).Model/);
         const stepName = match && match[1];
         if (stepName) {
             const uri = vscode.Uri.file(path.join(current._scenario.path, `step.${stepName}.txt`));
             await vscode.window.showTextDocument(uri);
         }
-	}	
+    }
+
+    public static handleCommand(command: ICommand) {
+        const response = StitchPreview.currentResponse();
+        if (!response) { return; }
+
+        switch (command.action) {
+            case CommandAction.viewStepRequest:
+                const step = command.content;
+                this.showRendered({
+                    filename: `stitch-step-request-${step}`,
+                    content: response.requests[step].content.trim()
+                });
+                return;
+            case CommandAction.viewIntegrationResponse:
+                this.showRendered({
+                    filename: `stitch-response`,
+                    content: JSON.stringify(response.result, null, 2)
+                });
+                return;
+        }
+    }
+
+    static showRendered(options: { filename: string; content: string; }) {
+        if (!options.content) { return; }
+        const firstChar = options.content[0];
+        const ext = firstChar === '<' ? '.xml' : firstChar === '{' ? '.json' : '';
+        const tmp = os.tmpdir();
+        const tmpfile = path.join(tmp, `${options.filename}${ext}`);
+
+        const newFile = vscode.Uri.parse(`untitled:${tmpfile}`);
+        vscode.workspace.openTextDocument(newFile).then(document => {
+            const lastLine = document.lineAt(document.lineCount-1);
+            const edit = new vscode.WorkspaceEdit();
+            edit.replace(newFile, new vscode.Range(new vscode.Position(0,0), lastLine.range.end), options.content);
+            return vscode.workspace.applyEdit(edit).then(success => {
+                if (success) {
+                    vscode.window.showTextDocument(document);
+                } else {
+                    vscode.window.showInformationMessage('Error!');
+                }
+            });
+        });
+    }
 
     constructor(
         private _panel: vscode.WebviewPanel,
@@ -120,7 +164,7 @@ export class StitchPreview {
         vscode.window.onDidChangeActiveTextEditor((e): void => {
             e && ['file'].includes(e.document.uri.scheme) && this._update(e);
         }, null, this._disposables);
-        
+
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration(CONSTANTS.configKeyEndpointUrl)) {
                 this._onUpdateEndoint();
@@ -154,7 +198,7 @@ export class StitchPreview {
         this._testEndpoint = `${endpoint}/test`;
         vscode.window.showInformationMessage('The Stitch test endpoint has been updated to: ' + endpoint);
         this._update();
-	}
+    }
 
     private _getContext(textEditor?: vscode.TextEditor): PreviewContext | undefined {
         const activeEditor = textEditor || vscode.window.activeTextEditor;
@@ -184,13 +228,13 @@ export class StitchPreview {
     private _update(textEditor?: vscode.TextEditor) {
 
         const integrationContext = this._getContext(textEditor);
-        if (!integrationContext) { 
+        if (!integrationContext) {
             this._view.displayError({
                 title: `No ${CONSTANTS.integrationExtension} file found`,
                 description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
             });
             vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
-            return; 
+            return;
         }
 
         if (this._isContextChanged(integrationContext)) {
@@ -243,7 +287,7 @@ export class StitchPreview {
         return this._context?.integrationFilePath !== newContext.integrationFilePath;
     }
 
-    private _readWorkspaceFile(filepath: string) : string | undefined {
+    private _readWorkspaceFile(filepath: string): string | undefined {
         const textDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === filepath);
         if (textDoc) {
             return textDoc.getText();
