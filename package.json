@@ -138,6 +138,7 @@
 		"pretest": "npm run compile && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js",
+		"unittest": "npm run compile && mocha -u tdd ./out/test/suite/unitTests/**.test.js",
 		"deploy": "vsce publish"
 	},
 	"devDependencies": {
