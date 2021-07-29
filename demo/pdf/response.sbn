@@ -1,0 +1,6 @@
+{
+  "content": "{{ Steps.Render.Response.Content }}",
+  "contentType": "{{ Steps.Render.Response.ContentType }}",
+  "errorMessage": "{{ Steps.Render.Response.ErrorMessage }}"
+}
+

@@ -1,0 +1,26 @@
+{
+    "imports": [],
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Key": "hash-1-h9T0FpQspCjYGuYOTlgvUcwTXxizb2IsNB2Wt5RD5hnNu/qG",
+                "Id": "DummyStitch",
+                "Description": "DummyStitch"
+            }
+        ]
+    },
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.RenderTemplateConfiguration, Core",
+            "Id": "Render",
+            "Template": "{{ include 'index.sbn-html'}}",
+            "AdditionalFiles": []
+        }
+      
+    ],
+    "Response": {
+        "Body": "{{ include 'response.sbn'}}",
+        "Headers": {},
+        "StatusCode": "{{ Steps.Render.Response.StatusCode }}"
+    }
+}
