@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { CONSTANTS } from './constants';
 import { HttpStepResult, PreviewContext, ScenarioSource, StepRequest, StepResult, StitchError, StitchResponse } from './types';
 
 export class StitchView {
@@ -62,21 +63,30 @@ export class StitchView {
                 </table>`;
     }
 
-    private _getStepHtml(stepId: string, step: StepResult | HttpStepResult, requests: Record<string, StepRequest>) {
-        
-        if (step.$type !== 'Core.Entities.StepResults.HttpStepResult, Core') {
+    private _getStepHtml(stepId: string, step: StepResult, requests: Record<string, StepRequest>) {
+        if (step.$type === CONSTANTS.httpStepResultTypeType) {
+            const httpStep = <HttpStepResult>step;
+            return `<div>
+                        <h4>${stepId}</h4>
+                        <p>${httpStep.request.method} - ${httpStep.request.url}</p>
+                        <pre><code>${this._escapeHtml(requests[stepId].content)}</code></pre>
+                    </div>`;
+        }
+        else if (step.$type === CONSTANTS.renderTemplateStepResultType) {
+            return `<div>
+                        <h4>${stepId}</h4>
+                        <h5>Zip (base64)</h5>
+                        <pre><code>${this._escapeHtml(requests[stepId].content.substr(1).slice(0,-1))}</code></pre>
+                    </div>`;
+        }
+        else {
             return `<div>
                         <h4>${stepId}</h4>
                         <p>Started: ${step.started}</p>
                     </div>`;
         }
         
-        const httpStep = <HttpStepResult>step;
-        return `<div>
-                    <h4>${stepId}</h4>
-                    <p>${httpStep.request.method} - ${httpStep.request.url}</p>
-                    <pre><code>${this._escapeHtml(requests[stepId].content)}</code></pre>
-                </div>`;
+
     }
 
     private _escapeHtml(unsafe: string) {

@@ -15,3 +15,13 @@ html {
   background-attachment: fixed;
   height: 100%;
 }
+
+body {
+  padding-bottom: 50px;
+}
+
+pre {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}

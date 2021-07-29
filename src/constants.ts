@@ -7,7 +7,10 @@ export const CONSTANTS = {
 	statusbarTitlePrefix: 'Scenario: ',
 	
 	configKeyEndpointUrl: 'stitch.endpointUrl',
-	previewActiveContextKey: 'stitch:previewActive'
+	previewActiveContextKey: 'stitch:previewActive',
+
+	httpStepResultTypeType: 'Core.Entities.StepResults.HttpStepResult, Core',
+	renderTemplateStepResultType: 'Core.Entities.StepResults.RenderTemplateStepResult, Core',
 };
 
 export const MESSAGES = {

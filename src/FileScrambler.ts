@@ -23,15 +23,17 @@ export class FileScrambler {
         let importsPath = path.join(root, '../' + CONSTANTS.importsDirectoryName);
 
         let pathsToInclude = [
-            ...glob.sync(`${root}/*.json`, undefined),  
-            ...glob.sync(`${root}/*.sbn`, undefined)
+            ...glob.sync(`${root}/*.json`, undefined),
+            ...glob.sync(`${root}/*.sbn`, undefined),
+            ...glob.sync(`${root}/*.sbn-html`, undefined),
         ];
         if (fs.existsSync(importsPath)) {
             root = path.dirname(root);
             pathsToInclude = [
                 ...pathsToInclude,
                 ...glob.sync(`${importsPath}/*.json`, undefined),
-                ...glob.sync(`${importsPath}/*.sbn`, undefined)
+                ...glob.sync(`${importsPath}/*.sbn`, undefined),
+                ...glob.sync(`${importsPath}/*.sbn-html`, undefined),
             ];
         }
 
