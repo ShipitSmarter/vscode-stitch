@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as os from 'os';
+import axios from 'axios';
 import { StitchView } from './StitchView';
 import { FileScrambler } from './FileScrambler';
 import { COMMANDS, CONSTANTS, MESSAGES } from './constants';
-import { CommandAction, ICommand, PreviewContext, ScenarioSource, StitchResponse, TreeItem } from './types';
-import axios from 'axios';
+import { CommandAction, ICommand, PreviewContext, RenderTemplateStepResult, ScenarioSource, StitchResponse, TreeItem } from './types';
+import { PdfPreview } from './PdfPreview';
 
 export class StitchPreview {
 
@@ -104,7 +104,7 @@ export class StitchPreview {
         }
     }
 
-    public static handleCommand(command: ICommand) {
+    public static handleCommand(command: ICommand, extensionUri: vscode.Uri) {
         const response = StitchPreview.currentResponse();
         if (!response) { return; }
 
@@ -115,6 +115,12 @@ export class StitchPreview {
                     filename: `stitch-step-request-${step}`,
                     content: response.requests[step].content.trim()
                 });
+                return;
+            case CommandAction.viewStepResponse:
+                if (response.integrationContext.steps[command.content]?.$type !== CONSTANTS.renderTemplateStepResultType) { return; }
+                const renderResponse = <RenderTemplateStepResult>response.integrationContext.steps[command.content];
+                if (renderResponse.response.contentType !== 'application/pdf') { return; }
+                PdfPreview.create(extensionUri, renderResponse.response.content);
                 return;
             case CommandAction.viewIntegrationResponse:
                 this.showRendered({
@@ -317,4 +323,3 @@ export class StitchPreview {
         }
     }
 }
-

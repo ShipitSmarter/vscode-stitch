@@ -13,7 +13,6 @@ html {
   background-repeat: no-repeat;
   background-position: right 20px bottom 20px;
   background-attachment: fixed;
-  height: 100%;
 }
 
 body {
@@ -22,6 +21,7 @@ body {
 
 pre {
   max-width: 100%;
-  overflow-wrap: anywhere;
+  text-overflow: ellipsis;
+  overflow: hidden;
   white-space: pre-wrap;
 }

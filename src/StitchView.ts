@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { CONSTANTS } from './constants';
 import { StitchPreview } from './StitchPreview';
-import { CommandAction, HttpStepResult, ICommand, PreviewContext, ScenarioSource, StepRequest, StepResult, StitchError, StitchResponse } from './types';
+import { CommandAction, HttpStepResult, ICommand, PreviewContext, RenderTemplateStepResult, ScenarioSource, StepRequest, StepResult, StitchError, StitchResponse } from './types';
 
 export class StitchView {
 
@@ -11,7 +11,7 @@ export class StitchView {
     constructor(private _webview: vscode.Webview, extensionUri: vscode.Uri) {
         this._stylesMainUri = _webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'assets', 'style.css'));
         _webview.onDidReceiveMessage(
-            (command: ICommand) => { StitchPreview.handleCommand(command); },
+            (command: ICommand) => { StitchPreview.handleCommand(command, extensionUri); },
             undefined,
             this._disposables
         );
@@ -82,11 +82,22 @@ export class StitchView {
                     </div>`;
         }
         else if (step.$type === CONSTANTS.renderTemplateStepResultType) {
-            return `<div>
-                        <h4>${stepId}</h4>
-                        <h5>Zip (base64)</h5>
-                        <pre><code>${this._escapeHtml(requests[stepId].content.substr(1).slice(0,-1))}</code></pre>
-                    </div>`;
+            const renderStep = <RenderTemplateStepResult>step;
+            var stepHtml = `<div>
+                                <h4>${stepId}</h4>
+                                <h5>INPUT | Zip (base64)</h5>
+                                <pre><code>${requests[stepId].content.substr(1).slice(0,-1)}</code></pre>`;
+            if (renderStep.response.isSuccessStatusCode) {
+                stepHtml +=    `<h5>OUTPUT | Pdf (base64)</h5>
+                                <button onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${stepId}' });">view as file</button>
+                                <pre><code>${renderStep.response.content}</code></pre>`;
+            }
+            else {
+                stepHtml +=    `<h5>OUTPUT | Error (${renderStep.response.statusCode})
+                                <p>${renderStep.response.errorMessage}</p>`;
+            }
+            stepHtml += '</div>';
+            return stepHtml;
         }
         else {
             return `<div>

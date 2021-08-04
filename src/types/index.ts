@@ -105,5 +105,6 @@ export interface ICommand {
 
 export enum CommandAction {
 	viewStepRequest,
-	viewIntegrationResponse
+	viewStepResponse,
+	viewIntegrationResponse,
 }
