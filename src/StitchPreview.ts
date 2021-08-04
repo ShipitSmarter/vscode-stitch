@@ -120,7 +120,8 @@ export class StitchPreview {
                 if (response.integrationContext.steps[command.content]?.$type !== CONSTANTS.renderTemplateStepResultType) { return; }
                 const renderResponse = <RenderTemplateStepResult>response.integrationContext.steps[command.content];
                 if (renderResponse.response.contentType !== 'application/pdf') { return; }
-                PdfPreview.create(extensionUri, renderResponse.response.content);
+                const preview = PdfPreview.createOrShow(command.content ,extensionUri);
+                preview.setOrUpdatePdfData(renderResponse.response.content);
                 return;
             case CommandAction.viewIntegrationResponse:
                 this.showRendered({
@@ -148,7 +149,7 @@ export class StitchPreview {
             edit.replace(untitledUri, new vscode.Range(new vscode.Position(0,0), lastLine.range.end), content);
             return vscode.workspace.applyEdit(edit).then(success => {
                 if (success && show) {
-                    vscode.window.showTextDocument(document);
+                    vscode.window.showTextDocument(document, undefined, true);
                 } else {
                     vscode.window.showInformationMessage('Error!');
                 }
@@ -187,6 +188,7 @@ export class StitchPreview {
         vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
         this._panel.dispose();
         this._statusBar.dispose();
+        PdfPreview.disposeAll();
 
         while (this._disposables.length) {
             const x = this._disposables.pop();
@@ -248,6 +250,7 @@ export class StitchPreview {
 
         if (this._isContextChanged(integrationContext)) {
             this._scenario = undefined;
+            PdfPreview.disposeAll();
         }
         this._context = integrationContext;
         this._panel.title = `${CONSTANTS.panelTitlePrefix}${integrationContext.integrationFilename}`;
@@ -283,6 +286,7 @@ export class StitchPreview {
                 if (res.data.result) {
                     this._result = <StitchResponse>res.data;
                     this._updateRenderedUntitled();
+                    this._updateRenderedPdf();
                     vscode.commands.executeCommand(COMMANDS.responseUpdated); // so other Components know to request the latest response
                 }
             })
@@ -310,6 +314,21 @@ export class StitchPreview {
                 }
             }
         });
+    }
+
+    private _updateRenderedPdf() {
+        if (!this._result) { return; }
+        const response = this._result;
+
+        for (const [stepId, view] of PdfPreview.renderedViews) {
+            if (response.integrationContext.steps[stepId]?.$type !== CONSTANTS.renderTemplateStepResultType) { 
+                view.dispose();
+                continue;
+            }
+            const renderResponse = <RenderTemplateStepResult>response.integrationContext.steps[stepId];
+            if (renderResponse.response.contentType !== 'application/pdf') { return; }
+            view.setOrUpdatePdfData(renderResponse.response.content);
+        }
     }
 
     private _isContextChanged(newContext: PreviewContext) {
