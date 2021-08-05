@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.5.0
+- Add support to preview intergration response and step requests (json, xml)
+- Add support to preview pdf step responses
+
 ## 0.4.0
 - Add support for translation files (CSV based)
 

@@ -46,10 +46,12 @@ export interface StitchResponse {
 
 export interface IntegrationContext {
 	model: object;
-	steps: Record<string, StepResult | HttpStepResult>; //StepsDictionary
+	steps: Record<string, StepResult>; //StepsDictionary
 }
 
-export interface StepResult {
+export type StepResult = BaseStepResult | HttpStepResult | RenderTemplateStepResult;
+
+export interface BaseStepResult {
 	$type: string;
 	hasSuccessCondition: boolean;
 	success?: boolean;
@@ -57,7 +59,7 @@ export interface StepResult {
 	started?: boolean;
 }
 
-export interface HttpStepResult extends StepResult {
+export interface HttpStepResult extends BaseStepResult {
 	request: {
 		url: string;
 		method: string;
@@ -72,6 +74,16 @@ export interface HttpStepResult extends StepResult {
 	model: object;
 }
 
+export interface RenderTemplateStepResult extends BaseStepResult {
+	response: {
+		content: string;
+		contentType: string;
+		statusCode: number;
+		isSuccessStatusCode: boolean;
+		errorMessage: string;
+	}
+}
+
 export interface StepRequest {
 	method: string;
 	requestUri: string;	
@@ -84,4 +96,15 @@ export interface TreeItem {
     isCollection?: boolean;
     children?: TreeItem[];
     exampleValue?: string;
+}
+
+export interface ICommand {
+	action: CommandAction;
+	content: string;
+}
+
+export enum CommandAction {
+	viewStepRequest,
+	viewStepResponse,
+	viewIntegrationResponse,
 }

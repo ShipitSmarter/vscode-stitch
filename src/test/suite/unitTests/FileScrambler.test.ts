@@ -157,6 +157,43 @@ suite('FileScrambler Tests', () => {
             expect(result.files).to.deep.include({ filename: 'my.integration.json', filecontent: '{}' });
         });
 
+        test('can handle AdditionalFiles from RenderTemplate step', () => {
+            mockFs({
+                'base/style.css': 'contents of style.css',
+                'some/path': {
+                    'scenarios': {
+                        'sample1': {
+                            'input.txt': 'contents of input.txt',
+                            'step.x.txt': 'contents of step.x.txt'
+                        },
+                        'sample2': {
+                            'input.xml': 'input',
+                            'step.x.json': 'step.x',
+                            'step.y.xml': 'step.y',
+                            'step.z.txt': 'step.z',
+                        },
+                        'my.feature': 'some cucumber'
+                    },
+                    'my.integration.json': '{ "Steps": [ { "AdditionalFiles": ["../../base/style.css"] } ] }',
+                    'template.sbn': 'contents of template.sbn'
+                }
+            });
+
+            const scene: ScenarioSource = {
+                name: 'sample1',
+                path: 'some/path/scenarios/sample1'
+            };
+            const ctx: PreviewContext = {
+                activeFile: { filepath: 'no-file', filecontent: '' },
+                integrationFilePath: 'some/path/my.integration.json',
+                integrationFilename: 'my.integration.json'
+            };
+            const result = FileScrambler.collectFiles(ctx, scene, noWorkspaceFile);
+
+            expect(result.files).to.deep.include({ filename: 'dir1/dir2/my.integration.json', filecontent: '{ "Steps": [ { "AdditionalFiles": ["../../base/style.css"] } ] }' });
+            expect(result.files).to.deep.include({ filename: 'base/style.css', filecontent: 'contents of style.css' });
+        });
+
     });
 
     suite('isValidScenario()', () => {

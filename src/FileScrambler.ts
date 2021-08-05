@@ -8,7 +8,7 @@ export class FileScrambler {
 
     public static collectFiles(previewContext: PreviewContext, scenario: ScenarioSource, readWorkspaceFile: ReadWorkspaceFileFunc): IntegrationRequestModel {
 
-        const integrationPath = previewContext.integrationFilePath;
+        let integrationPath = previewContext.integrationFilePath;
         const integrationContent = this._readFile(previewContext, integrationPath, readWorkspaceFile);
         let integration;
         try {
@@ -16,32 +16,9 @@ export class FileScrambler {
         }
         catch (e) {
             throw new Error(`Integration file ${integrationPath} has invalid JSON`);
-        }        
-
-        let root = path.dirname(integrationPath);
-
-        let importsPath = path.join(root, '../' + CONSTANTS.importsDirectoryName);
-
-        let pathsToInclude = [
-            ...glob.sync(`${root}/*.json`, undefined),  
-            ...glob.sync(`${root}/*.sbn`, undefined)
-        ];
-        if (fs.existsSync(importsPath)) {
-            root = path.dirname(root);
-            pathsToInclude = [
-                ...pathsToInclude,
-                ...glob.sync(`${importsPath}/*.json`, undefined),
-                ...glob.sync(`${importsPath}/*.sbn`, undefined)
-            ];
         }
 
-        const files: IntegrationFile[] = [];
-        pathsToInclude.forEach(includePath => {
-            files.push({
-                filename: this._makeBlobStorageLikePath(includePath, root),
-                filecontent: this._readFile(previewContext, includePath, readWorkspaceFile)
-            });
-        });
+        let root = path.dirname(integrationPath) + path.sep;
 
         // load translation files if required
         if (integration.Translations && integration.Translations.length > 0) {
@@ -58,6 +35,61 @@ export class FileScrambler {
             });
         }
 
+        let importsPath = path.join(root, '../' + CONSTANTS.importsDirectoryName);
+
+        let pathsToInclude = [
+            ...glob.sync(`${root}/*.json`, undefined),
+            ...glob.sync(`${root}/*.sbn`, undefined),
+            ...glob.sync(`${root}/*.sbn-html`, undefined),
+        ];
+        if (fs.existsSync(importsPath)) {
+            root = path.dirname(root) + path.sep;
+            pathsToInclude = [
+                ...pathsToInclude,
+                ...glob.sync(`${importsPath}/*.json`, undefined),
+                ...glob.sync(`${importsPath}/*.sbn`, undefined),
+                ...glob.sync(`${importsPath}/*.sbn-html`, undefined),
+            ];
+        }
+
+        // Load renderTemplate step additionalFiles
+        let additionalFiles: string[] = [];
+        let requiredNestingLevel = 0;
+        const renderTemplateSteps = integration.Steps?.filter((s: any) => 'AdditionalFiles' in s) || [];
+        for (const step of renderTemplateSteps) {
+            for (const file of step.AdditionalFiles) {
+                if (file.startsWith('../')) {
+                    var nestingLevel = (file.match(/\.\.\//g) || []).length; // Count occurences of '../'
+                    if (nestingLevel > requiredNestingLevel) { requiredNestingLevel = nestingLevel; }
+                }
+
+                additionalFiles.push(file);
+            }
+        }
+
+        /* Mimic required nested directory structure (e.g. dir1/dir2/).
+         * Required so relative pathing to parent folders, like '../../base/style.css' , works.
+         */
+        let nestingStructure = '';
+        while (requiredNestingLevel > 0) {
+            nestingStructure = `dir${requiredNestingLevel--}${path.sep}${nestingStructure}`;
+        }
+
+        const files: IntegrationFile[] = [];
+        pathsToInclude.forEach(includePath => {
+            files.push({
+                filename: this._makeBlobStorageLikePath(includePath, root, nestingStructure),
+                filecontent: this._readFile(previewContext, includePath, readWorkspaceFile)
+            });
+        });
+
+        for (const filePath of [...new Set(additionalFiles)]) {
+            files.push({
+                filename: this._makeBlobStorageLikePath(filePath, root, nestingStructure),
+                filecontent: this._readFile(previewContext, path.join(root, filePath), readWorkspaceFile)
+            });
+        }
+
         let scenarioFilesToInclude = [
             ...glob.sync(`${scenario.path}/input.*`, undefined),  
             ...glob.sync(`${scenario.path}/step.*.*`, undefined)
@@ -71,7 +103,7 @@ export class FileScrambler {
         });
 
         return {
-            integrationFilePath: this._makeBlobStorageLikePath(integrationPath, root),
+            integrationFilePath: this._makeBlobStorageLikePath(integrationPath, root, nestingStructure),
             files,
             scenarioFiles
         };
@@ -170,12 +202,19 @@ export class FileScrambler {
                 && path.basename(parentParentDirectory) === CONSTANTS.scenariosDirectoryName;
     }
 
-    static _makeBlobStorageLikePath(path: string, root: string): string {
-        const blobPath = path.replace(/\\/g, '/'), 
-              blobRoot = root.replace(/\\/g, '/'); // convert backslash to forward slash
-        return blobPath
-            .replace(blobRoot, '') // trim the root path
-            .substr(1); // no leading forward-slash is required
+    static _makeBlobStorageLikePath(absolutePath: string, root: string, nestingStructure: string): string {
+        let blobPath = path.normalize(absolutePath)
+            .replace(path.normalize(root), ''); // trim the root path
+
+        // Make sure all slashes are correct to concat the paths
+        if (blobPath.startsWith('/')) { blobPath = blobPath.substr(1); }
+        if (nestingStructure.startsWith('/')) { nestingStructure = nestingStructure.substr(1); }
+        if (nestingStructure !== '' && !nestingStructure.endsWith('/')) { nestingStructure += '/'; }
+
+        const normalizedPath = path.normalize(`${nestingStructure}${blobPath}`);
+        return normalizedPath
+            .replace(/\\/g, '/') // Replace backslash with forward slash
+            .replace(/\/\//g, '/'); // Replace double slashes with one
     }
 
     static _readFile(previewContext: PreviewContext, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc) : string {

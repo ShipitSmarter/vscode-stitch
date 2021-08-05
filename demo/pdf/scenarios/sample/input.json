@@ -1,0 +1,702 @@
+{
+    "IntegrationPath":"documents/cmr",
+    "data":{
+      "someHeaderValue":"CMRNumber1",
+      "shipments":[
+        {
+    "CodeShipment": "46405559",
+    "Reference": "RXK_ALL_2020112714145702_139",
+    "SenderAddress": {
+      "CompanyName": "CompanyX",
+      "AddressLine1": "Streetname",
+      "AddressLine2": "building A",
+      "StreetNumber": "14",
+      "City": "Rotterdam",
+      "CodeState": "SE",
+      "Postcode": "3001XB",
+      "Country": "NL",
+      "VAT": "SendervAT",
+      "Eori":"SenderEori",
+      "ContactName": "Mr. Fiets",
+      "ContactPhone": "Phone of Fiets",
+      "ContactEmail": "Email@Fiets.com",
+      "Account": "12345"
+    },
+    "ReceiverAddress": {
+      "CompanyName": "Receiver1200",
+      "AddressLine1": "Receiver road",
+      "AddressLine2": "Receiver building",
+      "StreetNumber": "13",
+      "City": "Strange City",
+      "CodeState": "RE",
+      "Postcode": "12345",
+      "Country": "BE",
+      "VAT": "receiverVAT",
+      "Eori":"ReceiverEori",
+      "ContactName": "Receiver contact",
+      "ContactPhone": "Receiverphone",
+      "ContactEmail": "ReceiverEmail",
+      "Account": ""
+    },
+    "DutiesTaxesAddress": {
+      "CompanyName": "Invoice1200",
+      "AddressLine1": "Invoice road",
+      "AddressLine2": "Invoice building",
+      "StreetNumber": "12",
+      "City": "Antwerp12",
+      "CodeState": "DU",
+      "Postcode": "11323",
+      "Country": "BE",
+      "VAT": "DutiesVAT",
+      "Eori":"",
+      "ContactName": "Invoice contact",
+      "ContactPhone": "Invoicephone",
+      "ContactEmail": "InvoiceEmail",
+      "Account": "DutiesAccnt1"
+    },
+    "CollectionAddress": {
+      "CompanyName": "Collection1200",
+      "AddressLine1": "Collection road",
+      "AddressLine2": "Collection building",
+      "StreetNumber": "11",
+      "City": "Antwerp11",
+      "CodeState": "CO",
+      "Postcode": "11323",
+      "Country": "BE",
+      "VAT": "CollectionVAT",
+      "Eori":"",
+      "ContactName": "",
+      "ContactPhone": "Collectionphone",
+      "ContactEmail": "CollectionEmail",
+      "Account": null
+    },
+    "ThirdPartyAddress": {
+      "CompanyName": "3th Party1200",
+      "AddressLine1": "3th Party road",
+      "AddressLine2": "3th Party building",
+      "StreetNumber": "10",
+      "City": "Antwerp10",
+      "CodeState": "TH",
+      "Postcode": "11323",
+      "Country": "BE",
+      "VAT": "ThirdPartyVAT",
+      "Eori":"ThirdPartyEori",
+      "ContactName": "",
+      "ContactPhone": "3th Partyphone",
+      "ContactEmail": "3th PartyEmail",
+      "Account": ""
+    },
+    "UltimateAddress": {
+      "CompanyName": "Ultimate1200",
+      "AddressLine1": "Ultimate1200 road",
+      "AddressLine2": "Ultimate1200 building",
+      "StreetNumber": "9",
+      "City": "Antwerp9",
+      "CodeState": "UL",
+      "Postcode": "11323",
+      "Country": "BE",
+      "VAT": "UltimateVAT",
+      "Eori":"",
+      "ContactName": "",
+      "ContactPhone": "UltimateTel",
+      "ContactEmail": "Ultimate1200Email",
+      "Account": null
+    },
+    "DropOffAddress": null,
+    "BrokerAddress": {
+      "CompanyName": "Broker 1200",
+      "AddressLine1": "Broker 1200 road",
+      "AddressLine2": "Broker 1200 building",
+      "StreetNumber": "8",
+      "City": "Antwerp8",
+      "CodeState": "BR",
+      "Postcode": "11323",
+      "Country": "BE",
+      "VAT": "BrokerVAT",
+      "Eori":"",
+      "ContactName": "",
+      "ContactPhone": "Broker Tel",
+      "ContactEmail": "Broker 1200Email",
+      "Account": null
+    },
+    "BuyerAddress": {
+      "CompanyName": "Buyer 1200",
+      "AddressLine1": "Buyer 1200 road",
+      "AddressLine2": "Buyer 1200 building",
+      "StreetNumber": "7",
+      "City": "Antwerp7",
+      "CodeState": "BU",
+      "Postcode": "11323",
+      "Country": "BE",
+      "VAT": "VATBuyer",
+      "Eori":"BuyerEori",
+      "ContactName": "",
+      "ContactPhone": "Buyer Tel",
+      "ContactEmail": "Buyer 1200Email",
+      "Account": null
+    },
+    "ImporterOfRecordAddress": {
+      "CompanyName": "IOR 1200",
+      "AddressLine1": "IOR 1200 road",
+      "AddressLine2": "IOR 1200 building",
+      "StreetNumber": "6",
+      "City": "Antwerp6",
+      "CodeState": "IM",
+      "Postcode": "11323",
+      "Country": "BE",
+      "VAT": "ImporterOfRecordVAT",
+      "Eori":"",
+      "ContactName": "",
+      "ContactPhone": "IOR Tel",
+      "ContactEmail": "IOR 1200Email",
+      "Account": null
+    },
+    "Account": {
+      "Duties": "DutiesAccnt1",
+      "DutiesRelation": "I",
+      "Message": "Account: 12345. Neutral delivery, Account transport: 12345, Account duties: DutiesAccnt1",
+      "Sender": "12345",
+      "Transport": "12345",
+      "TransportRelation": "S"
+    },
+    "VolumeUnit": "cm",
+    "WeightUnit": "kg",
+    "Description": "Description of goods",
+    "Value": 17500.57,
+    "CodeCurrencyValue": "EUR",
+    "DatePickup": "2020-11-14",
+    "TimePickup": {
+      "StartTime": "09:00:00",
+      "EndTime": "18:00:00"
+    },
+    "CustomerServiceLevel": "",
+    "ServiceLevel": "STANDARD",
+    "DeliveryCondition": "DD-DAP-PP",
+    "DeliveryConditionDetailed": null,
+    "CustomerCarrierCode": "",
+    "CarrierCode": "SCH",
+    "Carrier1": null,
+    "Carrier3": null,
+    "Awb": "",
+    "Awb1": "",
+    "Awb3": "",
+    "DateDeliveryRequest": "2020-12-31",
+    "TimeDeliveryRequest": {
+      "StartTime": "09:00:00",
+      "EndTime": "18:00:00"
+    },
+    "DateDeliveryPlan": "2020-12-27",
+    "TimeDeliveryPlan": {
+      "StartTime": "17:00:00",
+      "EndTime": "23:00:00"
+    },
+    "Prices": [
+      {
+        "PriceType": "Buy",
+        "Amount": 0.0,
+        "CodeCurrency": "EUR",
+        "DateExchange": null
+      },
+      {
+        "PriceType": "Sell",
+        "Amount": 0.0,
+        "CodeCurrency": "EUR",
+        "DateExchange": null
+      },
+      {
+        "PriceType": "Published",
+        "Amount": 0.0,
+        "CodeCurrency": "EUR",
+        "DateExchange": null
+      }
+    ],
+    "CostCenter": "000001",
+    "CustomerCostCenter": "Customer costc",
+    "Inbound": "N",
+    "DeliveryId": "TC1",
+    "IndDangerous": true,
+    "Pieces": 3,
+    "Status": "DRA",
+    "TariffType": "TariffType",
+    "ServiceOptions": {
+      "CargoArrangement": "PICKUP",
+      "Cod": {
+        "Value": 25.00,
+        "CodeCurrency": "CHF",
+        "Type": "CASH"
+      },
+      "ConstructionSite": true,
+      "CustomClearance": false,
+      "DeliveryInside": false,
+      "DangerousGoodsType": "LB",
+      "DgPackingInstructions": [
+        "965",
+        "966"
+      ],
+      "DocumentService": {
+        "DocumentServiceCode": "PICKUP",
+        "DocumentDate": "2017-02-26",
+        "DocumentTime": "08:00:00"
+      },
+      "DryIceAudit": false,
+      "EquipmentTemperature": "AMBIENT",
+      "FixedDeliveryDate": false,
+      "FixedDeliveryTime": "",
+      "Fragile": false,
+      "HoldForPickup": false,
+      "IndLithiumBatteries": true,
+      "IndNeutralDelivery": false,
+      "IndSaturdayDeliveryRequested": false,
+      "Insurance": [
+        "ReportingOnly",
+        "RequestFromCarrier"
+      ],
+      "LiftGate": false,
+      "PickupPolicy": "PRL",
+      "ResidentialDelivery": false,
+      "ScannedPodRequested": false,
+      "SmallVehicle": false,
+      "Urgent": false,
+      "WhiteGlove": false
+    },
+    "References": {
+      "BolNumber": "Bolnumber1",
+      "ComplaintNumber": "Complaint1",
+      "ContainerNumber": "Container1",
+      "CustomClearanceNumber": "CustomClearance1",
+      "CustomerPoNr": "CustomerPoNr1",
+      "FlightNumber": "Flight1",
+      "GlCode": "GlCode1",
+      "InvoiceNumber": "Invoice1",
+      "SapDelivery": "SAPDelivery1",
+      "RmaNumber": "Rma1",
+      "SapSoNr": "SAP",
+      "ShipmentNumber": "Shipment1",
+      "VerificationSheetNumber": "VerificationSheet1",
+      "Voyage": "Voyage1"
+    },
+    "Instructions": {
+      "AirportFrom": "AMS",
+      "AirportTo": "SIN",
+      "Branch": "Branch1",
+      "CancelDate": "2017-05-30",
+      "CarrierInstruction": "CarrierInstruction here",
+      "DropoffId": "DropoffID",
+      "Justification": "Justification here why we use this carrier and service as it is very expensive",
+      "LatestCancelDate": "2017-06-03",
+      "LicensePlate": "125-JH-405",
+      "LoadMeter": 2.5,
+      "LoadNumber": "Load number",
+      "MailType": "1",
+      "MultipleBol": false,
+      "ModeOfTransport": "AIR",
+      "NotifyEmail2": "test@email.com andmore@email.com andevenmore@email.com",
+      "OrderType": "ordertype1",
+      "OrderingCompany": "Ordering company1",
+      "PaymentType": "COD",
+      "PlaceDocumentCollection": "Shang hai",
+      "PoNr": "POnr",
+      "PortFrom": "Shang Hai",
+      "PortTo": "Rotterdam",
+      "PlaceDeliveryTerm": "Shang hai2",
+      "RmaDate": "2017-05-23",
+      "ReasonForReturn": "Reason for return because I can",
+      "Replenishment": false,
+      "StartDate": "2017-03-30",
+      "UnloadingDock": "Unloadingdock 1",
+      "UnloadingInstruction": "Unloading instruction: Watch out for falling cartons",
+      "UnloadingLocation": "",
+      "UrlRedirect": "http://www.google.nl?redirectUrlSiS=12345&pw=somepvalue",
+      "VesselName": "Vessel1",
+      "WoodDeclaration": false,
+      "InstructionList": {
+        "SALES_ORGANISATION": "Some org"
+      }
+    },
+    "CommercialInvoice": {
+      "CommercialInvoiceRows": [
+        {
+          "Id": 1,
+          "Contents": "Content description on shipment lvl",
+          "Quantity": 15.0,
+          "Uom": "EA",
+          "SellPrice": 3.44,
+          "InternalPrice": 2.18,
+          "CountryOfOrigin": "DE",
+          "ItemNumber": "Item1",
+          "Po": "Po1OnComminv",
+          "PoLine": 1,
+          "CustomerPoNr": "CustomerPoNrComminv",
+          "GrossWeight": 15.25,
+          "NettWeight": 13.85,
+          "WeightUom": "",
+          "Length": 40.0,
+          "Width": 15.0,
+          "Height": 23.0,
+          "Volume": 13800.0,
+          "CarrierInstruction": "Comminv Carrier Instruction",
+          "StorageInstruction": "Comminv Storage instruction",
+          "Identification": "12345678901214161820",
+          "Package": "CARTON",
+          "LotNumber": "Lotnumber1",
+          "TemperatureLoggerReference": "TempLogRef1",
+          "DateExpiry": "2017-06-13",
+          "DangerousGoods": [
+            {
+              "UnNumber": "UN1234",
+              "Class": "3.1",
+              "ProperShippingName": "ProperShippingName in DG_DESCRIPTION",
+              "TechnicalName": "Technical name with ( and ) and some & char and eve < or closing in >",
+              "PackingGroup": "II",
+              "Uom": "KG",
+              "Quantity": 1.45,
+              "DangerousGoodsType": "LQ"
+            }
+          ],
+          "Customs": {
+            "CustomsCode": "123456789.000",
+            "ECCN": "12318059845",
+            "ScheduleB": "1234561057"
+          },
+          "CustomerItem": {
+            "ItemNumber": "CustomerItemnumber1",
+            "Contents": "CustomerContents1",
+            "LocalContents": "Lokale inhoud nummertje 1",
+            "Quantity": 12.0,
+            "Uom": "BOX"
+          },
+          "CommercialInvoiceInstructions": {
+            "InstructionList": {
+              "DG_SECTION": "I",
+              "FREIGHTCLASS": "100"
+            }
+          }
+        },
+        {
+          "Id": 2,
+          "Contents": "Content description on shipment lvl 2",
+          "Quantity": 16.0,
+          "Uom": "EA",
+          "SellPrice": 3.45,
+          "InternalPrice": 2.19,
+          "CountryOfOrigin": "DE",
+          "ItemNumber": "Item2",
+          "Po": "Po2OnComminv",
+          "PoLine": 2,
+          "CustomerPoNr": "CustomerPoNrComminv 2",
+          "GrossWeight": 15.26,
+          "NettWeight": 13.86,
+          "WeightUom": "",
+          "Length": 41.0,
+          "Width": 16.0,
+          "Height": 24.0,
+          "Volume": 15744.0,
+          "CarrierInstruction": "Comminv Carrier Instruction 2",
+          "StorageInstruction": "Comminv Storage instruction 2",
+          "Identification": "12345678901214161821",
+          "Package": "CARTON",
+          "LotNumber": "Lotnumber2",
+          "TemperatureLoggerReference": "TempLogRef2",
+          "DateExpiry": "2017-06-14",
+          "DangerousGoods": [
+            {
+              "UnNumber": "UN1235",
+              "Class": "3.2",
+              "ProperShippingName": "ProperShippingName in DG_DESCRIPTION 2",
+              "TechnicalName": "Technical name 2 with ( and ) and some & char and eve < or closing in >",
+              "PackingGroup": "III",
+              "Uom": "KG",
+              "Quantity": 1.46,
+              "DangerousGoodsType": "LB"
+            }
+          ],
+          "Customs": {
+            "CustomsCode": "123456789.001",
+            "ECCN": "12318059846",
+            "ScheduleB": "1234561057"
+          },
+          "CustomerItem": {
+            "ItemNumber": "CustomerItemnumber2",
+            "Contents": "CustomerContents2",
+            "LocalContents": "Lokale inhoud nummertje 2",
+            "Quantity": 13.0,
+            "Uom": "BOX"
+          },
+          "CommercialInvoiceInstructions": {
+            "InstructionList": {
+              "DG_SECTION": "II",
+              "FREIGHTCLASS": "101"
+            }
+          }
+        }
+      ]
+    },
+    "ShipmentPackages": [
+      {
+        "Sequence": 1,
+        "Weight": 5.8,
+        "Length": 40.0,
+        "Width": 20.0,
+        "Height": 20.0,
+        "Package": "COLLI",
+        "Description": "123456_abc",
+        "Awb": "",
+        "Awb1": "",
+        "Awb3": "",
+        "Reference": "COLLI_1 BOX",
+        "IndStackable": true,
+        "IndSplitFromShipment": false,
+        "TemperatureLoggerReference": "TempLoggerRef1",
+        "CommercialInvoice": {
+          "CommercialInvoiceRows": [
+            {
+              "Id": 1001,
+              "Contents": "Content description on package lvl 1",
+              "Quantity": 17.0,
+              "Uom": "EA",
+              "SellPrice": 3.46,
+              "InternalPrice": 2.20,
+              "CountryOfOrigin": "DE",
+              "ItemNumber": "Item package lvl 1",
+              "Po": "PoOnComminv package 1",
+              "PoLine": 2,
+              "CustomerPoNr": "CustomerPoNrComminv package 1",
+              "GrossWeight": 15.27,
+              "NettWeight": 13.87,
+              "WeightUom": "",
+              "Length": 42.0,
+              "Width": 17.0,
+              "Height": 25.0,
+              "Volume": 17850.0,
+              "CarrierInstruction": "Comminv Carrier Instruction package 1",
+              "StorageInstruction": "Comminv Storage package 1",
+              "Identification": "12345678901214161822",
+              "Package": "CARTON",
+              "LotNumber": "Lotnumber pack 1",
+              "TemperatureLoggerReference": "TempLogRefpack1",
+              "DateExpiry": "2017-06-15",
+              "DangerousGoods": [
+                {
+                  "UnNumber": "UN1236",
+                  "Class": "3.3",
+                  "ProperShippingName": "ProperShippingName in package 1",
+                  "TechnicalName": "Technical name pack 1 with ( and ) and some & char and eve < or closing in >",
+                  "PackingGroup": "I",
+                  "Uom": "KG",
+                  "Quantity": 1.47,
+                  "DangerousGoodsType": "LQ"
+                }
+              ],
+              "Customs": {
+                "CustomsCode": "123456789.002",
+                "ECCN": "12318059847",
+                "ScheduleB": "1234561057"
+              },
+              "CustomerItem": {
+                "ItemNumber": "CustomerItemnumber pack 1",
+                "Contents": "CustomerContents pack1",
+                "LocalContents": "Lokale inhoud doosje 1",
+                "Quantity": 14.0,
+                "Uom": "BOX"
+              },
+              "CommercialInvoiceInstructions": {
+                "InstructionList": {
+                  "DG_SECTION": "III",
+                  "FREIGHTCLASS": "120"
+                }
+              }
+            }
+          ]
+        },
+        "ShipmentPackageInstructions": {
+          "InstructionList": {
+            "TEMPERATURE_LOGGER_REFERENCE": "TempLoggerRef1"
+          }
+        }
+      },
+      {
+        "Sequence": 2,
+        "Weight": 4.0,
+        "Length": 30.0,
+        "Width": 10.0,
+        "Height": 20.0,
+        "Package": "COLLI",
+        "Description": "123456_abc",
+        "Awb": "",
+        "Awb1": "",
+        "Awb3": "",
+        "Reference": "COLLI_2 BOX",
+        "IndStackable": true,
+        "IndSplitFromShipment": false,
+        "TemperatureLoggerReference": "TempLoggerRe2",
+        "CommercialInvoice": {
+          "CommercialInvoiceRows": [
+            {
+              "Id": 1002,
+              "Contents": "Content description on package lvl 2",
+              "Quantity": 18.0,
+              "Uom": "EA",
+              "SellPrice": 3.47,
+              "InternalPrice": 2.21,
+              "CountryOfOrigin": "DE",
+              "ItemNumber": "Item package lvl 2",
+              "Po": "PoOnComminv package 2",
+              "PoLine": 2,
+              "CustomerPoNr": "CustomerPoNrComminv package 2",
+              "GrossWeight": 15.28,
+              "NettWeight": 13.88,
+              "WeightUom": "",
+              "Length": 43.0,
+              "Width": 18.0,
+              "Height": 27.0,
+              "Volume": 20898.0,
+              "CarrierInstruction": "Comminv Carrier Instruction package 2",
+              "StorageInstruction": "Comminv Storage package 2",
+              "Identification": "12345678901214161823",
+              "Package": "CARTON",
+              "LotNumber": "Lotnumber pack 2",
+              "TemperatureLoggerReference": "TempLogRefpack2",
+              "DateExpiry": "2017-06-16",
+              "DangerousGoods": [
+                {
+                  "UnNumber": "UN1237",
+                  "Class": "3.4",
+                  "ProperShippingName": "ProperShippingName in package 2",
+                  "TechnicalName": "Technical name pack 2 with ( and ) and some & char and eve < or closing in >",
+                  "PackingGroup": "II",
+                  "Uom": "KG",
+                  "Quantity": 1.48,
+                  "DangerousGoodsType": "EQ"
+                }
+              ],
+              "Customs": {
+                "CustomsCode": "123456789.003",
+                "ECCN": "12318059848",
+                "ScheduleB": "1234561057"
+              },
+              "CustomerItem": {
+                "ItemNumber": "CustomerItemnumber pack 2",
+                "Contents": "CustomerContents pack2",
+                "LocalContents": "Lokale inhoud doosje 2",
+                "Quantity": 15.0,
+                "Uom": "BOX"
+              },
+              "CommercialInvoiceInstructions": {
+                "InstructionList": {}
+              }
+            },
+            {
+              "Id": 1003,
+              "Contents": "Content description on package lvl 2.2",
+              "Quantity": 19.0,
+              "Uom": "EA",
+              "SellPrice": 3.48,
+              "InternalPrice": 2.22,
+              "CountryOfOrigin": "DE",
+              "ItemNumber": "Item package lvl 2.2",
+              "Po": "PoOnComminv package 2.2",
+              "PoLine": 3,
+              "CustomerPoNr": "CustomerPoNrComminv package 2.2",
+              "GrossWeight": 15.29,
+              "NettWeight": 13.89,
+              "WeightUom": "",
+              "Length": 43.1,
+              "Width": 18.1,
+              "Height": 27.1,
+              "Volume": 21140.981,
+              "CarrierInstruction": "Comminv Carrier Instruction package 2.2",
+              "StorageInstruction": "Comminv Storage package 2.2",
+              "Identification": "12345678901214161824",
+              "Package": "CARTON",
+              "LotNumber": "Lotnumber pack 2.2",
+              "TemperatureLoggerReference": "TempLogRefpack2.2",
+              "DateExpiry": "2017-06-17",
+              "DangerousGoods": [
+                {
+                  "UnNumber": "UN1238",
+                  "Class": "3.5",
+                  "ProperShippingName": "ProperShippingName in package 2.2",
+                  "TechnicalName": "Technical name pack 2.2 with ( and ) and some & char and eve < or closing in >",
+                  "PackingGroup": "III",
+                  "Uom": "KG",
+                  "Quantity": 1.49,
+                  "DangerousGoodsType": "LB"
+                }
+              ],
+              "Customs": {
+                "CustomsCode": "123456789.004",
+                "ECCN": "12318059849",
+                "ScheduleB": "1234561057"
+              },
+              "CustomerItem": {
+                "ItemNumber": "CustomerItemnumber pack 2.2",
+                "Contents": "CustomerContents pack2.2",
+                "LocalContents": "Lokale inhoud doosje 2.2",
+                "Quantity": 16.0,
+                "Uom": "BOX"
+              },
+              "CommercialInvoiceInstructions": {
+                "InstructionList": {}
+              }
+            }
+          ]
+        },
+        "ShipmentPackageInstructions": {
+          "InstructionList": {
+            "TEMPERATURE_LOGGER_REFERENCE": "TempLoggerRe2"
+          }
+        }
+      },
+      {
+        "Sequence": 3,
+        "Weight": 4.0,
+        "Length": 30.0,
+        "Width": 10.0,
+        "Height": 20.0,
+        "Package": "COLLI",
+        "Description": "123456_abc",
+        "Awb": "",
+        "Awb1": "",
+        "Awb3": "",
+        "Reference": "COLLI_3 BOX",
+        "IndStackable": true,
+        "IndSplitFromShipment": false,
+        "TemperatureLoggerReference": "TempLoggerRef3",
+        "CommercialInvoice": null,
+        "ShipmentPackageInstructions": {
+          "InstructionList": {
+            "TEMPERATURE_LOGGER_REFERENCE": "TempLoggerRef3"
+          }
+        }
+      }
+    ],
+    "Documents": [
+      {
+        "Name": "myPackinglist.pdf",
+        "Type": "PACKLIST",
+        "Base64Content": "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OlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPgo8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiAgeG1sbnM6cGRmPSJodHRwOi8vbnMuYWRvYmUuY29tL3BkZi8xLjMvIj4KPHBkZjpQcm9kdWNlcj5NaWNyb3NvZnTCriBXb3JkIGZvciBPZmZpY2UgMzY1PC9wZGY6UHJvZHVjZXI+PC9yZGY6RGVzY3JpcHRpb24+CjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiICB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iPgo8ZGM6Y3JlYXRvcj48cmRmOlNlcT48cmRmOmxpPlJvZWwgS25lZXBrZW5zPC9yZGY6bGk+PC9yZGY6U2VxPjwvZGM6Y3JlYXRvcj48L3JkZjpEZXNjcmlwdGlvbj4KPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgIHhtbG5zOnhtcD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLyI+Cjx4bXA6Q3JlYXRvclRvb2w+TWljcm9zb2Z0wq4gV29yZCBmb3IgT2ZmaWNlIDM2NTwveG1wOkNyZWF0b3JUb29sPjx4bXA6Q3JlYXRlRGF0ZT4yMDE5LTAyLTA0VDE0OjM4OjUyKzAxOjAwPC94bXA6Q3JlYXRlRGF0ZT48eG1wOk1vZGlmeURhdGU+MjAxOS0wMi0wNFQxNDozODo1MiswMTowMDwveG1wOk1vZGlmeURhdGU+PC9yZGY6RGVzY3JpcHRpb24+CjxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PSIiICB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyI+Cjx4bXBNTTpEb2N1bWVudElEPnV1aWQ6OEU4RjExOEYtMUQ2QS00QUU2LUIyNkQtNTk1RTBCMENDNzE3PC94bXBNTTpEb2N1bWVudElEPjx4bXBNTTpJbnN0YW5jZUlEPnV1aWQ6OEU4RjExOEYtMUQ2QS00QUU2LUIyNkQtNTk1RTBCMENDNzE3PC94bXBNTTpJbnN0YW5jZUlEPjwvcmRmOkRlc2NyaXB0aW9uPgogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKPC9yZGY6UkRGPjwveDp4bXBtZXRhPjw/eHBhY2tldCBlbmQ9InciPz4NCmVuZHN0cmVhbQ0KZW5kb2JqDQoyNyAwIG9iag0KPDwvRGlzcGxheURvY1RpdGxlIHRydWU+Pg0KZW5kb2JqDQoyOCAwIG9iag0KPDwvVHlwZS9YUmVmL1NpemUgMjgvV1sgMSA0IDJdIC9Sb290IDEgMCBSL0luZm8gOSAwIFIvSURbPDhGMTE4RjhFNkExREU2NEFCMjZENTk1RTBCMENDNzE3Pjw4RjExOEY4RTZBMURFNjRBQjI2RDU5NUUwQjBDQzcxNz5dIC9GaWx0ZXIvRmxhdGVEZWNvZGUvTGVuZ3RoIDEwMD4+DQpzdHJlYW0NCnicNc29FUBAEATguV93SKQKEepArAAdkOtCC8oSauOsHTbY7+17O28AmVKM7A54OcmlmFtxq+J7JWQykg2wGk8kk5o0pCLfZyu5uP+XIZY44kkgUQJp0r7M2nlQlgN4AIuwCc8NCmVuZHN0cmVhbQ0KZW5kb2JqDQp4cmVmDQowIDI5DQowMDAwMDAwMDEwIDY1NTM1IGYNCjAwMDAwMDAwMTcgMDAwMDAgbg0KMDAwMDAwMDE2NiAwMDAwMCBuDQowMDAwMDAwMjIyIDAwMDAwIG4NCjAwMDAwMDA0ODYgMDAwMDAgbg0KMDAwMDAwMDg4MiAwMDAwMCBuDQowMDAwMDAxMDUwIDAwMDAwIG4NCjAwMDAwMDEyODkgMDAwMDAgbg0KMDAwMDAwMTM0MiAwMDAwMCBuDQowMDAwMDAxMzk1IDAwMDAwIG4NCjAwMDAwMDAwMTEgNjU1MzUgZg0KMDAwMDAwMDAxMiA2NTUzNSBmDQowMDAwMDAwMDEzIDY1NTM1IGYNCjAwMDAwMDAwMTQgNjU1MzUgZg0KMDAwMDAwMDAxNSA2NTUzNSBmDQowMDAwMDAwMDE2IDY1NTM1IGYNCjAwMDAwMDAwMTcgNjU1MzUgZg0KMDAwMDAwMDAxOCA2NTUzNSBmDQowMDAwMDAwMDE5IDY1NTM1IGYNCjAwMDAwMDAwMjAgNjU1MzUgZg0KMDAwMDAwMDAyMSA2NTUzNSBmDQowMDAwMDAwMDIyIDY1NTM1IGYNCjAwMDAwMDAwMjMgNjU1MzUgZg0KMDAwMDAwMDAwMCA2NTUzNSBmDQowMDAwMDAyMTI1IDAwMDAwIG4NCjAwMDAwMDIzNjYgMDAwMDAgbg0KMDAwMDAyMjMyNiAwMDAwMCBuDQowMDAwMDI1NDkzIDAwMDAwIG4NCjAwMDAwMjU1MzggMDAwMDAgbg0KdHJhaWxlcg0KPDwvU2l6ZSAyOS9Sb290IDEgMCBSL0luZm8gOSAwIFIvSURbPDhGMTE4RjhFNkExREU2NEFCMjZENTk1RTBCMENDNzE3Pjw4RjExOEY4RTZBMURFNjRBQjI2RDU5NUUwQjBDQzcxNz5dID4+DQpzdGFydHhyZWYNCjI1ODM4DQolJUVPRg0KeHJlZg0KMCAwDQp0cmFpbGVyDQo8PC9TaXplIDI5L1Jvb3QgMSAwIFIvSW5mbyA5IDAgUi9JRFs8OEYxMThGOEU2QTFERTY0QUIyNkQ1OTVFMEIwQ0M3MTc+PDhGMTE4RjhFNkExREU2NEFCMjZENTk1RTBCMENDNzE3Pl0gL1ByZXYgMjU4MzgvWFJlZlN0bSAyNTUzOD4+DQpzdGFydHhyZWYNCjI2NTc0DQolJUVPRg==",
+        "TotalBytes": 26752
+      }
+    ],
+    "Derived": {
+      "CarrierName": "DB Schenker Road",
+      "Incoterm": "DAP",
+      "IsDocumentPacking": false,
+      "IsDomestic": false,
+      "IsDutiable": false,
+      "IsReturn": false,
+      "IsSaturdayDelivery": false,
+      "NeedsNewAWB": true,
+      "CollectionAddressIsSenderAddress":true,
+      "EarliestTimeReady":"2021-01-15T14:35:00Z",
+      "LatestTimeReady":"2021-01-15T17:00:00Z"
+    },
+    "Integration": {
+      "InstructionList": {
+          "ORIGIN_DEPOT": "0522"
+      }
+    }
+  }
+        ]
+    }
+  }
