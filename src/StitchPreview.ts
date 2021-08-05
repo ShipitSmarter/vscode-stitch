@@ -326,7 +326,10 @@ export class StitchPreview {
                 continue;
             }
             const renderResponse = <RenderTemplateStepResult>response.integrationContext.steps[stepId];
-            if (renderResponse.response.contentType !== 'application/pdf') { return; }
+            if (renderResponse.response.contentType !== 'application/pdf') { 
+                PdfPreview.disposeRenderedStep(stepId);
+                continue;
+             }
             PdfPreview.setOrUpdatePdfData(stepId, renderResponse.response.content);
         }
     }
