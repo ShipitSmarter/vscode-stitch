@@ -5,20 +5,19 @@ import { Disposable } from './dispose';
 
 export class PdfPreview extends Disposable implements vscode.Disposable {
 
-    public static createOrShow(stepId: string, extensionUri: vscode.Uri): PdfPreview {
+    public static createOrShow(stepId: string, extensionUri: vscode.Uri): void {
         if (PdfPreview.previews.has(stepId)) {
           const preview = PdfPreview.previews.get(stepId) as PdfPreview;
           preview._panel.reveal(undefined, true);
-          return preview;
         }
         else {
-          return new PdfPreview(stepId, extensionUri);
+          new PdfPreview(stepId, extensionUri);
         }
     }
 
-    public static setOrUpdatePdfData(uri: vscode.Uri, pdfBase64Data: string): void {
-      if (PdfPreview.previews.has(uri.toString(true))) {
-        const preview = PdfPreview.previews.get(uri.toString(true)) as PdfPreview;
+    public static setOrUpdatePdfData(stepId: string, pdfBase64Data: string): void {
+      if (PdfPreview.previews.has(stepId)) {
+        const preview = PdfPreview.previews.get(stepId) as PdfPreview;
         preview.setOrUpdatePdfData(pdfBase64Data);
       }
     }
@@ -28,8 +27,12 @@ export class PdfPreview extends Disposable implements vscode.Disposable {
       PdfPreview.previews.forEach(p => p.dispose());
       PdfPreview.previews.clear();
     }
-    public static get renderedViews() {
-      return this.previews.entries();
+    public static get renderedSteps() {
+      return this.previews.keys();
+    }
+    public static disposeRenderedStep(stepId: string) {
+      const preview = PdfPreview.previews.get(stepId);
+      preview?.dispose();
     }
 
     private readonly _panel: vscode.WebviewPanel;

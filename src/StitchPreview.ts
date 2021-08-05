@@ -120,8 +120,8 @@ export class StitchPreview {
                 if (response.integrationContext.steps[command.content]?.$type !== CONSTANTS.renderTemplateStepResultType) { return; }
                 const renderResponse = <RenderTemplateStepResult>response.integrationContext.steps[command.content];
                 if (renderResponse.response.contentType !== 'application/pdf') { return; }
-                const preview = PdfPreview.createOrShow(command.content ,extensionUri);
-                preview.setOrUpdatePdfData(renderResponse.response.content);
+                PdfPreview.createOrShow(command.content ,extensionUri);
+                PdfPreview.setOrUpdatePdfData(command.content, renderResponse.response.content);
                 return;
             case CommandAction.viewIntegrationResponse:
                 this.showRendered({
@@ -320,14 +320,14 @@ export class StitchPreview {
         if (!this._result) { return; }
         const response = this._result;
 
-        for (const [stepId, view] of PdfPreview.renderedViews) {
+        for (const stepId of PdfPreview.renderedSteps) {
             if (response.integrationContext.steps[stepId]?.$type !== CONSTANTS.renderTemplateStepResultType) { 
-                view.dispose();
+                PdfPreview.disposeRenderedStep(stepId);
                 continue;
             }
             const renderResponse = <RenderTemplateStepResult>response.integrationContext.steps[stepId];
             if (renderResponse.response.contentType !== 'application/pdf') { return; }
-            view.setOrUpdatePdfData(renderResponse.response.content);
+            PdfPreview.setOrUpdatePdfData(stepId, renderResponse.response.content);
         }
     }
 
