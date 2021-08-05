@@ -18,7 +18,7 @@ export class FileScrambler {
             throw new Error(`Integration file ${integrationPath} has invalid JSON`);
         }
 
-        let root = path.dirname(integrationPath);
+        let root = path.dirname(integrationPath) + path.sep;
 
         // load translation files if required
         if (integration.Translations && integration.Translations.length > 0) {
@@ -43,7 +43,7 @@ export class FileScrambler {
             ...glob.sync(`${root}/*.sbn-html`, undefined),
         ];
         if (fs.existsSync(importsPath)) {
-            root = path.dirname(root);
+            root = path.dirname(root) + path.sep;
             pathsToInclude = [
                 ...pathsToInclude,
                 ...glob.sync(`${importsPath}/*.json`, undefined),
@@ -55,7 +55,7 @@ export class FileScrambler {
         // Load renderTemplate step additionalFiles
         let additionalFiles: string[] = [];
         let requiredNestingLevel = 0;
-        const renderTemplateSteps = integration.Steps.filter((s: any) => 'AdditionalFiles' in s);
+        const renderTemplateSteps = integration.Steps?.filter((s: any) => 'AdditionalFiles' in s) || [];
         for (const step of renderTemplateSteps) {
             for (const file of step.AdditionalFiles) {
                 if (file.startsWith('../')) {
@@ -72,7 +72,7 @@ export class FileScrambler {
          */
         let nestingStructure = '';
         while (requiredNestingLevel > 0) {
-            nestingStructure = `dir${requiredNestingLevel--}/${nestingStructure}`;
+            nestingStructure = `dir${requiredNestingLevel--}${path.sep}${nestingStructure}`;
         }
 
         const files: IntegrationFile[] = [];
@@ -86,7 +86,7 @@ export class FileScrambler {
         for (const filePath of [...new Set(additionalFiles)]) {
             files.push({
                 filename: this._makeBlobStorageLikePath(filePath, root, nestingStructure),
-                filecontent: this._readFile(previewContext, `${root}/${filePath}`, readWorkspaceFile)
+                filecontent: this._readFile(previewContext, path.join(root, filePath), readWorkspaceFile)
             });
         }
 
@@ -205,7 +205,7 @@ export class FileScrambler {
     static _makeBlobStorageLikePath(absolutePath: string, root: string, nestingStructure: string): string {
         let blobPath = path.normalize(absolutePath)
             .replace(path.normalize(root), ''); // trim the root path
-        
+
         // Make sure all slashes are correct to concat the paths
         if (blobPath.startsWith('/')) { blobPath = blobPath.substr(1); }
         if (nestingStructure.startsWith('/')) { nestingStructure = nestingStructure.substr(1); }
