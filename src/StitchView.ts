@@ -86,7 +86,7 @@ export class StitchView {
             var stepHtml = `<div>
                                 <h4>${stepId}</h4>
                                 <h5>INPUT | Zip (base64)</h5>
-                                <pre><code>${requests[stepId].content.substr(1).slice(0,-1)}</code></pre>`;
+                                <pre><code>${StitchView._trimQuotationMarks(requests[stepId].content)}</code></pre>`;
             if (renderStep.response.isSuccessStatusCode) {
                 stepHtml +=    `<h5>OUTPUT | Pdf (base64)</h5>
                                 <button onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${stepId}' });">view as file</button>
@@ -107,6 +107,18 @@ export class StitchView {
         }
         
 
+    }
+
+    private static _trimQuotationMarks(untrimmed: string) {
+        let result = untrimmed;
+        if (untrimmed.startsWith('"')) {
+            result = result.substr(1);
+        }
+        if (untrimmed.endsWith('"')) {
+            result = result.slice(0, -1);
+        }
+
+        return result;
     }
 
     private _escapeHtml(unsafe: string) {
