@@ -14,7 +14,9 @@
             "$type": "Core.Entities.Configs.Steps.RenderTemplateConfiguration, Core",
             "Id": "Render",
             "Template": "{{ include 'index.sbn-html'}}",
-            "AdditionalFiles": []
+            "AdditionalFiles": [
+                "../base/style.css"
+            ]
         }
       
     ],
