@@ -239,7 +239,7 @@ export class StitchPreview {
     private _update(textEditor?: vscode.TextEditor) {
 
         const integrationContext = this._getContext(textEditor);
-        if (!integrationContext) {
+        if (!this._context && !integrationContext) {
             this._view.displayError({
                 title: `No ${CONSTANTS.integrationExtension} file found`,
                 description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
@@ -252,14 +252,14 @@ export class StitchPreview {
             this._scenario = undefined;
             PdfPreview.disposeAll();
         }
-        this._context = integrationContext;
-        this._panel.title = `${CONSTANTS.panelTitlePrefix}${integrationContext.integrationFilename}`;
+        if (integrationContext) { this._context = integrationContext; }
+        this._panel.title = `${CONSTANTS.panelTitlePrefix}${this._context?.integrationFilename}`;
 
-        const normalizeResult = FileScrambler.getScenarios(integrationContext);
+        const normalizeResult = FileScrambler.getScenarios(this._context as PreviewContext);
         if (!normalizeResult.success) {
             this._view.displayError({
                 title: 'No scenarios found',
-                description: `To provide a scenario create a "scenarios" directory next to the ${integrationContext.integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`
+                description: `To provide a scenario create a "scenarios" directory next to the ${this._context?.integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`
             });
             return;
         }
@@ -278,11 +278,11 @@ export class StitchPreview {
         vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
 
         this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${scenario.name}`;
-        const model = FileScrambler.collectFiles(integrationContext, scenario, this._readWorkspaceFile);
+        const model = FileScrambler.collectFiles(this._context as PreviewContext, scenario, this._readWorkspaceFile);
 
         axios.post(this._testEndpoint, model)
             .then(res => {
-                this._view.displayResult(res.data, integrationContext, scenario);
+                this._view.displayResult(res.data, this._context as PreviewContext, scenario);
                 if (res.data.result) {
                     this._result = <StitchResponse>res.data;
                     this._updateRenderedUntitled();
@@ -334,7 +334,8 @@ export class StitchPreview {
         }
     }
 
-    private _isContextChanged(newContext: PreviewContext) {
+    private _isContextChanged(newContext?: PreviewContext) {
+        if (!newContext) { return false; }
         return this._context?.integrationFilePath !== newContext.integrationFilePath;
     }
 

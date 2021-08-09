@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.5.1
+- Fix errors when using imports or translations (crashed extension or resulted in incorrect behaviour)
+- Update preview on all changes in workspace (keeps current integration context instead of giving error 'No .integration.json file found')
+
 ## 0.5.0
 - Add support to preview intergration response and step requests (json, xml)
 - Add support to preview pdf step responses
