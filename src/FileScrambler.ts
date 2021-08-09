@@ -8,6 +8,8 @@ export class FileScrambler {
 
     public static collectFiles(previewContext: PreviewContext, scenario: ScenarioSource, readWorkspaceFile: ReadWorkspaceFileFunc): IntegrationRequestModel {
 
+        const files: IntegrationFile[] = [];
+
         let integrationPath = previewContext.integrationFilePath;
         const integrationContent = this._readFile(previewContext, integrationPath, readWorkspaceFile);
         let integration;
@@ -71,11 +73,11 @@ export class FileScrambler {
          * Required so relative pathing to parent folders, like '../../base/style.css' , works.
          */
         let nestingStructure = '';
+        if (fs.existsSync(importsPath)) { --requiredNestingLevel; } // If imports path exists, root is moved up one folder, so we require one less extra nesting directory.
         while (requiredNestingLevel > 0) {
             nestingStructure = `dir${requiredNestingLevel--}${path.sep}${nestingStructure}`;
         }
 
-        const files: IntegrationFile[] = [];
         pathsToInclude.forEach(includePath => {
             files.push({
                 filename: this._makeBlobStorageLikePath(includePath, root, nestingStructure),
@@ -86,7 +88,7 @@ export class FileScrambler {
         for (const filePath of [...new Set(additionalFiles)]) {
             files.push({
                 filename: this._makeBlobStorageLikePath(filePath, root, nestingStructure),
-                filecontent: this._readFile(previewContext, path.join(root, filePath), readWorkspaceFile)
+                filecontent: this._readFile(previewContext, path.join(path.dirname(integrationPath), filePath), readWorkspaceFile)
             });
         }
 
@@ -214,7 +216,8 @@ export class FileScrambler {
         const normalizedPath = path.normalize(`${nestingStructure}${blobPath}`);
         return normalizedPath
             .replace(/\\/g, '/') // Replace backslash with forward slash
-            .replace(/\/\//g, '/'); // Replace double slashes with one
+            .replace(/\/\//g, '/') // Replace double slashes with one
+            .replace(/\.\.\//g, ''); // Remove '../' from start
     }
 
     static _readFile(previewContext: PreviewContext, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc) : string {
