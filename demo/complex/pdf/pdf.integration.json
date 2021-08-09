@@ -1,5 +1,10 @@
 {
-    "imports": [],
+    "Imports": [
+        "../imports/demo.json"
+    ],
+    "Translations": [
+        "myDict"
+    ],
     "Request": {
         "AuthenticationMethods": [
             {
@@ -15,7 +20,7 @@
             "Id": "Render",
             "Template": "{{ include 'index.sbn-html'}}",
             "AdditionalFiles": [
-                "../base/style.css"
+                "../../base/style.css"
             ]
         }
       

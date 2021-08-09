@@ -1,8 +1,9 @@
 <html>
     <head>
-        <link rel="stylesheet" href="../base/style.css">
+        <link rel="stylesheet" href="../../base/style.css">
     </head>
     <body>
+        <h1>{{Imports.demoKey}} | {{ translate 'abc' 'myDict' }}</h1>
         <h1 class="red">Hello world</h1>
         <h2>Reference: {{Model.data.shipments[0].Reference}}</h2>
     </body>
