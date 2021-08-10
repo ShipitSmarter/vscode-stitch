@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.5.2
+- Bugfix untitled files in workspace caused reloading
+
 ## 0.5.1
 - Fix errors when using imports or translations (crashed extension or resulted in incorrect behaviour)
 - Update preview on all changes in workspace (keeps current integration context instead of giving error 'No .integration.json file found')

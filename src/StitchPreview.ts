@@ -169,6 +169,7 @@ export class StitchPreview {
         this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
         vscode.workspace.onDidChangeTextDocument((_e): void => {
+            if (_e.document.isUntitled) { return; }
             this._update();
         }, null, this._disposables);
         vscode.window.onDidChangeActiveTextEditor((e): void => {
