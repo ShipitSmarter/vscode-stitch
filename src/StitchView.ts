@@ -18,8 +18,9 @@ export class StitchView {
     }
 
     public displayError(error: StitchError, extraBody?: string): void {
+        extraBody = this._escapeHtml(extraBody || '');
         const htmlBody = `<h1 class="error">${error.title}</h1>
-                          <p>${error.description}</p>${extraBody || ''}`;
+                          <p>${this._escapeHtml(error.description)}</p><p>${extraBody}</p>`;
         this._webview.html = this._getHtml(htmlBody);
     }
 

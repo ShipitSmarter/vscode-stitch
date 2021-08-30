@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 0.5.3
+- Bugfix crash of stitch.preview command when a not found file is read
+- Improve error display by escaping possible HTML in message
+
 ## 0.5.2
 - Bugfix untitled files in workspace caused reloading
 

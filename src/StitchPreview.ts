@@ -4,7 +4,7 @@ import axios from 'axios';
 import { StitchView } from './StitchView';
 import { FileScrambler } from './FileScrambler';
 import { COMMANDS, CONSTANTS, MESSAGES } from './constants';
-import { CommandAction, ICommand, PreviewContext, RenderTemplateStepResult, ScenarioSource, StitchResponse, TreeItem } from './types';
+import { CommandAction, ICommand, IntegrationRequestModel, PreviewContext, RenderTemplateStepResult, ScenarioSource, StitchResponse, TreeItem } from './types';
 import { PdfPreview } from './PdfPreview';
 
 export class StitchPreview {
@@ -279,7 +279,16 @@ export class StitchPreview {
         vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
 
         this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${scenario.name}`;
-        const model = FileScrambler.collectFiles(this._context as PreviewContext, scenario, this._readWorkspaceFile);
+        var model: IntegrationRequestModel;
+        try {
+            model = FileScrambler.collectFiles(this._context as PreviewContext, scenario, this._readWorkspaceFile);
+        } catch(error) {
+            this._view.displayError({
+                title: 'Collecting files failed',
+                description: error.message
+            }, JSON.stringify(error));
+            return;
+        }
 
         axios.post(this._testEndpoint, model)
             .then(res => {
@@ -294,8 +303,8 @@ export class StitchPreview {
             .catch(err => {
                 this._view.displayError({
                     title: 'Request failed',
-                    description: JSON.stringify(err)
-                });
+                    description: err.message,
+                }, JSON.stringify(err));
             });
     }
 
