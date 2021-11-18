@@ -282,7 +282,7 @@ export class StitchPreview {
         var model: IntegrationRequestModel;
         try {
             model = FileScrambler.collectFiles(this._context as PreviewContext, scenario, this._readWorkspaceFile);
-        } catch(error) {
+        } catch(error: any) {
             this._view.displayError({
                 title: 'Collecting files failed',
                 description: error.message
