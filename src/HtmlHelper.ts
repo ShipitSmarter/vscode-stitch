@@ -1,13 +1,13 @@
 import { CONSTANTS } from "./constants";
-import { CommandAction, HttpStepResult, MailStepResult, RenderTemplateStepResult, StepRequest, StepResult } from "./types";
+import { CommandAction, HttpStepConfiguration, HttpStepResult, RenderTemplateStepConfiguration, RenderTemplateStepResult, StepConfiguration, StepResult } from "./types";
 
 export namespace HtmlHelper {
-    export function getStepHtml(step: StepResult, stepId: string, requests: Record<string, StepRequest>) {
+    export function getStepHtml(step: StepResult, stepId: string, configuration: StepConfiguration) {
         switch (step.$type) {
             case CONSTANTS.httpStepResultTypeType:
-                return _getHttpStepHtml(<HttpStepResult>step, stepId, requests[stepId]);
+                return _getHttpStepHtml(<HttpStepResult>step, stepId, <HttpStepConfiguration>configuration);
             case CONSTANTS.renderTemplateStepResultType:
-                return _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, stepId, requests[stepId]);
+                return _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, stepId, <RenderTemplateStepConfiguration>configuration);
             default:
                 return _getDefaultStepHtml(step, stepId);
         }
@@ -29,20 +29,23 @@ export namespace HtmlHelper {
                 </div>`;
     }
     
-    function _getHttpStepHtml(step: HttpStepResult, stepId: string, request: StepRequest) {
+    function _getHttpStepHtml(step: HttpStepResult, stepId: string, configuration: HttpStepConfiguration) {
         return `<div>
                     <h4>${stepId}</h4>
-                    <p>${step.request.method} - ${step.request.url}</p>
+                    <p>${configuration.method} - ${configuration.url}</p>
+                    ${Object.keys(configuration.headers).map(key => `<p><strong>${key}</strong>&nbsp;${configuration.headers[key]}</p>`)}
                     <button onclick="vscode.postMessage({action: ${CommandAction.viewStepRequest}, content: '${stepId}' });">view as file</button>
-                    <pre><code>${escapeHtml(request.content)}</code></pre>
+                    <pre><code>${escapeHtml(configuration.template)}</code></pre>
                 </div>`;
     }
     
-    function _getRenderTemplateStepHtml(step: RenderTemplateStepResult, stepId: string, request: StepRequest) {
+    function _getRenderTemplateStepHtml(step: RenderTemplateStepResult, stepId: string, configuration: RenderTemplateStepConfiguration) {
         var stepHtml = `<div>
                             <h4>${stepId}</h4>
-                            <h5>INPUT | Zip (base64)</h5>
-                            <pre><code>${_trimQuotationMarks(request.content)}</code></pre>`;
+                            <h5>INPUT | Html</h5>
+                            <pre><code>${escapeHtml(configuration.template)}</code></pre>
+                            <h6>Additional files</h6>
+                            <ul>${configuration.additionalFiles.map(f => `<li>${f}</li>`)}</ul>`;
         if (step.response.isSuccessStatusCode) {
             stepHtml +=    `<h5>OUTPUT | Pdf (base64)</h5>
                             <button onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${stepId}' });">view as file</button>
@@ -54,17 +57,5 @@ export namespace HtmlHelper {
         }
         stepHtml += '</div>';
         return stepHtml;
-    }
-
-    function _trimQuotationMarks(untrimmed: string) {
-        let result = untrimmed;
-        if (untrimmed.startsWith('"')) {
-            result = result.substr(1);
-        }
-        if (untrimmed.endsWith('"')) {
-            result = result.slice(0, -1);
-        }
-
-        return result;
     }
 }

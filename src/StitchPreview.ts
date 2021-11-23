@@ -50,7 +50,7 @@ export class StitchPreview {
         statusBar.command = COMMANDS.selectScenario;
         statusBar.show();
 
-        StitchPreview.currentPreview = new StitchPreview(panel, statusBar, `${endpoint}/test`, extensionUri);
+        StitchPreview.currentPreview = new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri);
     }
 
     public static selectScenario(): void {
@@ -113,7 +113,7 @@ export class StitchPreview {
                 const step = command.content;
                 this.showRendered({
                     filename: `stitch-step-request-${step}`,
-                    content: response.requests[step].content.trim()
+                    content: response.stepConfigurations[step].template.trim()
                 });
                 return;
             case CommandAction.viewStepResponse:
@@ -320,7 +320,7 @@ export class StitchPreview {
             } else {
                 let match = o.fileName.match(/^stitch-step-request-(.*?)\./);
                 if (match?.length === 2) {
-                    StitchPreview.updateRendered(o.uri, response.requests[match[1]].content.trim());
+                    StitchPreview.updateRendered(o.uri, response.stepConfigurations[match[1]].template.trim());
                 }
             }
         });

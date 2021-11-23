@@ -44,7 +44,7 @@ export class StitchView {
         const response = <StitchResponse>data;
         const stepHtml = Object
             .keys(response.integrationContext.steps)
-            .map(key => { return `<li>${HtmlHelper.getStepHtml(response.integrationContext.steps[key], key, response.requests)}</li>`; })
+            .map(key => { return `<li>${HtmlHelper.getStepHtml(response.integrationContext.steps[key], key, response.stepConfigurations[key])}</li>`; })
             .join('');
 
         var resultStatusCode = response.resultStatusCode ? response.resultStatusCode : 200;
