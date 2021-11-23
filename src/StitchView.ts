@@ -25,51 +25,36 @@ export class StitchView {
     }
 
     public displayResult(data: any, previewContext: PreviewContext, scenario: ScenarioSource): void {
-        const contextHtml = this._getContextHtml(previewContext, scenario);
-
         if (!data.result) {
             if (data.ClassName === 'Core.Exceptions.StitchResponseSerializationException') {
                 return this.displayError({
                     title: data.Message,
                     description: `<pre><code>${data.ResultBody}</code></pre><strong>Exception:</strong><br />${data.InnerException?.Message}`
-                }, contextHtml);
+                });
             }
 
             return this.displayError({
                 title: 'Render error',
                 description: data.message || `${data.Message}<br /><br />${data.StackTraceString}`
-            }, contextHtml);
+            });
         }
 
         const response = <StitchResponse>data;
         const stepHtml = Object
             .keys(response.integrationContext.steps)
-            .map(key => { return `<li>${HtmlHelper.getStepHtml(response.integrationContext.steps[key], key, response.stepConfigurations[key])}</li>`; })
+            .map(key => { return HtmlHelper.getStepHtml(response.integrationContext.steps[key], response.stepConfigurations[key]); })
             .join('');
 
         var resultStatusCode = response.resultStatusCode ? response.resultStatusCode : 200;
+        var actionCommand = `{action: ${CommandAction.viewIntegrationResponse} }`;
+        var body =  `<pre><code>${JSON.stringify(response.result, null, 2)}</code></pre>`;
 
-        const htmlBody = `<h1>Output</h1>
-                          <button onclick="vscode.postMessage({action: ${CommandAction.viewIntegrationResponse} });">view as file</button>
-                          <pre><code>${JSON.stringify(response.result, null, 2)}</code></pre>
-                          <p>Statuscode: ${resultStatusCode}</p>
-                          ${contextHtml}
-                          <h3>Steps</h3>
-                          <ul>${stepHtml}</ul>`;
+        const htmlBody = `<h2>Steps</h2>
+                          <div class="preview-container">${stepHtml}</div>
+                          <h2>Response</h2>
+                          ${HtmlHelper.getActionHtml('', resultStatusCode, actionCommand, body)}`;
 
         this._webview.html = this._getHtml(htmlBody);
-    }
-
-    private _getContextHtml(previewContext: PreviewContext, scenario: ScenarioSource): string | undefined {
-        return `<h3>Context</h3>                          
-                <table>
-                    <tr>
-                        <th>Integration</th><td>${HtmlHelper.escapeHtml(previewContext.integrationFilename)}<td>
-                    </tr>
-                    <tr>
-                        <th>Scenario</th><td>${scenario.name}<td>
-                    </tr>
-                </table>`;
     }
 
     private _getHtml(htmlBody: string): string {

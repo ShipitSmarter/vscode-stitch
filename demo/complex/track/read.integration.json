@@ -24,6 +24,14 @@
             "Headers":{},
             "Url": "https://api-gw.dhlparcel.nl/track-trace?key={{Model.Shipment.AWB}}",
             "Template": ""
+        },
+        {
+            "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
+            "Id": "Track2",
+            "Method": "GET",
+            "Headers":{},
+            "Url": "https://api-gw.dhlparcel.nl/track-trace?key={{Model.Shipment.AWB}}",
+            "Template": ""
         }
     ],
     "Response": {
