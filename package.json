@@ -2,7 +2,7 @@
 	"name": "vscode-stitch",
 	"displayName": "Stitch integration helper",
 	"description": "Helper to create Stitch Integrations",
-	"publisher": "ShipitSmarter.com B.V.",
+	"publisher": "ShipitSmarter",
 	"author": {
 		"name": "ShipitSmarter",
 		"url": "https://github.com/ShipitSmarter"
