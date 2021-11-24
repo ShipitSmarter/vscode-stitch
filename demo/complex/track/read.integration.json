@@ -19,7 +19,15 @@
     "Steps": [
         {
             "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
-            "Id": "Track",
+            "Id": "TrackingMyPacket",
+            "Method": "GET",
+            "Headers":{},
+            "Url": "https://api-gw.dhlparcel.nl/track-trace?key={{Model.Shipment.AWB}}",
+            "Template": ""
+        },
+        {
+            "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
+            "Id": "TrackingAnother",
             "Method": "GET",
             "Headers":{},
             "Url": "https://api-gw.dhlparcel.nl/track-trace?key={{Model.Shipment.AWB}}",

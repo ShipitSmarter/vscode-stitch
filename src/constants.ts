@@ -7,14 +7,19 @@ export const CONSTANTS = {
 	statusbarTitlePrefix: 'Scenario: ',
 	
 	configKeyEndpointUrl: 'stitch.endpointUrl',
+	configKeyDebounceTimeout: 'stitch.debounceTimeout',
+
 	previewActiveContextKey: 'stitch:previewActive',
 
 	httpStepResultTypeType: 'Core.Entities.StepResults.HttpStepResult, Core',
 	renderTemplateStepResultType: 'Core.Entities.StepResults.RenderTemplateStepResult, Core',
+	mailStepResultType: 'Core.Entities.StepResults.MailStepResult, Core',
+	sftpStepResultType: 'Core.Entities.StepResults.SftpStepResult, Core'
 };
 
 export const MESSAGES = {
-	endpointUrlNotConfigured: `The '${CONSTANTS.configKeyEndpointUrl}' is not configured, please set this up in File -> Preferences -> Settings`
+	endpointUrlNotConfigured: `The '${CONSTANTS.configKeyEndpointUrl}' is not configured, please set this up in File -> Preferences -> Settings`,
+	debounceTimeoutNotConfigured: `The '${CONSTANTS.configKeyDebounceTimeout}' is not configured, please set this up in File -> Preferences -> Settings`
 };
 
 export const COMMANDS = {

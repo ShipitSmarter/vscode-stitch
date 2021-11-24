@@ -1,0 +1,29 @@
+{
+    "Imports": [],
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Key": "hash-1-h9T0FpQspCjYGuYOTlgvUcwTXxizb2IsNB2Wt5RD5hnNu/qG",
+                "Id": "DummyStitch",
+                "Description": "DummyStitch"
+            }
+        ]
+    },
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.MailConfiguration, Core",
+            "Id": "MailError",
+            "From": "no-reply@example.com",
+            "To": [
+                "info@example.com",
+                "support@example.com"
+            ],
+            "Subject": "{{ Model.title }}",
+            "Template": "{{ include 'mail.sbn-html' }}"
+        }
+    ],
+    "Response": {
+        "StatusCode": 200,
+        "Body": "{}"
+    }
+}

@@ -40,9 +40,43 @@ export interface StitchError {
 export interface StitchResponse {
 	result: any;
 	resultStatusCode: any;
-	requests: Record<string, StepRequest>;
+	stepConfigurations: Record<string, StepConfiguration>;
 	integrationContext: IntegrationContext;
 }
+
+export interface BaseStepConfiguration {
+	id: string;
+	template: string;
+	successCondition: string;
+	startCondition: string;
+}
+
+export interface HttpStepConfiguration extends BaseStepConfiguration {
+	method: string;
+	headers: Record<string, string>;
+	url: string;
+}
+
+export interface MailStepConfiguration extends BaseStepConfiguration {
+	from: string;
+	to: string[];
+	subject: string;
+}
+
+export interface RenderTemplateStepConfiguration extends BaseStepConfiguration {
+	additionalFiles: string[];
+}
+
+export interface SftpStepConfiguration extends BaseStepConfiguration {
+	host: string;
+	port: number;
+	username: string;
+	password: string;
+	path: string;
+	filename: string;
+}
+
+export type StepConfiguration = BaseStepConfiguration | HttpStepConfiguration | MailStepConfiguration | RenderTemplateStepConfiguration | SftpStepConfiguration;
 
 export interface IntegrationContext {
 	model: object;
@@ -60,11 +94,6 @@ export interface BaseStepResult {
 }
 
 export interface HttpStepResult extends BaseStepResult {
-	request: {
-		url: string;
-		method: string;
-	};
-
 	response: {
 		bodyFormat: string;
 		statusCode: number;
@@ -84,12 +113,6 @@ export interface RenderTemplateStepResult extends BaseStepResult {
 	}
 }
 
-export interface StepRequest {
-	method: string;
-	requestUri: string;	
-	content: string;
-}
-
 export interface TreeItem {
     name: string;
     path: string;
@@ -104,7 +127,8 @@ export interface ICommand {
 }
 
 export enum CommandAction {
-	viewStepRequest,
-	viewStepResponse,
-	viewIntegrationResponse,
+	viewStepRequest = 0,
+	viewStepResponse = 1,
+	viewIntegrationResponse = 2,
+	storeScrollPosition = 3,
 }

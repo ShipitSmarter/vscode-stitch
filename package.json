@@ -2,16 +2,26 @@
 	"name": "vscode-stitch",
 	"displayName": "Stitch integration helper",
 	"description": "Helper to create Stitch Integrations",
-	"publisher": "ShipitSmarter",
+	"publisher": "ShipitSmarter.com B.V.",
 	"author": {
-		"name": "Jeffrey Tummers",
-		"url": "https://github.com/ThumNet"
+		"name": "ShipitSmarter",
+		"url": "https://github.com/ShipitSmarter"
 	},
+	"contributors": [
+		{
+			"name": "Jeffrey Tummers",
+			"url": "https://github.com/ThumNet"
+		},
+		{
+			"name": "Lennart van Koot",
+			"url": "https://github.com/LennartKoot"
+		}
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "0.5.3",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.53.0"
 	},
@@ -88,14 +98,20 @@
 				}
 			]
 		},
-		"configuration": {
-			"title": "Stitch Endpoint Url",
+		"configuration":{
+			"title": "Stitch",
 			"properties": {
 				"stitch.endpointUrl": {
 					"type": "string",
 					"default": "",
-					"description": "Url where the Stitch testing endpoint is available",
+					"description": "Url where the Stitch editor endpoint is available",
 					"pattern": "(http:|https:)+[^\\s]+[\\w]"
+				},
+				"stitch.debounceTimeout": {
+					"type": "number",
+					"default": 500,
+					"description": "Amount of ms to wait with no changes before reloading preview",
+					"minimum": 200
 				}
 			}
 		},

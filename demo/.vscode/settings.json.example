@@ -1,3 +1,4 @@
 {
-    "stitch.endpointUrl": "http://localhost:57158"
+    "stitch.endpointUrl": "http://localhost:57158",
+    "stitch.debounceTimeout": 500
 }

@@ -6,6 +6,7 @@ import { FileScrambler } from './FileScrambler';
 import { COMMANDS, CONSTANTS, MESSAGES } from './constants';
 import { CommandAction, ICommand, IntegrationRequestModel, PreviewContext, RenderTemplateStepResult, ScenarioSource, StitchResponse, TreeItem } from './types';
 import { PdfPreview } from './PdfPreview';
+import { debounce } from './debounce';
 
 export class StitchPreview {
 
@@ -16,6 +17,8 @@ export class StitchPreview {
     private _context?: PreviewContext;
     private _scenario?: ScenarioSource;
     private _result?: StitchResponse;
+    private _debouncedTextUpdate: () => void;
+    private _scrollPosition?: number;
 
     public static createOrShow(extensionUri: vscode.Uri, textEditor?: vscode.TextEditor): void {
 
@@ -35,6 +38,12 @@ export class StitchPreview {
             return;
         }
 
+        const debounceTimeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
+        if (!debounceTimeout) {
+            vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
+            return;
+        }
+
         const showOptions = {
             viewColumn: vscode.ViewColumn.Two,
             preserveFocus: true
@@ -50,7 +59,7 @@ export class StitchPreview {
         statusBar.command = COMMANDS.selectScenario;
         statusBar.show();
 
-        StitchPreview.currentPreview = new StitchPreview(panel, statusBar, `${endpoint}/test`, extensionUri);
+        StitchPreview.currentPreview = new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri, debounceTimeout);
     }
 
     public static selectScenario(): void {
@@ -113,7 +122,7 @@ export class StitchPreview {
                 const step = command.content;
                 this.showRendered({
                     filename: `stitch-step-request-${step}`,
-                    content: response.requests[step].content.trim()
+                    content: response.stepConfigurations[step].template.trim()
                 });
                 return;
             case CommandAction.viewStepResponse:
@@ -129,6 +138,9 @@ export class StitchPreview {
                     content: JSON.stringify(response.result, null, 2)
                 });
                 return;
+            case CommandAction.storeScrollPosition:
+                if (this.currentPreview) { this.currentPreview._scrollPosition = +command.content; }
+                return;
         }
     }
 
@@ -136,9 +148,12 @@ export class StitchPreview {
         if (!options.content) { return; }
 
         const firstChar = options.content[0];
-        const ext = firstChar === '<' ? '.xml' : firstChar === '{' ? '.json' : '.txt';
+        var extension = '.txt';
+        if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
+        else if (firstChar === '<') { extension = '.xml'; }
+        else if (firstChar === '{' || firstChar === '[') { extension = '.json'; }
 
-        const untitledFile = vscode.Uri.parse(`untitled:${options.filename}${ext}`);
+        const untitledFile = vscode.Uri.parse(`untitled:${options.filename}${extension}`);
         this.updateRendered(untitledFile, options.content, true);
     }
 
@@ -160,9 +175,11 @@ export class StitchPreview {
     constructor(
         private _panel: vscode.WebviewPanel,
         private _statusBar: vscode.StatusBarItem,
-        private _testEndpoint: string,
-        extensionUri: vscode.Uri) {
+        private _editorEndpoint: string,
+        extensionUri: vscode.Uri,
+        debounceTimeout: number) {
 
+        this._debouncedTextUpdate = debounce(() => this._update(), debounceTimeout);
         this._view = new StitchView(_panel.webview, extensionUri);
         this._update();
 
@@ -170,7 +187,7 @@ export class StitchPreview {
 
         vscode.workspace.onDidChangeTextDocument((_e): void => {
             if (_e.document.isUntitled) { return; }
-            this._update();
+            this._debouncedTextUpdate();
         }, null, this._disposables);
         vscode.window.onDidChangeActiveTextEditor((e): void => {
             e && ['file'].includes(e.document.uri.scheme) && this._update(e);
@@ -179,6 +196,9 @@ export class StitchPreview {
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration(CONSTANTS.configKeyEndpointUrl)) {
                 this._onUpdateEndoint();
+            }
+            if (e.affectsConfiguration(CONSTANTS.configKeyDebounceTimeout)) {
+                this._onUpdateDebounceTimeout();
             }
         }, null, this._disposables);
     }
@@ -199,6 +219,16 @@ export class StitchPreview {
         }
     }
 
+    public getScrollPosition(): number {
+        return !this._scrollPosition
+            ? 0
+            : this._scrollPosition;
+    }
+
+    public resetScrollPosition(): void {
+        this._scrollPosition = 0;
+    }
+
     private _onUpdateEndoint() {
 
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
@@ -207,9 +237,20 @@ export class StitchPreview {
             return;
         }
 
-        this._testEndpoint = `${endpoint}/test`;
-        vscode.window.showInformationMessage('The Stitch test endpoint has been updated to: ' + endpoint);
+        this._editorEndpoint = `${endpoint}/editor/simulate`;
+        vscode.window.showInformationMessage('The Stitch editor endpoint has been updated to: ' + endpoint);
         this._update();
+    }
+
+    private _onUpdateDebounceTimeout() {
+        const timeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
+        if (!timeout) {
+            vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
+            return;
+        }
+
+        this._debouncedTextUpdate = debounce(() => this._update(), timeout);
+        vscode.window.showInformationMessage('The Stitch debounce timeout has been updated to: ' + timeout + ' ms');
     }
 
     private _getContext(textEditor?: vscode.TextEditor): PreviewContext | undefined {
@@ -282,7 +323,7 @@ export class StitchPreview {
         var model: IntegrationRequestModel;
         try {
             model = FileScrambler.collectFiles(this._context as PreviewContext, scenario, this._readWorkspaceFile);
-        } catch(error) {
+        } catch(error: any) {
             this._view.displayError({
                 title: 'Collecting files failed',
                 description: error.message
@@ -290,7 +331,7 @@ export class StitchPreview {
             return;
         }
 
-        axios.post(this._testEndpoint, model)
+        axios.post(this._editorEndpoint, model)
             .then(res => {
                 this._view.displayResult(res.data, this._context as PreviewContext, scenario);
                 if (res.data.result) {
@@ -320,7 +361,7 @@ export class StitchPreview {
             } else {
                 let match = o.fileName.match(/^stitch-step-request-(.*?)\./);
                 if (match?.length === 2) {
-                    StitchPreview.updateRendered(o.uri, response.requests[match[1]].content.trim());
+                    StitchPreview.updateRendered(o.uri, response.stepConfigurations[match[1]].template.trim());
                 }
             }
         });

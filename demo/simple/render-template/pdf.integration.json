@@ -1,7 +1,5 @@
 {
-    "Imports": [
-        "../imports/demo.json"
-    ],
+    "Imports": [],
     "Translations": [
         "myDict"
     ],
