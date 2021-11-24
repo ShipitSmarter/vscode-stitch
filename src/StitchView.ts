@@ -40,7 +40,7 @@ export class StitchView {
         }
 
         const response = <StitchResponse>data;
-        const stepHtml = Object
+        const stepsHtml = Object
             .keys(response.integrationContext.steps)
             .map(key => { return HtmlHelper.getStepHtml(response.integrationContext.steps[key], response.stepConfigurations[key]); })
             .join('');
@@ -49,10 +49,16 @@ export class StitchView {
         var actionCommand = `{action: ${CommandAction.viewIntegrationResponse} }`;
         var body =  `<pre><code>${JSON.stringify(response.result, null, 2)}</code></pre>`;
 
-        const htmlBody = `<h2>Steps</h2>
-                          <div class="preview-container">${stepHtml}</div>
-                          <h2>Response</h2>
-                          ${HtmlHelper.getActionHtml('', resultStatusCode, actionCommand, body)}`;
+        var stepsNav = Object.keys(response.integrationContext.steps).map(key => { return `<a href="#${key}">${key}</a>`; }).join('');
+        var quickNav = `${stepsNav}<a href="#integration_response">Response</a>`;
+
+        const htmlBody = `<div class="container">
+                            <h2>Steps</h2>
+                            ${stepsHtml}
+                            <h2 id="integration_response">Response</h2>
+                            ${HtmlHelper.getActionHtml('', resultStatusCode, '', actionCommand, body)}                            
+                          </div>
+                          <div class="quicknav"><strong>&nbsp;Nav</strong> ${quickNav}</div>`;
 
         this._webview.html = this._getHtml(htmlBody);
     }

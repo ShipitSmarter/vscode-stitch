@@ -13,8 +13,8 @@ export namespace HtmlHelper {
         }
     }
 
-    export function getActionHtml(title: string, type:string, postMessageAction: string, body: string) {
-        return `<div class="action">
+    export function getActionHtml(title: string, type:string, anchor: string, postMessageAction: string, body: string) {
+        return `<div class="action" id="${anchor}">
                     <span class="title">${title}</span>
                     <span class="type">${type}</span>                    
                     <svg xmlns="http://www.w3.org/2000/svg" 
@@ -30,7 +30,7 @@ export namespace HtmlHelper {
     }
 
     function _getActionStepHtml(title: string, step: StepConfiguration, body: string) {
-        return getActionHtml(step.id, title, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
+        return getActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
                     `${body}
                     <pre><code>${escapeHtml(step.template)}</code></pre>`);
     }

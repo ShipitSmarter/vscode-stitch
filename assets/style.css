@@ -14,8 +14,9 @@ pre {
   white-space: pre-wrap;
 }
 
-.preview-container {
+.container {
   font-family: Consolas, monospace;
+  margin-bottom: 100vh;
 }
 
 .action {
@@ -25,6 +26,7 @@ pre {
   position: relative;
   min-height: 3rem;
   font-size: .9rem;
+  word-break: break-word;
 }
 
 .action .type, .action .title {
@@ -37,6 +39,11 @@ pre {
   color: var(--vscode-editor-foreground);
   font-weight: bold;
   right: 1.3rem;
+}
+
+.action .title a {
+  text-decoration: none;
+  color: var(--vscode-editor-foreground);
 }
 
 .file-icon {
@@ -74,4 +81,26 @@ pre {
 .action pre {
   border-top: 1px solid;
   padding-top: .6em;
+}
+
+.quicknav {
+  font-family: Consolas, monospace;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--vscode-editor-background);
+  border-top: 1px solid;
+  box-shadow: 0 0px 3px 0px var(--vscode-editor-foreground);
+}
+
+.quicknav a {
+  padding: .3rem;
+  text-decoration: none;
+  display: inline-block;
+  border-right: 1px solid var(--vscode-editor-foreground);
+}
+
+.quicknav a:first-of-type {
+  border-left: 1px solid var(--vscode-editor-foreground);
 }
