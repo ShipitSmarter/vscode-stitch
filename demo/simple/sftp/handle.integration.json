@@ -1,0 +1,29 @@
+{
+    "Imports": [],
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Key": "hash-1-h9T0FpQspCjYGuYOTlgvUcwTXxizb2IsNB2Wt5RD5hnNu/qG",
+                "Id": "DummyStitch",
+                "Description": "DummyStitch"
+            }
+        ]
+    },
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.SftpConfiguration, Core",
+            "Id": "SftpUpload",
+            "Host": "{{ Model.host }}",
+            "Port":  21,
+            "Filename": "{{ Model.filename }}",
+            "Template": "{{ include 'file.sbn' }}",
+            "Path": "{{ Model.path }}",
+            "Username": "{{ Model.username }}",
+            "Password": "{{ decode_secret secret-1-editor-dummyhash }}"
+        }
+    ],
+    "Response": {
+        "StatusCode": 200,
+        "Body": "{}"
+    }
+}

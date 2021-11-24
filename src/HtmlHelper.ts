@@ -1,5 +1,6 @@
+import * as path from 'path';
 import { CONSTANTS } from "./constants";
-import { CommandAction, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, RenderTemplateStepResult, StepConfiguration, StepResult } from "./types";
+import { CommandAction, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, RenderTemplateStepResult, SftpStepConfiguration, StepConfiguration, StepResult } from "./types";
 
 export namespace HtmlHelper {
     export function getStepHtml(step: StepResult, configuration: StepConfiguration) {
@@ -10,6 +11,8 @@ export namespace HtmlHelper {
                 return _getActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
             case CONSTANTS.mailStepResultType:
                 return _getActionStepHtml('Mail', configuration, _getMailStepHtml(<MailStepConfiguration>configuration));
+            case CONSTANTS.sftpStepResultType:
+                return _getActionStepHtml('SFTP', configuration, _getSftpStepHtml(<SftpStepConfiguration>configuration));
             default:
                 return _getDefaultStepHtml(step);
         }
@@ -75,6 +78,15 @@ export namespace HtmlHelper {
                     Subject:&nbsp;${configuration.subject}<br />
                     From:&nbsp;&nbsp;&nbsp;&nbsp;${configuration.from}<br />
                     To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.to.join(', ')}
+                </p>`;
+    }
+
+    function _getSftpStepHtml(configuration: SftpStepConfiguration) {
+        return `<p>
+                    Url:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.host}:${configuration.port}<br />
+                    File:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${path.join(configuration.path, configuration.filename)}<br />
+                    Username:&nbsp;${configuration.username}<br />
+                    Password:&nbsp;${configuration.password}
                 </p>`;
     }
 }

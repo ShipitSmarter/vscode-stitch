@@ -1,0 +1,6 @@
+{
+    "host": "localhost",
+    "filename": "file.txt",
+    "path": "/upload/path",
+    "username": "root"
+}
