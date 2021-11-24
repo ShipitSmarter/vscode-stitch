@@ -88,14 +88,20 @@
 				}
 			]
 		},
-		"configuration": {
-			"title": "Stitch Endpoint Url",
+		"configuration":{
+			"title": "Stitch",
 			"properties": {
 				"stitch.endpointUrl": {
 					"type": "string",
 					"default": "",
-					"description": "Url where the Stitch testing endpoint is available",
+					"description": "Url where the Stitch editor endpoint is available",
 					"pattern": "(http:|https:)+[^\\s]+[\\w]"
+				},
+				"stitch.debounceTimeout": {
+					"type": "number",
+					"default": 500,
+					"description": "Amount of ms to wait with no changes before reloading preview",
+					"minimum": 200
 				}
 			}
 		},

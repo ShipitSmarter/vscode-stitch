@@ -6,6 +6,7 @@ import { FileScrambler } from './FileScrambler';
 import { COMMANDS, CONSTANTS, MESSAGES } from './constants';
 import { CommandAction, ICommand, IntegrationRequestModel, PreviewContext, RenderTemplateStepResult, ScenarioSource, StitchResponse, TreeItem } from './types';
 import { PdfPreview } from './PdfPreview';
+import { debounce } from './debounce';
 
 export class StitchPreview {
 
@@ -16,6 +17,7 @@ export class StitchPreview {
     private _context?: PreviewContext;
     private _scenario?: ScenarioSource;
     private _result?: StitchResponse;
+    private _debouncedTextUpdate: () => void;
 
     public static createOrShow(extensionUri: vscode.Uri, textEditor?: vscode.TextEditor): void {
 
@@ -35,6 +37,12 @@ export class StitchPreview {
             return;
         }
 
+        const debounceTimeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
+        if (!debounceTimeout) {
+            vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
+            return;
+        }
+
         const showOptions = {
             viewColumn: vscode.ViewColumn.Two,
             preserveFocus: true
@@ -50,7 +58,7 @@ export class StitchPreview {
         statusBar.command = COMMANDS.selectScenario;
         statusBar.show();
 
-        StitchPreview.currentPreview = new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri);
+        StitchPreview.currentPreview = new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri, debounceTimeout);
     }
 
     public static selectScenario(): void {
@@ -163,9 +171,11 @@ export class StitchPreview {
     constructor(
         private _panel: vscode.WebviewPanel,
         private _statusBar: vscode.StatusBarItem,
-        private _testEndpoint: string,
-        extensionUri: vscode.Uri) {
+        private _editorEndpoint: string,
+        extensionUri: vscode.Uri,
+        debounceTimeout: number) {
 
+        this._debouncedTextUpdate = debounce(() => this._update(), debounceTimeout);
         this._view = new StitchView(_panel.webview, extensionUri);
         this._update();
 
@@ -173,7 +183,7 @@ export class StitchPreview {
 
         vscode.workspace.onDidChangeTextDocument((_e): void => {
             if (_e.document.isUntitled) { return; }
-            this._update();
+            this._debouncedTextUpdate();
         }, null, this._disposables);
         vscode.window.onDidChangeActiveTextEditor((e): void => {
             e && ['file'].includes(e.document.uri.scheme) && this._update(e);
@@ -182,6 +192,9 @@ export class StitchPreview {
         vscode.workspace.onDidChangeConfiguration(e => {
             if (e.affectsConfiguration(CONSTANTS.configKeyEndpointUrl)) {
                 this._onUpdateEndoint();
+            }
+            if (e.affectsConfiguration(CONSTANTS.configKeyDebounceTimeout)) {
+                this._onUpdateDebounceTimeout();
             }
         }, null, this._disposables);
     }
@@ -210,9 +223,20 @@ export class StitchPreview {
             return;
         }
 
-        this._testEndpoint = `${endpoint}/test`;
-        vscode.window.showInformationMessage('The Stitch test endpoint has been updated to: ' + endpoint);
+        this._editorEndpoint = `${endpoint}/editor/simulate`;
+        vscode.window.showInformationMessage('The Stitch editor endpoint has been updated to: ' + endpoint);
         this._update();
+    }
+
+    private _onUpdateDebounceTimeout() {
+        const timeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
+        if (!timeout) {
+            vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
+            return;
+        }
+
+        this._debouncedTextUpdate = debounce(() => this._update(), timeout);
+        vscode.window.showInformationMessage('The Stitch debounce timeout has been updated to: ' + timeout + ' ms');
     }
 
     private _getContext(textEditor?: vscode.TextEditor): PreviewContext | undefined {
@@ -293,7 +317,7 @@ export class StitchPreview {
             return;
         }
 
-        axios.post(this._testEndpoint, model)
+        axios.post(this._editorEndpoint, model)
             .then(res => {
                 this._view.displayResult(res.data, this._context as PreviewContext, scenario);
                 if (res.data.result) {
