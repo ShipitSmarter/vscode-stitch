@@ -18,6 +18,7 @@ export class StitchPreview {
     private _scenario?: ScenarioSource;
     private _result?: StitchResponse;
     private _debouncedTextUpdate: () => void;
+    private _scrollPosition?: number;
 
     public static createOrShow(extensionUri: vscode.Uri, textEditor?: vscode.TextEditor): void {
 
@@ -137,6 +138,9 @@ export class StitchPreview {
                     content: JSON.stringify(response.result, null, 2)
                 });
                 return;
+            case CommandAction.storeScrollPosition:
+                if (this.currentPreview) { this.currentPreview._scrollPosition = +command.content; }
+                return;
         }
     }
 
@@ -213,6 +217,16 @@ export class StitchPreview {
                 x.dispose();
             }
         }
+    }
+
+    public getScrollPosition(): number {
+        return !this._scrollPosition
+            ? 0
+            : this._scrollPosition;
+    }
+
+    public resetScrollPosition(): void {
+        this._scrollPosition = 0;
     }
 
     private _onUpdateEndoint() {

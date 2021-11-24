@@ -5,13 +5,11 @@ import { CommandAction, ICommand, PreviewContext, ScenarioSource, StitchError, S
 
 export class StitchView {
 
-    private _stylesMainUri: vscode.Uri;
     private _disposables: vscode.Disposable[] = [];
 
-    constructor(private _webview: vscode.Webview, extensionUri: vscode.Uri) {
-        this._stylesMainUri = _webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'assets', 'style.css'));
+    constructor(private _webview: vscode.Webview, private _extensionUri: vscode.Uri) {
         _webview.onDidReceiveMessage(
-            (command: ICommand) => { StitchPreview.handleCommand(command, extensionUri); },
+            (command: ICommand) => { StitchPreview.handleCommand(command, _extensionUri); },
             undefined,
             this._disposables
         );
@@ -26,6 +24,7 @@ export class StitchView {
 
     public displayResult(data: any, previewContext: PreviewContext, scenario: ScenarioSource): void {
         if (!data.result) {
+            this._webview.postMessage({command: 'requestScrollPosition'});
             if (data.ClassName === 'Core.Exceptions.StitchResponseSerializationException') {
                 return this.displayError({
                     title: data.Message,
@@ -56,15 +55,24 @@ export class StitchView {
                             <h2>Steps</h2>
                             ${stepsHtml}
                             <h2 id="integration_response">Response</h2>
-                            ${HtmlHelper.getActionHtml('', resultStatusCode, '', actionCommand, body)}                            
+                            ${HtmlHelper.getActionHtml('', resultStatusCode, '', actionCommand, body)}
                           </div>
                           <div class="quicknav"><strong>&nbsp;Nav</strong> ${quickNav}</div>`;
 
         this._webview.html = this._getHtml(htmlBody);
+
+        var scrollPosition = StitchPreview.currentPreview?.getScrollPosition();
+        if (scrollPosition) {
+            this._webview.postMessage({ command: 'setScrollPosition', scrollY: scrollPosition});
+            StitchPreview.currentPreview?.resetScrollPosition();
+        }
     }
 
     private _getHtml(htmlBody: string): string {
         const cspSource = this._webview.cspSource;
+        const resolveAsUri = (...p: string[]): vscode.Uri => {
+            return this._webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, ...p));
+        };
         return `<!DOCTYPE html>
             <html lang="en">
             <head>
@@ -75,9 +83,9 @@ export class StitchView {
                 <meta http-equiv="Content-Security-Policy" content="
                     default-src 'none';
                     style-src ${cspSource};
-                    script-src 'unsafe-inline';
+                    script-src 'unsafe-inline' ${cspSource};
                     img-src ${cspSource} https:;">
-                <link href="${this._stylesMainUri}" rel="stylesheet">
+                <link href="${resolveAsUri('assets', 'style.css')}" rel="stylesheet">
                 <script>
                     window.acquireVsCodeApi = acquireVsCodeApi;
                 </script>
@@ -87,6 +95,7 @@ export class StitchView {
                 <script>
                     const vscode = window.acquireVsCodeApi();
                 </script>
+                <script src="${resolveAsUri('assets', 'preview.js')}"></script>
             </body>
             </html>`;
     }

@@ -127,7 +127,8 @@ export interface ICommand {
 }
 
 export enum CommandAction {
-	viewStepRequest,
-	viewStepResponse,
-	viewIntegrationResponse,
+	viewStepRequest = 0,
+	viewStepResponse = 1,
+	viewIntegrationResponse = 2,
+	storeScrollPosition = 3,
 }
