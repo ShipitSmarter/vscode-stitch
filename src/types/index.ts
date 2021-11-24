@@ -47,14 +47,14 @@ export interface StitchResponse {
 export interface BaseStepConfiguration {
 	id: string;
 	template: string;
-	successCondition: string;
-	startCondition: string;
+	successCondition?: string;
+	startCondition?: string;
 }
 
 export interface HttpStepConfiguration extends BaseStepConfiguration {
 	method: string;
-	headers: Record<string, string>;
 	url: string;
+	headers?: Record<string, string>;
 }
 
 export interface MailStepConfiguration extends BaseStepConfiguration {
@@ -64,7 +64,7 @@ export interface MailStepConfiguration extends BaseStepConfiguration {
 }
 
 export interface RenderTemplateStepConfiguration extends BaseStepConfiguration {
-	additionalFiles: string[];
+	additionalFiles?: string[];
 }
 
 export interface SftpStepConfiguration extends BaseStepConfiguration {
@@ -72,8 +72,8 @@ export interface SftpStepConfiguration extends BaseStepConfiguration {
 	port: number;
 	username: string;
 	password: string;
-	path: string;
 	filename: string;
+	path?: string;
 }
 
 export type StepConfiguration = BaseStepConfiguration | HttpStepConfiguration | MailStepConfiguration | RenderTemplateStepConfiguration | SftpStepConfiguration;

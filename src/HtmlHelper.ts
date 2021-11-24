@@ -54,15 +54,22 @@ export namespace HtmlHelper {
     }
     
     function _getHttpStepHtml(configuration: HttpStepConfiguration) {
-        return `<p>${configuration.method} ${configuration.url}</p>
-                <p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers[key]}<br />`).join('')}</p>`;
+        var html = `<p>${configuration.method} ${configuration.url}</p>`;
+        if (configuration.headers) {
+            html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers![key]}<br />`).join('')}</p>`;
+        };
+
+        return html;
     }
 
     function _getRenderTemplateStepHtml(step: RenderTemplateStepResult, configuration: RenderTemplateStepConfiguration) {
-        var stepHtml = `<dl>
-                            <dt>Additional files</dt>
-                            ${configuration.additionalFiles.map(f => `<dd>${f}</dd>`).join('')}
-                        </dl>`;
+        var stepHtml = '';
+        if (configuration.additionalFiles) {
+            stepHtml += `<dl>
+                             <dt>Additional files</dt>
+                             ${configuration.additionalFiles.map(f => `<dd>${f}</dd>`).join('')}
+                         </dl>`;
+        }
         if (step.response.isSuccessStatusCode) {
             stepHtml +=    `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${configuration.id}' });">View PDF</button>`;
         }
@@ -84,7 +91,7 @@ export namespace HtmlHelper {
     function _getSftpStepHtml(configuration: SftpStepConfiguration) {
         return `<p>
                     Url:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.host}:${configuration.port}<br />
-                    File:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${path.join(configuration.path, configuration.filename)}<br />
+                    File:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${path.join(configuration.path ?? '', configuration.filename)}<br />
                     Username:&nbsp;${configuration.username}<br />
                     Password:&nbsp;${configuration.password}
                 </p>`;
