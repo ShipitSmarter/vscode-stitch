@@ -56,8 +56,10 @@ export namespace HtmlHelper {
     }
 
     function _getRenderTemplateStepHtml(step: RenderTemplateStepResult, configuration: RenderTemplateStepConfiguration) {
-        var stepHtml = `<strong>Additional files</strong><br />
-                        ${configuration.additionalFiles.map(f => `${f}<br /><br />`)}`;
+        var stepHtml = `<dl>
+                            <dt>Additional files</dt>
+                            ${configuration.additionalFiles.map(f => `<dd>${f}</dd>`).join('')}
+                        </dl>`;
         if (step.response.isSuccessStatusCode) {
             stepHtml +=    `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${configuration.id}' });">View PDF</button>`;
         }
