@@ -2,6 +2,13 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 1.0.0
+- Complete styling overhaul of the preview window
+- Introduced debounce for updating preview. Wait timeout can be configured via `stitch.debounceTimeout`
+- Preview has been extended with all step configuration values
+- Added preview for Mail and SFTP step
+- Preview now remembers scroll position before render error happened
+
 ## 0.5.3
 - Bugfix crash of stitch.preview command when a not found file is read
 - Improve error display by escaping possible HTML in message
