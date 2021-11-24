@@ -1,5 +1,5 @@
 import { CONSTANTS } from "./constants";
-import { CommandAction, HttpStepConfiguration, HttpStepResult, RenderTemplateStepConfiguration, RenderTemplateStepResult, StepConfiguration, StepResult } from "./types";
+import { CommandAction, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, RenderTemplateStepResult, StepConfiguration, StepResult } from "./types";
 
 export namespace HtmlHelper {
     export function getStepHtml(step: StepResult, configuration: StepConfiguration) {
@@ -8,6 +8,8 @@ export namespace HtmlHelper {
                 return _getActionStepHtml('HTTP', configuration, _getHttpStepHtml(<HttpStepConfiguration>configuration));
             case CONSTANTS.renderTemplateStepResultType:
                 return _getActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
+            case CONSTANTS.mailStepResultType:
+                return _getActionStepHtml('Mail', configuration, _getMailStepHtml(<MailStepConfiguration>configuration));
             default:
                 return _getDefaultStepHtml(step);
         }
@@ -29,12 +31,6 @@ export namespace HtmlHelper {
                 </div>`;
     }
 
-    function _getActionStepHtml(title: string, step: StepConfiguration, body: string) {
-        return getActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
-                    `${body}
-                    <pre><code>${escapeHtml(step.template)}</code></pre>`);
-    }
-
     export function escapeHtml(unsafe: string) {
         return unsafe
             .replace(/&/g, "&amp;")
@@ -42,6 +38,12 @@ export namespace HtmlHelper {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+    }
+
+    function _getActionStepHtml(title: string, step: StepConfiguration, body: string) {
+        return getActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
+                    `${body}
+                    <pre><code>${escapeHtml(step.template)}</code></pre>`);
     }
 
     function _getDefaultStepHtml(step: StepResult) {
@@ -64,5 +66,13 @@ export namespace HtmlHelper {
                             ${step.response.errorMessage}<br />`;
         }
         return stepHtml;
+    }
+
+    function _getMailStepHtml(configuration: MailStepConfiguration) {
+        return `<p>
+                    Subject:&nbsp;${configuration.subject}<br />
+                    From:&nbsp;&nbsp;&nbsp;&nbsp;${configuration.from}<br />
+                    To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.to.join(', ')}
+                </p>`;
     }
 }

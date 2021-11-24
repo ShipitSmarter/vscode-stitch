@@ -136,9 +136,12 @@ export class StitchPreview {
         if (!options.content) { return; }
 
         const firstChar = options.content[0];
-        const ext = firstChar === '<' ? '.xml' : firstChar === '{' ? '.json' : '.txt';
+        var extension = '.txt';
+        if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
+        else if (firstChar === '<') { extension = '.xml'; }
+        else if (firstChar === '{' || firstChar === '[') { extension = '.json'; }
 
-        const untitledFile = vscode.Uri.parse(`untitled:${options.filename}${ext}`);
+        const untitledFile = vscode.Uri.parse(`untitled:${options.filename}${extension}`);
         this.updateRendered(untitledFile, options.content, true);
     }
 

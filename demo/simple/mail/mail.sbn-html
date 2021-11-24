@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html charset=UTF-8" />
+        <style type="text/css">
+            .code-multiline {
+                background-color: #f1f1f1;
+                width: fit-content;
+                font-family: Consolas, monospace;
+                font-size: 90%;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>{{ Model.title }}</h1>
+        <p>Detail: {{ Model.detail }}</p>
+        <p>Status: {{ Model.status }}</p>
+        <p>Correlation ID: {{ CorrelationId }}</p>
+
+        <h1>Full problem details</h1>
+        <pre class="code-multiline">{{ Model | json.serialize format: true }}</pre>
+    </body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "title": "Some error occured",
+    "status": "500",
+    "type": "https://httpstatuses.com/500",
+    "instance": "/instance/path",
+    "detail": "Some details about the specific error that happened",
+    "errors": [
+        "Some extension with even more error details"
+    ]
+}

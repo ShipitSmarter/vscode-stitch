@@ -1,17 +1,5 @@
 .error {
-    color: red;
-}
-
-th {
-    text-align: left;
-    padding-right: 1em;
-}
-
-pre {
-  max-width: 100%;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: pre-wrap;
+    color: var(--vscode-editorError-foreground);
 }
 
 .container {
@@ -27,6 +15,16 @@ pre {
   min-height: 3rem;
   font-size: .9rem;
   word-break: break-word;
+}
+
+.action pre {
+  max-width: 100%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  word-break: normal;
+  white-space: pre-wrap;
+  border-top: 1px solid;
+  padding-top: .6em;
 }
 
 .action .type, .action .title {
@@ -76,11 +74,6 @@ pre {
   color: var(--vscode-textPreformat-foreground);
   cursor: pointer;
   border-radius: .15rem;
-}
-
-.action pre {
-  border-top: 1px solid;
-  padding-top: .6em;
 }
 
 .quicknav {

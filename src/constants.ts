@@ -11,6 +11,7 @@ export const CONSTANTS = {
 
 	httpStepResultTypeType: 'Core.Entities.StepResults.HttpStepResult, Core',
 	renderTemplateStepResultType: 'Core.Entities.StepResults.RenderTemplateStepResult, Core',
+	mailStepResultType: 'Core.Entities.StepResults.MailStepResult, Core',
 };
 
 export const MESSAGES = {
