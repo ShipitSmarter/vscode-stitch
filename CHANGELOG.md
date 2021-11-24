@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 1.0.1
+- Bugfix handle nullable fields correctly
+
 ## 1.0.0
 - Complete styling overhaul of the preview window
 - Introduced debounce for updating preview. Wait timeout can be configured via `stitch.debounceTimeout`
