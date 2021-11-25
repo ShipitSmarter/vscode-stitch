@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+## 1.0.2
+- Improve preview of skipped and unknown step types
+
 ## 1.0.1
 - Bugfix handle nullable fields correctly
 
