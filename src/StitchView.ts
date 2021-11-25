@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { HtmlHelper } from './HtmlHelper';
 import { StitchPreview } from './StitchPreview';
-import { CommandAction, ICommand, PreviewContext, ScenarioSource, StitchError, StitchResponse } from './types';
+import { BaseStepConfiguration, CommandAction, ICommand, PreviewContext, ScenarioSource, StepConfiguration, StitchError, StitchResponse } from './types';
 
 export class StitchView {
 
@@ -41,8 +41,10 @@ export class StitchView {
         const response = <StitchResponse>data;
         const stepsHtml = Object
             .keys(response.integrationContext.steps)
-            .map(key => { return HtmlHelper.getStepHtml(response.integrationContext.steps[key], response.stepConfigurations[key]); })
-            .join('');
+            .map(key => { return HtmlHelper.getStepHtml(
+                response.integrationContext.steps[key],
+                response.stepConfigurations[key] ?? <BaseStepConfiguration> { id: key, template: '' });
+            }).join('');
 
         var resultStatusCode = response.resultStatusCode ? response.resultStatusCode : 200;
         var actionCommand = `{action: ${CommandAction.viewIntegrationResponse} }`;

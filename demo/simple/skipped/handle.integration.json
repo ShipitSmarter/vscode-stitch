@@ -1,0 +1,27 @@
+{
+    "Imports": [],
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Key": "hash-1-h9T0FpQspCjYGuYOTlgvUcwTXxizb2IsNB2Wt5RD5hnNu/qG",
+                "Id": "DummyStitch",
+                "Description": "DummyStitch"
+            }
+        ]
+    },
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.MailConfiguration, Core",
+            "Id": "MailStep",
+            "StartCondition": "false",
+            "From": "",
+            "To": [],
+            "Subject": "",
+            "Template": ""
+        }
+    ],
+    "Response": {
+        "StatusCode": 200,
+        "Body": "{}"
+    }
+}
