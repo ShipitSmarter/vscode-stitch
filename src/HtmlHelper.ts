@@ -1,6 +1,16 @@
 import * as path from 'path';
 import { CONSTANTS } from "./constants";
-import { CommandAction, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, RenderTemplateStepResult, SftpStepConfiguration, StepConfiguration, StepResult } from "./types";
+import {
+    BaseStepResult,
+    CommandAction,
+    HttpStepConfiguration,
+    MailStepConfiguration,
+    RenderTemplateStepConfiguration,
+    RenderTemplateStepResult,
+    SftpStepConfiguration,
+    StepConfiguration,
+    StepResult,
+} from "./types";
 
 export namespace HtmlHelper {
     export function getStepHtml(step: StepResult, configuration: StepConfiguration) {
@@ -13,15 +23,17 @@ export namespace HtmlHelper {
                 return _getActionStepHtml('Mail', configuration, _getMailStepHtml(<MailStepConfiguration>configuration));
             case CONSTANTS.sftpStepResultType:
                 return _getActionStepHtml('SFTP', configuration, _getSftpStepHtml(<SftpStepConfiguration>configuration));
+            case CONSTANTS.skippedStepResultType:
+                return _getActionStepHtml('Skipped', configuration, '');
             default:
-                return _getDefaultStepHtml(step);
+                return _getActionStepHtml('Unknown', configuration, _getDefaultStepHtml(step, configuration));
         }
     }
 
     export function getActionHtml(title: string, type:string, anchor: string, postMessageAction: string, body: string) {
         return `<div class="action" id="${anchor}">
                     <span class="title">${title}</span>
-                    <span class="type">${type}</span>                    
+                    <span class="type">${type}</span>
                     <svg xmlns="http://www.w3.org/2000/svg" 
                         class="file-icon" title="View as file" onclick="vscode.postMessage(${postMessageAction});"
                         viewBox="0 0 368.553 368.553" xml:space="preserve">
@@ -49,10 +61,18 @@ export namespace HtmlHelper {
                     <pre><code>${escapeHtml(step.template)}</code></pre>`);
     }
 
-    function _getDefaultStepHtml(step: StepResult) {
-        return `<p>Started: ${step.started}</p>`;
+    function _getDefaultStepHtml(step: BaseStepResult, configuration: StepConfiguration) {
+        return `<p>
+                    Type:&nbsp;&nbsp;&nbsp;&nbsp;${step.$type}<br />
+                    Started:&nbsp;${step.started}<br />
+                    Success:&nbsp;${step.success}
+                <p>
+                <p>
+                    Configuration:<br /><br />
+                    ${JSON.stringify(configuration)}
+                </p>`;
     }
-    
+
     function _getHttpStepHtml(configuration: HttpStepConfiguration) {
         var html = `<p>${configuration.method} ${configuration.url}</p>`;
         if (configuration.headers) {
