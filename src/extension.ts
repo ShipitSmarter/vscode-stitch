@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { COMMANDS } from './constants';
+import { ContextHandler } from './ContextHandler';
 import { StitchEncode } from './StitchEncode';
-import { StitchPreview } from './StitchPreview';
 import { StitchTreeProvider } from './StitchTreeProvider';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -16,13 +16,14 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand(COMMANDS.responseUpdated, () => treeProvider.refresh()),
 
 		// Preview
-		vscode.commands.registerCommand(COMMANDS.startPreview, () => StitchPreview.createOrShow(context.extensionUri, vscode.window.activeTextEditor)),
-		vscode.commands.registerCommand(COMMANDS.selectScenario, () => StitchPreview.selectScenario()),
-		vscode.commands.registerCommand(COMMANDS.showScenarioSource, treeItem => StitchPreview.openScenarioFile(treeItem)),
+		vscode.commands.registerCommand(COMMANDS.startPreview, () => ContextHandler.showPreview(context.extensionUri, vscode.window.activeTextEditor)),
+		vscode.commands.registerCommand(COMMANDS.selectScenario, () => ContextHandler.selectScenario()),
+		vscode.commands.registerCommand(COMMANDS.showScenarioSource, treeItem => StitchTreeProvider.openScenarioFile(treeItem)),
 
 		// Encode
 		vscode.commands.registerCommand(COMMANDS.createHash, async () => await encode.createHash()),
 		vscode.commands.registerCommand(COMMANDS.createSecret, async () => await encode.createSecret())
+
 	);
 
 }

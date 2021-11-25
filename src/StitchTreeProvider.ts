@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
 import { COMMANDS } from './constants';
-import { StitchPreview } from './StitchPreview';
+import { ContextHandler } from './ContextHandler';
 import { TreeBuilder } from './TreeBuilder';
 import { HttpStepResult, TreeItem } from './types';
+import { FileScrambler } from './FileScrambler';
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
 
@@ -56,9 +58,29 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         this._onDidChangeTreeData.fire(null);
 	}
 
+    public static async openScenarioFile(treeItem: TreeItem): Promise<void> {
+        const scenario = ContextHandler.getContext()?.activeScenario;
+        if (!scenario) { return; }
+
+        if (treeItem.path === 'Model') {
+            const inputPath = FileScrambler.getScenarioInputFilepath(scenario);
+            const uri = vscode.Uri.file(inputPath);
+            await vscode.window.showTextDocument(uri);
+            return;
+        }
+
+        const match = treeItem.path.match(/Steps.([a-zA-Z0-9_-]+).Model/);
+        const stepName = match && match[1];
+        if (stepName) {
+            const stepPath = FileScrambler.getScenarioStepFilepath(scenario, stepName);
+            const uri = vscode.Uri.file(stepPath);
+            await vscode.window.showTextDocument(uri);
+        }
+    }
+
     private _buildTree(): TreeItem[] | undefined {
     
-        const currentResponse = StitchPreview.currentResponse();
+        const currentResponse = ContextHandler.getPreviewResponse();
         if (!currentResponse) {
             return;
         }

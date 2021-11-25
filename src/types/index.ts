@@ -5,10 +5,12 @@ export interface ActiveFile {
 
 export type ReadWorkspaceFileFunc = (filepath: string) => string | undefined;
 
-export interface PreviewContext {
+export interface Context {
 	activeFile: ActiveFile;
 	integrationFilePath: string;
 	integrationFilename: string;
+
+	activeScenario: ScenarioSource;
 }
 
 export interface ScenarioResult {

@@ -14,11 +14,16 @@ export abstract class Disposable {
 
 	protected _disposables: vscode.Disposable[] = [];
 
+	readonly _onDidDispose = this._register(new vscode.EventEmitter<void>());
+	public readonly onDidDispose = this._onDidDispose.event;
+
 	public dispose(): any {
 		if (this._isDisposed) {
 			return;
 		}
 		this._isDisposed = true;
+		this._onDidDispose.fire();
+		
 		disposeAll(this._disposables);
 	}
 

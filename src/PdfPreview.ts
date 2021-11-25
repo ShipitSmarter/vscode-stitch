@@ -64,9 +64,9 @@ export class PdfPreview extends Disposable implements vscode.Disposable {
       this._panel.webview.html = Buffer.from(viewerHtmlData).toString('utf8');
 
       this._panel.title = `${CONSTANTS.panelTitlePrefix}step-${stepId}-response.pdf`;
+      
       this._register(this._panel);
-
-      this._panel.onDidDispose(() => this.dispose());
+      this._register(this._panel.onDidDispose(() => this.dispose()));
 
       PdfPreview.previews.set(stepId, this);
     }

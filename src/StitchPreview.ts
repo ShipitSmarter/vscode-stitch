@@ -3,46 +3,22 @@ import * as path from 'path';
 import axios from 'axios';
 import { StitchView } from './StitchView';
 import { FileScrambler } from './FileScrambler';
-import { COMMANDS, CONSTANTS, MESSAGES } from './constants';
-import { CommandAction, ICommand, IntegrationRequestModel, PreviewContext, RenderTemplateStepResult, ScenarioSource, StitchResponse, TreeItem } from './types';
+import { Disposable } from './dispose';
+import { COMMANDS, CONSTANTS } from './constants';
+import { CommandAction, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchResponse } from './types';
 import { PdfPreview } from './PdfPreview';
-import { debounce } from './debounce';
+import { ContextHandler } from './ContextHandler';
+import { RenderedHelper } from './RenderedHelper';
 
-export class StitchPreview {
+export class StitchPreview extends Disposable implements vscode.Disposable {
 
-    public static currentPreview: StitchPreview | undefined;
-
-    private _disposables: vscode.Disposable[] = [];
     private _view: StitchView;
-    private _context?: PreviewContext;
-    private _scenario?: ScenarioSource;
+    
     private _result?: StitchResponse;
-    private _debouncedTextUpdate: () => void;
     private _scrollPosition?: number;
+    private _currentIntegrationPath?: string;
 
-    public static createOrShow(extensionUri: vscode.Uri, textEditor?: vscode.TextEditor): void {
-
-        if (StitchPreview.currentPreview) {
-            StitchPreview.currentPreview._panel.reveal(vscode.ViewColumn.Two);
-            return;
-        }
-
-        if (!textEditor) {
-            vscode.window.showErrorMessage('Please open a document first to create a preview for!');
-            return;
-        }
-
-        const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
-        if (!endpoint) {
-            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
-            return;
-        }
-
-        const debounceTimeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
-        if (!debounceTimeout) {
-            vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
-            return;
-        }
+    public static create(extensionUri: vscode.Uri, endpoint: string): StitchPreview {
 
         const showOptions = {
             viewColumn: vscode.ViewColumn.Two,
@@ -59,68 +35,106 @@ export class StitchPreview {
         statusBar.command = COMMANDS.selectScenario;
         statusBar.show();
 
-        StitchPreview.currentPreview = new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri, debounceTimeout);
+        return new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri);
     }
 
-    public static selectScenario(): void {
-        const current = StitchPreview.currentPreview;
-        if (!current) { return; }
+    constructor(        
+        private _panel: vscode.WebviewPanel,
+        private _statusBar: vscode.StatusBarItem,
+        private _editorEndpoint: string,
+        extensionUri: vscode.Uri
+    ) {
+        super();
 
-        const integrationContext = current._getContext();
-        if (!integrationContext) { return; }
+        this._view = new StitchView(_panel.webview, extensionUri);
+        this.update();
 
-        const normalizeResult = FileScrambler.getScenarios(integrationContext);
-        if (!normalizeResult.success) {
-            current._view.displayError({
-                title: 'some error for selecting scenario',
-                description: 'this needs to be implemented'
+        const onPanelDisposeListener = this._panel.onDidDispose(() => this.dispose());
+
+        this._register(this._statusBar);
+        this._register(this._panel);
+        this._register(onPanelDisposeListener);
+    }
+
+    dispose() {
+        
+        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
+
+        PdfPreview.disposeAll();
+        super.dispose();
+    }
+
+    public reveal(): void {
+        this._panel.reveal(vscode.ViewColumn.Two);
+    }
+
+    public setEndpoint(endpoint: string): void {
+        this._editorEndpoint = `${endpoint}/editor/simulate`;
+        this.update();
+    }
+
+    public update() {
+
+        const context = ContextHandler.getContext();
+        if (!context) {
+            this._view.displayError({
+                title: `No ${CONSTANTS.integrationExtension} file found`,
+                description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
             });
             return;
         }
 
-        const scenarios = normalizeResult.scenarios;
-        const quickPickItems = scenarios.map(x => x.name).sort();
-        vscode.window.showQuickPick(quickPickItems).then((x): void => {
-            if (x && current) {
-                current._scenario = scenarios.find(s => s.name === x);
-                current._update();
-            }
-        });
-    }
+        if (this._currentIntegrationPath && this._currentIntegrationPath !== context.integrationFilePath) {
+            PdfPreview.disposeAll();
+        }
+        this._panel.title = `${CONSTANTS.panelTitlePrefix}${context.integrationFilename}`;
 
-    public static currentResponse(): StitchResponse | undefined {
-        const current = StitchPreview.currentPreview;
-        if (!current) { return; }
-
-        return current._result;
-    }
-
-    public static async openScenarioFile(treeItem: TreeItem): Promise<void> {
-        const current = StitchPreview.currentPreview;
-        if (!current || !current._scenario) { return; }
-
-        if (treeItem.path === 'Model') {
-            const uri = vscode.Uri.file(path.join(current._scenario.path, 'input.txt'));
-            await vscode.window.showTextDocument(uri);
+        this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${context.activeScenario.name}`;
+        var model: IntegrationRequestModel;
+        try {
+            model = FileScrambler.collectFiles(context, this._readWorkspaceFile);
+        } catch(error: any) {
+            this._view.displayError({
+                title: 'Collecting files failed',
+                description: error.message
+            }, JSON.stringify(error));
             return;
         }
 
-        const match = treeItem.path.match(/Steps.([a-zA-Z0-9_-]+).Model/);
-        const stepName = match && match[1];
-        if (stepName) {
-            const uri = vscode.Uri.file(path.join(current._scenario.path, `step.${stepName}.txt`));
-            await vscode.window.showTextDocument(uri);
-        }
+        axios.post(this._editorEndpoint, model)
+            .then(res => {
+                this._view.displayResult(res.data);
+                if (res.data.result) {
+                    if (this._scrollPosition) {
+                        this._view.scrollToPosition(this._scrollPosition);
+                        this._scrollPosition = undefined;
+                    }
+                    this._result = <StitchResponse>res.data;
+                    RenderedHelper.update(this._result);
+                    vscode.commands.executeCommand(COMMANDS.responseUpdated); // so other Components know to request the latest response
+                }
+            })
+            .catch(err => {
+                this._view.displayError({
+                    title: 'Request failed',
+                    description: err.message,
+                }, JSON.stringify(err));
+            });
     }
 
-    public static handleCommand(command: ICommand, extensionUri: vscode.Uri) {
-        const response = StitchPreview.currentResponse();
+    // TODO: Temp solution, should be removed
+    public currentResponse(): StitchResponse | undefined {
+        return this._result;
+    }
+
+    public handleCommand(command: ICommand, extensionUri: vscode.Uri) {
+        const response = this.currentResponse();
         if (!response) { return; }
 
         switch (command.action) {
             case CommandAction.viewStepRequest:
                 const step = command.content;
-                this.showRendered({
+                RenderedHelper.show({
                     filename: `stitch-step-request-${step}`,
                     content: response.stepConfigurations[step].template.trim()
                 });
@@ -133,261 +147,15 @@ export class StitchPreview {
                 PdfPreview.setOrUpdatePdfData(command.content, renderResponse.response.content);
                 return;
             case CommandAction.viewIntegrationResponse:
-                this.showRendered({
+                RenderedHelper.show({
                     filename: `stitch-response`,
                     content: JSON.stringify(response.result, null, 2)
                 });
                 return;
             case CommandAction.storeScrollPosition:
-                if (this.currentPreview) { this.currentPreview._scrollPosition = +command.content; }
+                this._scrollPosition = +command.content;
                 return;
         }
-    }
-
-    static showRendered(options: { filename: string; content: string; }) {
-        if (!options.content) { return; }
-
-        const firstChar = options.content[0];
-        var extension = '.txt';
-        if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
-        else if (firstChar === '<') { extension = '.xml'; }
-        else if (firstChar === '{' || firstChar === '[') { extension = '.json'; }
-
-        const untitledFile = vscode.Uri.parse(`untitled:${options.filename}${extension}`);
-        this.updateRendered(untitledFile, options.content, true);
-    }
-
-    static updateRendered(untitledUri: vscode.Uri, content: string, show: boolean = false) {
-        vscode.workspace.openTextDocument(untitledUri).then(document => {
-            const lastLine = document.lineAt(document.lineCount-1);
-            const edit = new vscode.WorkspaceEdit();
-            edit.replace(untitledUri, new vscode.Range(new vscode.Position(0,0), lastLine.range.end), content);
-            return vscode.workspace.applyEdit(edit).then(success => {
-                if (success && show) {
-                    vscode.window.showTextDocument(document, undefined, true);
-                } else {
-                    vscode.window.showInformationMessage('Error!');
-                }
-            });
-        });
-    }
-
-    constructor(
-        private _panel: vscode.WebviewPanel,
-        private _statusBar: vscode.StatusBarItem,
-        private _editorEndpoint: string,
-        extensionUri: vscode.Uri,
-        debounceTimeout: number) {
-
-        this._debouncedTextUpdate = debounce(() => this._update(), debounceTimeout);
-        this._view = new StitchView(_panel.webview, extensionUri);
-        this._update();
-
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
-
-        vscode.workspace.onDidChangeTextDocument((_e): void => {
-            if (_e.document.isUntitled) { return; }
-            this._debouncedTextUpdate();
-        }, null, this._disposables);
-        vscode.window.onDidChangeActiveTextEditor((e): void => {
-            e && ['file'].includes(e.document.uri.scheme) && this._update(e);
-        }, null, this._disposables);
-
-        vscode.workspace.onDidChangeConfiguration(e => {
-            if (e.affectsConfiguration(CONSTANTS.configKeyEndpointUrl)) {
-                this._onUpdateEndoint();
-            }
-            if (e.affectsConfiguration(CONSTANTS.configKeyDebounceTimeout)) {
-                this._onUpdateDebounceTimeout();
-            }
-        }, null, this._disposables);
-    }
-
-    dispose() {
-        StitchPreview.currentPreview = undefined;
-
-        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
-        this._panel.dispose();
-        this._statusBar.dispose();
-        PdfPreview.disposeAll();
-
-        while (this._disposables.length) {
-            const x = this._disposables.pop();
-            if (x) {
-                x.dispose();
-            }
-        }
-    }
-
-    public getScrollPosition(): number {
-        return !this._scrollPosition
-            ? 0
-            : this._scrollPosition;
-    }
-
-    public resetScrollPosition(): void {
-        this._scrollPosition = 0;
-    }
-
-    private _onUpdateEndoint() {
-
-        const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
-        if (!endpoint) {
-            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
-            return;
-        }
-
-        this._editorEndpoint = `${endpoint}/editor/simulate`;
-        vscode.window.showInformationMessage('The Stitch editor endpoint has been updated to: ' + endpoint);
-        this._update();
-    }
-
-    private _onUpdateDebounceTimeout() {
-        const timeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
-        if (!timeout) {
-            vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
-            return;
-        }
-
-        this._debouncedTextUpdate = debounce(() => this._update(), timeout);
-        vscode.window.showInformationMessage('The Stitch debounce timeout has been updated to: ' + timeout + ' ms');
-    }
-
-    private _getContext(textEditor?: vscode.TextEditor): PreviewContext | undefined {
-        const activeEditor = textEditor || vscode.window.activeTextEditor;
-        if (!activeEditor) {
-            this._view.displayError({
-                title: 'No document open',
-                description: 'Please open a document to enable the preview!'
-            });
-            return;
-        }
-
-        if (activeEditor.document.isUntitled) {
-            this._view.displayError({
-                title: 'Untitled files are not supported!',
-                description: 'Please save your file and try again.'
-            });
-            return;
-        }
-
-        const activeFile = {
-            filepath: activeEditor.document.fileName,
-            filecontent: activeEditor.document.getText()
-        };
-        return FileScrambler.determinePreviewContext(activeFile, this._context);
-    }
-
-    private _update(textEditor?: vscode.TextEditor) {
-
-        const integrationContext = this._getContext(textEditor);
-        if (!this._context && !integrationContext) {
-            this._view.displayError({
-                title: `No ${CONSTANTS.integrationExtension} file found`,
-                description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
-            });
-            vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
-            return;
-        }
-
-        if (this._isContextChanged(integrationContext)) {
-            this._scenario = undefined;
-            PdfPreview.disposeAll();
-        }
-        if (integrationContext) { this._context = integrationContext; }
-        this._panel.title = `${CONSTANTS.panelTitlePrefix}${this._context?.integrationFilename}`;
-
-        const normalizeResult = FileScrambler.getScenarios(this._context as PreviewContext);
-        if (!normalizeResult.success) {
-            this._view.displayError({
-                title: 'No scenarios found',
-                description: `To provide a scenario create a "scenarios" directory next to the ${this._context?.integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`
-            });
-            return;
-        }
-
-        const scenario = this._scenario || normalizeResult.scenarios[0];
-        if (!FileScrambler.isValidScenario(scenario)) {
-            this._view.displayError({
-                title: 'Invalid scenario',
-                description: `Scenario "${scenario.name}" requires at least the following files: <ul><li>input.txt</li><li>step.*.txt</li></ul>`
-            });
-            this._statusBar.text = "";
-            return;
-        }
-
-        this._scenario = scenario;
-        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
-
-        this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${scenario.name}`;
-        var model: IntegrationRequestModel;
-        try {
-            model = FileScrambler.collectFiles(this._context as PreviewContext, scenario, this._readWorkspaceFile);
-        } catch(error: any) {
-            this._view.displayError({
-                title: 'Collecting files failed',
-                description: error.message
-            }, JSON.stringify(error));
-            return;
-        }
-
-        axios.post(this._editorEndpoint, model)
-            .then(res => {
-                this._view.displayResult(res.data, this._context as PreviewContext, scenario);
-                if (res.data.result) {
-                    this._result = <StitchResponse>res.data;
-                    this._updateRenderedUntitled();
-                    this._updateRenderedPdf();
-                    vscode.commands.executeCommand(COMMANDS.responseUpdated); // so other Components know to request the latest response
-                }
-            })
-            .catch(err => {
-                this._view.displayError({
-                    title: 'Request failed',
-                    description: err.message,
-                }, JSON.stringify(err));
-            });
-    }
-
-    private _updateRenderedUntitled() {
-
-        const open = vscode.workspace.textDocuments.filter(t => t.uri.scheme === 'untitled' && t.fileName.startsWith('stitch-'));
-        const response = this._result;
-        if (open.length === 0 || !response) {return;}
-
-        open.forEach(o => {
-            if (o.fileName.startsWith('stitch-response.')) {
-                StitchPreview.updateRendered(o.uri, JSON.stringify(response.result, null, 2));
-            } else {
-                let match = o.fileName.match(/^stitch-step-request-(.*?)\./);
-                if (match?.length === 2) {
-                    StitchPreview.updateRendered(o.uri, response.stepConfigurations[match[1]].template.trim());
-                }
-            }
-        });
-    }
-
-    private _updateRenderedPdf() {
-        if (!this._result) { return; }
-        const response = this._result;
-
-        for (const stepId of PdfPreview.renderedSteps) {
-            if (response.integrationContext.steps[stepId]?.$type !== CONSTANTS.renderTemplateStepResultType) { 
-                PdfPreview.disposeRenderedStep(stepId);
-                continue;
-            }
-            const renderResponse = <RenderTemplateStepResult>response.integrationContext.steps[stepId];
-            if (renderResponse.response.contentType !== 'application/pdf') { 
-                PdfPreview.disposeRenderedStep(stepId);
-                continue;
-             }
-            PdfPreview.setOrUpdatePdfData(stepId, renderResponse.response.content);
-        }
-    }
-
-    private _isContextChanged(newContext?: PreviewContext) {
-        if (!newContext) { return false; }
-        return this._context?.integrationFilePath !== newContext.integrationFilePath;
     }
 
     private _readWorkspaceFile(filepath: string): string | undefined {

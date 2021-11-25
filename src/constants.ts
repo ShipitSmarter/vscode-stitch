@@ -16,6 +16,8 @@ export const CONSTANTS = {
 	mailStepResultType: 'Core.Entities.StepResults.MailStepResult, Core',
 	sftpStepResultType: 'Core.Entities.StepResults.SftpStepResult, Core',
 	skippedStepResultType: 'Core.Entities.StepResults.SkippedStep, Core',
+
+	defaultDebounceTimeout: 500
 };
 
 export const MESSAGES = {

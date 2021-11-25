@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import { ContextHandler } from './ContextHandler';
 import { HtmlHelper } from './HtmlHelper';
-import { StitchPreview } from './StitchPreview';
-import { BaseStepConfiguration, CommandAction, ICommand, PreviewContext, ScenarioSource, StepConfiguration, StitchError, StitchResponse } from './types';
+import { BaseStepConfiguration, CommandAction, ICommand, StitchError, StitchResponse } from './types';
 
 export class StitchView {
 
@@ -9,7 +9,7 @@ export class StitchView {
 
     constructor(private _webview: vscode.Webview, private _extensionUri: vscode.Uri) {
         _webview.onDidReceiveMessage(
-            (command: ICommand) => { StitchPreview.handleCommand(command, _extensionUri); },
+            (command: ICommand) => { ContextHandler.handlePreviewCommand(command, _extensionUri); },
             undefined,
             this._disposables
         );
@@ -22,7 +22,7 @@ export class StitchView {
         this._webview.html = this._getHtml(htmlBody);
     }
 
-    public displayResult(data: any, previewContext: PreviewContext, scenario: ScenarioSource): void {
+    public displayResult(data: any): void {
         if (!data.result) {
             this._webview.postMessage({command: 'requestScrollPosition'});
             if (data.ClassName === 'Core.Exceptions.StitchResponseSerializationException') {
@@ -62,12 +62,10 @@ export class StitchView {
                           <div class="quicknav"><strong>&nbsp;Nav</strong> ${quickNav}</div>`;
 
         this._webview.html = this._getHtml(htmlBody);
+    }
 
-        var scrollPosition = StitchPreview.currentPreview?.getScrollPosition();
-        if (scrollPosition) {
-            this._webview.postMessage({ command: 'setScrollPosition', scrollY: scrollPosition});
-            StitchPreview.currentPreview?.resetScrollPosition();
-        }
+    public  scrollToPosition(scrollPosition: number) {
+        this._webview.postMessage({ command: 'setScrollPosition', scrollY: scrollPosition});
     }
 
     private _getHtml(htmlBody: string): string {
