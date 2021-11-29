@@ -76,7 +76,7 @@
 			"commandPalette": [
 				{
 					"command": "stitch.selectScenario",
-					"when": "stitch:previewActive"
+					"when": "stitch:contextAvailable"
 				},
 				{
 					"command": "stitch.showScenarioSource",
@@ -141,7 +141,7 @@
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
 					"icon": "assets/icon.png",
-					"when": "stitch:previewActive"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/"
 				}
 			]
 		}

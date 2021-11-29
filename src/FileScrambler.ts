@@ -2,17 +2,17 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
-import { ScenarioSource, IntegrationRequestModel, IntegrationFile, ScenarioResult, ActiveFile, Context, ReadWorkspaceFileFunc } from './types';
+import { ScenarioSource, IntegrationRequestModel, IntegrationFile, ScenarioResult, ActiveFile, Context, ReadWorkspaceFileFunc, StepConfiguration } from './types';
 import { CONSTANTS } from './constants';
 
 export class FileScrambler {
     
-    public static collectFiles(context: Context, readWorkspaceFile: ReadWorkspaceFileFunc): IntegrationRequestModel {
+    public static collectFiles(context: Context): IntegrationRequestModel {
 
         const files: IntegrationFile[] = [];
 
         let integrationPath = context.integrationFilePath;
-        const integrationContent = this._readFile(context, integrationPath, readWorkspaceFile);
+        const integrationContent = this._readFile(context, integrationPath);
         let integration;
         try {
             integration = JSON.parse(integrationContent);
@@ -33,7 +33,7 @@ export class FileScrambler {
                 const translationFilePath = path.join(translationsRoot!, `${translation}.csv`);
                 files.push({
                     filename: `translations/${translation}.csv`,
-                    filecontent: this._readFile(context, translationFilePath, readWorkspaceFile)
+                    filecontent: this._readFile(context, translationFilePath)
                 });
             });
         }
@@ -82,34 +82,40 @@ export class FileScrambler {
         pathsToInclude.forEach(includePath => {
             files.push({
                 filename: this._makeBlobStorageLikePath(includePath, root, nestingStructure),
-                filecontent: this._readFile(context, includePath, readWorkspaceFile)
+                filecontent: this._readFile(context, includePath)
             });
         });
 
         for (const filePath of [...new Set(additionalFiles)]) {
             files.push({
                 filename: this._makeBlobStorageLikePath(filePath, root, nestingStructure),
-                filecontent: this._readFile(context, path.join(path.dirname(integrationPath), filePath), readWorkspaceFile)
+                filecontent: this._readFile(context, path.join(path.dirname(integrationPath), filePath))
             });
         }
 
-        let scenarioFilesToInclude = [
-            ...glob.sync(`${context.activeScenario.path}/input.*`, undefined),  
-            ...glob.sync(`${context.activeScenario.path}/step.*.*`, undefined)
-        ];
-        const scenarioFiles: IntegrationFile[] = [];
-        scenarioFilesToInclude.forEach(includePath => {
-            scenarioFiles.push({
-                filename: path.basename(includePath), // scenario files don't require the path, only filename!
-                filecontent: this._readFile(context, includePath, readWorkspaceFile)
-            });
-        });
+        const scenarioFiles = this.getScenarioFiles(context);
 
         return {
             integrationFilePath: this._makeBlobStorageLikePath(integrationPath, root, nestingStructure),
             files,
             scenarioFiles
         };
+    }
+
+    static getScenarioFiles(context: Context): IntegrationFile[] {
+        let scenarioFilesToInclude = [
+            ...glob.sync(`${context.activeScenario.path}/input.*`, undefined),
+            ...glob.sync(`${context.activeScenario.path}/step.*.*`, undefined)
+        ];
+        const scenarioFiles: IntegrationFile[] = [];
+        scenarioFilesToInclude.forEach(includePath => {
+            scenarioFiles.push({
+                filename: path.basename(includePath), // scenario files don't require the path, only filename!
+                filecontent: this._readFile(context, includePath)
+            });
+        });
+
+        return scenarioFiles;
     }
 
     public static getScenarioInputFilepath(scenario: ScenarioSource) : string {
@@ -122,6 +128,20 @@ export class FileScrambler {
         return files && files[0];
     }
 
+
+    static getStepTypes(context: Context): Record<string, string> {
+        const integrationPath = context.integrationFilePath;
+        const integrationContent = this._readFile(context, integrationPath);
+        const integration = JSON.parse(integrationContent);
+        const steps = <any[]>integration.Steps;
+
+        let result: Record<string, string> = {};
+        for (let step of steps) {
+            result[step.Id] = step.$type;
+        }
+
+        return result;
+    }
 
     private static _findWithinParent(root: string, folderNameToLookFor: string, maxUp: number) : string | undefined  {
         const pathCheck = path.join(root, folderNameToLookFor);
@@ -228,7 +248,7 @@ export class FileScrambler {
         };
     }
 
-    static _isScenarioFile(filepath: string) : boolean {        
+    static _isScenarioFile(filepath: string) : boolean {
         // files are stored like this
         // /scenarios/sample1/input.txt
         // - *.integration.json
@@ -253,7 +273,7 @@ export class FileScrambler {
             .replace(/\.\.\//g, ''); // Remove '../' from start
     }
 
-    static _readFile(context: Context, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc) : string {
+    static _readFile(context: Context, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc = this._readWorkspaceFile) : string {
         const normalizedPath = path.normalize(filepath);
         if (normalizedPath === context.activeFile.filepath) {
             return context.activeFile.filecontent;
@@ -264,7 +284,15 @@ export class FileScrambler {
             return workspaceFileContent;
         }
 
-        const readOptions = { encoding: 'utf8', flag: 'r' };        
+        const readOptions = { encoding: 'utf8', flag: 'r' };
         return fs.readFileSync(normalizedPath, readOptions);
     }
+
+    private static _readWorkspaceFile(filepath: string): string | undefined {
+        const textDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === filepath);
+        if (textDoc) {
+            return textDoc.getText();
+        }
+    }
 }
+

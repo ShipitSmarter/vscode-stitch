@@ -1,13 +1,19 @@
 import { expect } from "chai";
 import { TreeBuilder } from "../../../TreeBuilder";
+import { FormatModel } from "../../../types";
 
 suite('TreeBuilder Tests', () => {
     suite('generateTree()', () => {
 
         test('no treeData return only root', () => {
             const treeData = {};
+            const formatData: FormatModel = {
+                format: 1,
+                formattedInput: '',
+                formattedJson: JSON.stringify(treeData),
+            };
             const beginPath = 'Model';
-            const result = TreeBuilder.generateTree(treeData, beginPath);
+            const result = TreeBuilder.generateTreeItemModel(formatData, beginPath);
 
             expect(result.name).to.equal(beginPath);
             expect(result.path).to.equal(beginPath);
@@ -23,8 +29,13 @@ suite('TreeBuilder Tests', () => {
                 text: 'abc',
                 nothing: null
             };
+            const formatData: FormatModel = {
+                format: 1,
+                formattedInput: '',
+                formattedJson: JSON.stringify(treeData),
+            };
             const beginPath = 'Model';
-            const result = TreeBuilder.generateTree(treeData, beginPath);
+            const result = TreeBuilder.generateTreeItemModel(formatData, beginPath);
 
             expect(result.isCollection).undefined;
             expect(result.exampleValue).undefined;
@@ -42,8 +53,13 @@ suite('TreeBuilder Tests', () => {
                     'option2'
                 ]
             };
+            const formatData: FormatModel = {
+                format: 1,
+                formattedInput: '',
+                formattedJson: JSON.stringify(treeData),
+            };
             const beginPath = 'Model';
-            const result = TreeBuilder.generateTree(treeData, beginPath);
+            const result = TreeBuilder.generateTreeItemModel(formatData, beginPath);
 
             const textChild = result.children![0];
 
@@ -64,8 +80,13 @@ suite('TreeBuilder Tests', () => {
                     { simple: 'simple3', prop: 'prop3', other: 'c' },
                 ]
             };
+            const formatData: FormatModel = {
+                format: 1,
+                formattedInput: '',
+                formattedJson: JSON.stringify(treeData),
+            };
             const beginPath = 'Model';
-            const result = TreeBuilder.generateTree(treeData, beginPath);
+            const result = TreeBuilder.generateTreeItemModel(formatData, beginPath);
 
             const textChild = result.children![0];
             expect(textChild.isCollection).true;

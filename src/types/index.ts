@@ -47,6 +47,7 @@ export interface StitchResponse {
 }
 
 export interface BaseStepConfiguration {
+	$type: string;
 	id: string;
 	template: string;
 	successCondition?: string;
@@ -115,6 +116,12 @@ export interface RenderTemplateStepResult extends BaseStepResult {
 	}
 }
 
+export interface FormatModel {
+	format: Format;
+	formattedInput: string;
+	formattedJson: string;
+}
+
 export interface TreeItem {
     name: string;
     path: string;
@@ -133,4 +140,11 @@ export enum CommandAction {
 	viewStepResponse = 1,
 	viewIntegrationResponse = 2,
 	storeScrollPosition = 3,
+}
+
+export enum Format {
+	unknown = 0,
+	json = 1,
+	xml = 2,
+	binary = 3,
 }

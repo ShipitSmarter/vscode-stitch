@@ -9,6 +9,7 @@ export const CONSTANTS = {
 	configKeyEndpointUrl: 'stitch.endpointUrl',
 	configKeyDebounceTimeout: 'stitch.debounceTimeout',
 
+	contextAvailableContextKey: 'stitch:contextAvailable',
 	previewActiveContextKey: 'stitch:previewActive',
 
 	httpStepResultTypeType: 'Core.Entities.StepResults.HttpStepResult, Core',
@@ -17,7 +18,10 @@ export const CONSTANTS = {
 	sftpStepResultType: 'Core.Entities.StepResults.SftpStepResult, Core',
 	skippedStepResultType: 'Core.Entities.StepResults.SkippedStep, Core',
 
-	defaultDebounceTimeout: 500
+	httpStepConfigurationType: 'Core.Entities.Configs.Steps.HttpConfiguration, Core',
+	renderTemplateStepConfigurationType: 'Core.Entities.Configs.Steps.RenderTemplateConfiguration, Core',
+
+	defaultDebounceTimeout: 500,
 };
 
 export const MESSAGES = {
@@ -27,12 +31,13 @@ export const MESSAGES = {
 
 export const COMMANDS = {
 	insertModelProperty: 'stitch.insertModelProperty',
-	responseUpdated: 'stitch.responseUpdated',
 
 	startPreview: 'stitch.preview',
 	selectScenario: 'stitch.selectScenario',
 	showScenarioSource: 'stitch.showScenarioSource',
 
 	createHash: 'stitch.createHash',
-	createSecret: 'stitch.createSecret'
+	createSecret: 'stitch.createSecret',
+
+	openTreeView: 'stitch:openTreeView'
 };

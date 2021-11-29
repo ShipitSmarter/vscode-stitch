@@ -38,7 +38,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         return new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri);
     }
 
-    constructor(        
+    constructor(
         private _panel: vscode.WebviewPanel,
         private _statusBar: vscode.StatusBarItem,
         private _editorEndpoint: string,
@@ -57,9 +57,6 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 
     dispose() {
-        
-        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
-
         PdfPreview.disposeAll();
         super.dispose();
     }
@@ -92,7 +89,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${context.activeScenario.name}`;
         var model: IntegrationRequestModel;
         try {
-            model = FileScrambler.collectFiles(context, this._readWorkspaceFile);
+            model = FileScrambler.collectFiles(context);
         } catch(error: any) {
             this._view.displayError({
                 title: 'Collecting files failed',
@@ -111,7 +108,6 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
                     }
                     this._result = <StitchResponse>res.data;
                     RenderedHelper.update(this._result);
-                    vscode.commands.executeCommand(COMMANDS.responseUpdated); // so other Components know to request the latest response
                 }
             })
             .catch(err => {
@@ -155,13 +151,6 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
             case CommandAction.storeScrollPosition:
                 this._scrollPosition = +command.content;
                 return;
-        }
-    }
-
-    private _readWorkspaceFile(filepath: string): string | undefined {
-        const textDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === filepath);
-        if (textDoc) {
-            return textDoc.getText();
         }
     }
 }

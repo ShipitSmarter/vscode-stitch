@@ -1,16 +1,59 @@
-import { TreeItem } from "./types";
+import { CONSTANTS } from "./constants";
+import { FormatModel, TreeItem } from "./types";
 
 export class TreeBuilder {
 
-    public static generateTree(treeData: object, beginPath: string): TreeItem {
+    public static generateTreeItemModel(treeData: FormatModel, beginPath: string): TreeItem {
 
         let tree: TreeItem = { name: beginPath, path: beginPath };
         if (!treeData) {
             return tree;
         }
 
-        this._addNodes(tree, treeData);
+        this._addNodes(tree, JSON.parse(treeData.formattedJson));
 
+        return tree;
+    }
+
+    public static generateTreeItemStep(stepId: string, stepType: string, responseData: FormatModel): TreeItem {
+
+        const path = `Steps.${stepId}`;
+        let tree: TreeItem = { name: path, path };
+
+        /* eslint-disable @typescript-eslint/naming-convention */
+        let obj: any = {
+            HasStartCondition: false,
+                HasSuccessCondition: false,
+                Success: true,
+                Started: null,
+        };
+
+        switch(stepType) {
+            case CONSTANTS.httpStepConfigurationType:
+                obj.Response = {
+                    BodyFormat: 'json',
+                    StatusCode: 0,
+                    IsSuccessStatusCode: true
+                };
+                if (responseData?.formattedJson) {
+                    obj.Model = JSON.parse(responseData.formattedJson);
+                }
+                break;
+            case CONSTANTS.renderTemplateStepConfigurationType:
+                obj.Response = {
+                    Content: 'base64',
+                    ContentType: 'application/pdf',
+                    StatusCode: 200,
+                    IsSuccessStatusCode: true,
+                    ErrorMessage: ''
+                };
+                break;
+            default:
+                break;
+        }
+        /* eslint-enable @typescript-eslint/naming-convention */
+
+        this._addNodes(tree, obj);
         return tree;
     }
 

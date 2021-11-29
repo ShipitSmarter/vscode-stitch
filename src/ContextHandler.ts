@@ -6,42 +6,61 @@ import { Disposable } from "./dispose";
 import { FileScrambler } from "./FileScrambler";
 import { PdfPreview } from "./PdfPreview";
 import { debounce } from "./debounce";
+import { StitchTreeProvider } from "./StitchTreeProvider";
 
 
 export class ContextHandler extends Disposable implements vscode.Disposable {
 
+    private static _treeProvider = new StitchTreeProvider();
     private static _current?: ContextHandler;
 
     private _context?: Context;
     private _preview?: StitchPreview;
     private _debouncedTextUpdate: () => void;
 
-
-    constructor(textEditor?: vscode.TextEditor) {
+    private constructor() {
         super();
 
         this._debouncedTextUpdate = debounce(() => this._updateContext(), this._getConfigDebounceTimeout());
-        this._createContext(textEditor);
+        this._createContext();
+        if (this._context) {
+            vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
+        }
 
         const onDidChangeConfigurationListener = vscode.workspace.onDidChangeConfiguration(e => {
             this._onUpdateConfiguration(e);
         });
 
         const onDidChangeActiveTextEditorListener = vscode.window.onDidChangeActiveTextEditor((e): void => {
-            e && ['file'].includes(e.document.uri.scheme) && this._updateContext(e);
+            e && ['file'].includes(e.document.uri.scheme) && this._updateContext();
         });
 
-        const onDidChangeTextEditorListener = vscode.workspace.onDidChangeTextDocument((_e): void => {
-            if (_e.document.isUntitled) { return; }
+        const onDidChangeTextEditorListener = vscode.workspace.onDidChangeTextDocument((e): void => {
+            if (e.document.isUntitled) { return; }
             this._debouncedTextUpdate();
         });
 
+        const onDidCloseTextEditorListener = vscode.workspace.onDidCloseTextDocument((): void => {
+            if (vscode.workspace.textDocuments.length === 0) {
+                vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
+                this._context = undefined;
+                ContextHandler._treeProvider.refresh();
+            }
+        });
+
         this._register(onDidChangeConfigurationListener);
-        this._register(onDidChangeActiveTextEditorListener);   
-        this._register(onDidChangeTextEditorListener);    
+        this._register(onDidChangeActiveTextEditorListener);
+        this._register(onDidChangeTextEditorListener);
+        this._register(onDidCloseTextEditorListener);
+    }
+
+    public static create(): vscode.Disposable {
+        this._ensureContext();
+        return this._current!;
     }
 
     dispose() {
+        vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
         super.dispose();
     }
 
@@ -49,9 +68,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return this._current?._context;
     }
 
-    public static showPreview(extensionUri: vscode.Uri, activeTextEditor: vscode.TextEditor | undefined): any {
-		
-        this._ensureContext(activeTextEditor);
+    public static getTreeProvider(): StitchTreeProvider {
+        this._ensureContext();
+        return this._treeProvider;
+    }
+
+    public static showPreview(extensionUri: vscode.Uri): any {
+
+        this._ensureContext();
 
         const currentPreview = this._current!._preview;
 
@@ -66,11 +90,10 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             return;
         }
 
-        
-
-        this._current!._preview = StitchPreview.create(extensionUri, endpoint);
+        this._current!._preview = this._current!._register(StitchPreview.create(extensionUri, endpoint));
         this._current?._register(this._current!._preview!.onDidDispose(() => this._onPreviewDidDspose()));
-	}
+        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+    }
 
     public static selectScenario(): void {
         if (!this._current?._context) {
@@ -86,12 +109,12 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         const scenarios = normalizeResult.scenarios;
         const quickPickItems = scenarios.map(x => x.name).sort();
         vscode.window.showQuickPick(quickPickItems).then((x): void => {
-            if (x && this._current?._preview) {
+            if (x && this._current) {
                 this._current._context!.activeScenario = scenarios.find(s => s.name === x)!;
+                this._treeProvider.refresh();
                 if (this._current._preview) {
                     this._current._preview.update();
                 }
-                // TODO: Update tree
             }
         });
     }
@@ -104,22 +127,17 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         this._current._preview.handleCommand(command, extensionUri);
     }
 
-    // TODO: Temp solution, should be removed
-    public static getPreviewResponse() {
-        return this._current?._preview?.currentResponse();
-    }
-
-    private static _ensureContext(textEditor: vscode.TextEditor | undefined) {
+    private static _ensureContext() {
 
         if (this._current){
             return;
         }
 
-        this._current = new ContextHandler(textEditor);
+        this._current = new ContextHandler();
     }
 
-    private _createContext(textEditor: vscode.TextEditor | undefined) {
-        const activeEditor = textEditor || vscode.window.activeTextEditor;
+    private _createContext() {
+        const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor || activeEditor.document.isUntitled) {
             return;
         }
@@ -167,9 +185,8 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             return;
         }
 
+        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
         this._current._preview = undefined;
-        this._current.dispose();
-        this._current = undefined;
     }
 
     private _getConfigDebounceTimeout() : number {
@@ -181,18 +198,18 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return debounceTimeout;
     }
 
-    private _updateContext(textEditor?: vscode.TextEditor): void {
+    private _updateContext(): void {
         const previousContext = this._context;
-        this._createContext(textEditor);
+        this._createContext();
 
         if (!previousContext && !this._context) {
-            vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
+            vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
             PdfPreview.disposeAll();
             return;
         }
 
         if (this._context) {
-            vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+            vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
 
             if (this._context.integrationFilePath !== previousContext?.integrationFilePath) {
                 PdfPreview.disposeAll();
@@ -201,6 +218,8 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         } else {
             this._context = previousContext;
         }
+
+        ContextHandler._treeProvider.refresh();
 
         if (this._preview) {
             this._preview.update();
