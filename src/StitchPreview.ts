@@ -4,7 +4,7 @@ import axios from 'axios';
 import { StitchView } from './StitchView';
 import { FileScrambler } from './FileScrambler';
 import { Disposable } from './dispose';
-import { COMMANDS, CONSTANTS } from './constants';
+import { CONSTANTS } from './constants';
 import { CommandAction, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchResponse } from './types';
 import { PdfPreview } from './PdfPreview';
 import { ContextHandler } from './ContextHandler';
@@ -31,16 +31,11 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         const panel = vscode.window.createWebviewPanel('stitchPreview', '', showOptions, options);
         panel.iconPath = vscode.Uri.joinPath(extensionUri, 'assets/icon.png');
 
-        const statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-        statusBar.command = COMMANDS.selectScenario;
-        statusBar.show();
-
-        return new StitchPreview(panel, statusBar, `${endpoint}/editor/simulate`, extensionUri);
+        return new StitchPreview(panel, `${endpoint}/editor/simulate`, extensionUri);
     }
 
     constructor(
         private _panel: vscode.WebviewPanel,
-        private _statusBar: vscode.StatusBarItem,
         private _editorEndpoint: string,
         extensionUri: vscode.Uri
     ) {
@@ -51,7 +46,6 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
 
         const onPanelDisposeListener = this._panel.onDidDispose(() => this.dispose());
 
-        this._register(this._statusBar);
         this._register(this._panel);
         this._register(onPanelDisposeListener);
     }
@@ -86,7 +80,6 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         }
         this._panel.title = `${CONSTANTS.panelTitlePrefix}${context.integrationFilename}`;
 
-        this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${context.activeScenario.name}`;
         var model: IntegrationRequestModel;
         try {
             model = FileScrambler.collectFiles(context);

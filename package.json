@@ -32,6 +32,7 @@
 	"icon": "assets/icon.png",
 	"activationEvents": [
 		"onCommand:stitch.preview",
+		"onCommand:stitch.showTree",
 		"onCommand:stitch.createHash",
 		"onCommand:stitch.createSecret",
 		"onView:stitch.modelTree"
@@ -47,6 +48,11 @@
 					"dark": "assets/icon.svg",
 					"light": "assets/icon.svg"
 				}
+			},
+			{
+				"command": "stitch.showTree",
+				"title": "Show Model Tree",
+				"category": "Stitch"
 			},
 			{
 				"command": "stitch.createHash",
@@ -81,6 +87,10 @@
 				{
 					"command": "stitch.showScenarioSource",
 					"when": "false"
+				},
+				{
+					"command": "stitch.showTree",
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/"
 				}
 			],
 			"editor/title": [
@@ -144,7 +154,13 @@
 					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/"
 				}
 			]
-		}
+		},
+		"viewsWelcome": [
+			{
+				"view": "stitch.modelTree",
+				"contents": "No *.integration.json file found\n\nPlease open an *.integration.json file to enable the model tree!"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

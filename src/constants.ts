@@ -33,6 +33,7 @@ export const COMMANDS = {
 	insertModelProperty: 'stitch.insertModelProperty',
 
 	startPreview: 'stitch.preview',
+	showTree: 'stitch.showTree',
 	selectScenario: 'stitch.selectScenario',
 	showScenarioSource: 'stitch.showScenarioSource',
 

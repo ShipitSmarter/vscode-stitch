@@ -47,6 +47,19 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         }
     }
 
+    async getFirstRoot(): Promise<TreeItem> {
+        // delay for a bit, because context might be updating
+        await new Promise((resolve) => {
+            setTimeout(() => resolve(undefined), 200);
+        });
+
+        return this.tree[0];
+    }
+
+    getParent(_element: TreeItem): vscode.ProviderResult<TreeItem> {
+        return Promise.resolve(undefined);
+    }
+
     public insertProperty(item: TreeItem) {
         const editor = vscode.window.activeTextEditor;
         if (!editor) { return; }
