@@ -1,0 +1,15 @@
+{
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Key": "hash-1-h9T0FpQspCjYGuYOTlgvUcwTXxizb2IsNB2Wt5RD5hnNu/qG",
+                "Id": "DummyStitch",
+                "Description": "DummyStitch"
+            }
+        ]
+    },    
+    "Response": {
+        "Body": "{{include 'response.sbn' }}",
+        "StatusCode": 200
+    }
+}

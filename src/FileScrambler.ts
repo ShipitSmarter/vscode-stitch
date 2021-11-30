@@ -136,8 +136,10 @@ export class FileScrambler {
         const steps = <any[]>integration.Steps;
 
         let result: Record<string, string> = {};
-        for (let step of steps) {
-            result[step.Id] = step.$type;
+        if (steps) {
+            for (let step of steps) {
+                result[step.Id] = step.$type;
+            }
         }
 
         return result;
@@ -153,8 +155,7 @@ export class FileScrambler {
     }
 
     public static isValidScenario(scenario: ScenarioSource): boolean {
-        return glob.sync(`${scenario.path}/input.*`, undefined).length >= 1
-            && glob.sync(`${scenario.path}/step.*.*`, undefined).length >= 1;
+        return glob.sync(`${scenario.path}/input.*`, undefined).length >= 1;
     }
 
     public static getScenarios(integrationFilePath: string): ScenarioResult {
@@ -236,7 +237,7 @@ export class FileScrambler {
 
         const scenario = normalizeResult.scenarios[0];
         if (!this.isValidScenario(scenario)) {
-            vscode.window.showErrorMessage(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.txt\n\tstep.*.txt`);
+            vscode.window.showErrorMessage(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.(txt|json|xml)`);
             return;
         }
 

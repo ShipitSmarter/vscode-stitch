@@ -40,8 +40,8 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             this._debouncedTextUpdate();
         });
 
-        const onDidCloseTextEditorListener = vscode.workspace.onDidCloseTextDocument((): void => {
-            if (vscode.workspace.textDocuments.length === 0) {
+        const onDidChangeVisibleTextEditorsListener = vscode.window.onDidChangeVisibleTextEditors((e): void => {
+            if (e.length === 0) {
                 vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
                 this._context = undefined;
                 ContextHandler._treeProvider.refresh();
@@ -51,7 +51,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         this._register(onDidChangeConfigurationListener);
         this._register(onDidChangeActiveTextEditorListener);
         this._register(onDidChangeTextEditorListener);
-        this._register(onDidCloseTextEditorListener);
+        this._register(onDidChangeVisibleTextEditorsListener);
     }
 
     public static create(): vscode.Disposable {
@@ -219,10 +219,19 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             this._context = previousContext;
         }
 
-        ContextHandler._treeProvider.refresh();
+        try {
+            ContextHandler._treeProvider.refresh(); 
+        } catch (e: any) {
+            vscode.window.showErrorMessage(e.message);
+        }
 
+        
         if (this._preview) {
-            this._preview.update();
+            try {
+                this._preview.update();
+            } catch (e: any) {
+                vscode.window.showErrorMessage(e.message);
+            }
         }
     }
 }

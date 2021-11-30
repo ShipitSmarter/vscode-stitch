@@ -73,9 +73,9 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         }
 
         const files = FileScrambler.getScenarioFiles(context);
+        const steps = FileScrambler.getStepTypes(context);
 
         var requests = [];
-        var steps = FileScrambler.getStepTypes(context);
         for(let file of files) {
             if (file.filename.startsWith('step')) {
                 let stepId = file.filename.split('.')[1];

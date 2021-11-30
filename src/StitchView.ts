@@ -39,12 +39,16 @@ export class StitchView {
         }
 
         const response = <StitchResponse>data;
-        const stepsHtml = Object
+        var stepsHtml = Object
             .keys(response.integrationContext.steps)
             .map(key => { return HtmlHelper.getStepHtml(
                 response.integrationContext.steps[key],
                 response.stepConfigurations[key] ?? <BaseStepConfiguration> { id: key, template: '' });
             }).join('');
+        
+        if (stepsHtml) {
+            stepsHtml = `<h2>Steps</h2>${stepsHtml}`;
+        }
 
         var resultStatusCode = response.resultStatusCode ? response.resultStatusCode : 200;
         var actionCommand = `{action: ${CommandAction.viewIntegrationResponse} }`;
@@ -54,7 +58,6 @@ export class StitchView {
         var quickNav = `${stepsNav}<a href="#integration_response">Response</a>`;
 
         const htmlBody = `<div class="container">
-                            <h2>Steps</h2>
                             ${stepsHtml}
                             <h2 id="integration_response">Response</h2>
                             ${HtmlHelper.getActionHtml('', resultStatusCode, '', actionCommand, body)}
