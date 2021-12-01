@@ -7,12 +7,12 @@ import { CONSTANTS } from './constants';
 
 export class FileScrambler {
 
-    public static collectFiles(context: Context): IntegrationRequestModel {
+    public static collectFiles(context: Context, readWorkspaceFile: ReadWorkspaceFileFunc = _readWorkspaceFile): IntegrationRequestModel {
 
         const files: IntegrationFile[] = [];
 
         const integrationPath = context.integrationFilePath;
-        const integrationContent = this._readFile(context, integrationPath);
+        const integrationContent = this._readFile(context, integrationPath, readWorkspaceFile);
         let integration: Integration;
         try {
             integration = <Integration>JSON.parse(integrationContent);
@@ -33,7 +33,7 @@ export class FileScrambler {
                 const translationFilePath = path.join(translationsRoot, `${translation}.csv`);
                 files.push({
                     filename: `translations/${translation}.csv`,
-                    filecontent: this._readFile(context, translationFilePath)
+                    filecontent: this._readFile(context, translationFilePath, readWorkspaceFile)
                 });
             });
         }
@@ -82,18 +82,18 @@ export class FileScrambler {
         pathsToInclude.forEach(includePath => {
             files.push({
                 filename: this._makeBlobStorageLikePath(includePath, root, nestingStructure),
-                filecontent: this._readFile(context, includePath)
+                filecontent: this._readFile(context, includePath, readWorkspaceFile)
             });
         });
 
         for (const filePath of [...new Set(additionalFiles)]) {
             files.push({
                 filename: this._makeBlobStorageLikePath(filePath, root, nestingStructure),
-                filecontent: this._readFile(context, path.join(path.dirname(integrationPath), filePath))
+                filecontent: this._readFile(context, path.join(path.dirname(integrationPath), filePath), readWorkspaceFile)
             });
         }
 
-        const scenarioFiles = this.getScenarioFiles(context);
+        const scenarioFiles = this.getScenarioFiles(context, readWorkspaceFile);
 
         return {
             integrationFilePath: this._makeBlobStorageLikePath(integrationPath, root, nestingStructure),
@@ -102,7 +102,7 @@ export class FileScrambler {
         };
     }
 
-    public static getScenarioFiles(context: Context): IntegrationFile[] {
+    public static getScenarioFiles(context: Context, readWorkspaceFile: ReadWorkspaceFileFunc = _readWorkspaceFile): IntegrationFile[] {
         const scenarioFilesToInclude = [
             ...glob.sync(`${context.activeScenario.path}/input.*`, undefined),
             ...glob.sync(`${context.activeScenario.path}/step.*.*`, undefined)
@@ -111,7 +111,7 @@ export class FileScrambler {
         scenarioFilesToInclude.forEach(includePath => {
             scenarioFiles.push({
                 filename: path.basename(includePath), // scenario files don't require the path, only filename!
-                filecontent: this._readFile(context, includePath)
+                filecontent: this._readFile(context, includePath, readWorkspaceFile)
             });
         });
 
@@ -128,9 +128,9 @@ export class FileScrambler {
         return files && files[0];
     }
 
-    public static getStepTypes(context: Context): Record<string, string> {
+    public static getStepTypes(context: Context, readWorkspaceFile: ReadWorkspaceFileFunc = _readWorkspaceFile): Record<string, string> {
         const integrationPath = context.integrationFilePath;
-        const integrationContent = this._readFile(context, integrationPath);
+        const integrationContent = this._readFile(context, integrationPath, readWorkspaceFile);
         const integration = <Integration>JSON.parse(integrationContent);
         const steps = integration.Steps;
 
@@ -276,7 +276,7 @@ export class FileScrambler {
             .replace(/\.\.\//g, ''); // Remove '../' from start
     }
 
-    private static _readFile(context: Context, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc = _readWorkspaceFile) : string {
+    private static _readFile(context: Context, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc) : string {
         const normalizedPath = path.normalize(filepath);
         if (normalizedPath === context.activeFile.filepath) {
             return context.activeFile.filecontent;
@@ -302,7 +302,7 @@ function _readWorkspaceFile(filepath: string): string | undefined {
 
 /* eslint-disable @typescript-eslint/naming-convention */
 interface Integration {
-    Translations: string[];
+    Translations?: string[];
     Steps?: Step[];
 }
 

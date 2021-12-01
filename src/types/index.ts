@@ -9,7 +9,6 @@ export interface Context {
     activeFile: ActiveFile;
     integrationFilePath: string;
     integrationFilename: string;
-
     activeScenario: ScenarioSource;
 }
 
