@@ -12,12 +12,12 @@ const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
 export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | null> = new vscode.EventEmitter<TreeItem | null>();
-    readonly onDidChangeTreeData: vscode.Event<TreeItem | null> = this._onDidChangeTreeData.event;
+    public readonly onDidChangeTreeData: vscode.Event<TreeItem | null> = this._onDidChangeTreeData.event;
 
     private _endpointUrl: string; 
-    private tree: TreeItem[] = [];
+    private _tree: TreeItem[] = [];
 
-    constructor() {
+    public constructor() {
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         this._endpointUrl = `${endpoint}/editor/model`;
     }
@@ -33,7 +33,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             return;
         }
 
-        const match = treeItem.path.match(stepPathRegex);
+        const match = stepPathRegex.exec(treeItem.path);
         const stepName = match && match[1];
         if (stepName) {
             const stepPath = FileScrambler.getScenarioStepFilepath(scenario, stepName);
@@ -54,15 +54,15 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             arguments: [element]
         };
         treeItem.description = element.exampleValue;
-        treeItem.contextValue = element.path.match(rootPathRegex) && element.children ? 'SCENARIO_FILE' : undefined;
+        treeItem.contextValue = rootPathRegex.exec(element.path) && element.children ? 'SCENARIO_FILE' : undefined;
         return treeItem;
     }
 
     public getChildren(element?: TreeItem): vscode.ProviderResult<TreeItem[]> {
         if (element) {
             return Promise.resolve(element.children);
-        } else if (this.tree.length) {
-            return Promise.resolve(this.tree);
+        } else if (this._tree.length) {
+            return Promise.resolve(this._tree);
         } else {
             return this._fetchTreeItems();
         }
@@ -74,30 +74,34 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             setTimeout(() => resolve(undefined), 200);
         });
 
-        return this.tree[0];
+        return this._tree[0];
     }
 
-    public getParent(_element: TreeItem): vscode.ProviderResult<TreeItem> {
+    public getParent(): vscode.ProviderResult<TreeItem> {
         return Promise.resolve(undefined);
     }
 
-    public insertProperty(item: TreeItem) {
+    public insertProperty(item: TreeItem): void {
         const editor = vscode.window.activeTextEditor;
         if (!editor) { return; }
         
         const insertText = this._getInsertText(item);
-        editor.edit(editBuilder => {
+        void editor.edit(editBuilder => {
             editBuilder.replace(editor.selection, insertText);
         });
     }
 
-    public refresh() {
+    public refresh(): void {
         this._fetchTreeItems()
             ?.then(treeItems => {
-                this.tree = treeItems;
+                this._tree = treeItems;
                 this._onDidChangeTreeData.fire(null);
             })
-            .catch(err => vscode.window.showErrorMessage(`Could not update tree: ${err.message}`));
+            .catch(err => {
+                if (err instanceof Error) { 
+                    void vscode.window.showErrorMessage(`Could not update tree: ${err.message}`); 
+                }
+            });
     }
 
     public setEndpoint(endpoint: string): void {
@@ -114,10 +118,10 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         const files = FileScrambler.getScenarioFiles(context);
         const steps = FileScrambler.getStepTypes(context);
 
-        var requests = [];
-        for(let file of files) {
+        const requests = [];
+        for(const file of files) {
             if (file.filename.startsWith('step')) {
-                let stepId = file.filename.split('.')[1];
+                const stepId = file.filename.split('.')[1];
                 requests.push(axios.post(this._endpointUrl, { file })
                     .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); })
                 );

@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import { ContextHandler } from './ContextHandler';
 import { HtmlHelper } from './HtmlHelper';
-import { ICommand, StitchError, StitchResponse } from './types';
+import { ICommand, StitchError, StitchResponse, ErrorData } from './types';
 
 export class StitchView {
 
     private _disposables: vscode.Disposable[] = [];
 
-    constructor(private _webview: vscode.Webview, private _extensionUri: vscode.Uri) {
+    public constructor(private _webview: vscode.Webview, private _extensionUri: vscode.Uri) {
         _webview.onDidReceiveMessage(
             (command: ICommand) => { ContextHandler.handlePreviewCommand(command, _extensionUri); },
             undefined,
@@ -15,15 +15,14 @@ export class StitchView {
         );
     }
 
-    public displayResult(data: any): void {
-        const response = <StitchResponse>data;
-        this._webview.html = this._getHtml(HtmlHelper.createHtml(response));
+    public displayResult(data: StitchResponse): void {
+        this._webview.html = this._getHtml(HtmlHelper.createHtml(data));
     }
 
-    public displayResultError(errorData: any): void {
+    public displayResultError(errorData: ErrorData): void {
         if (errorData.ClassName === 'Core.Exceptions.StitchResponseSerializationException') {
             this.displayError({
-                title: errorData.Message,
+                title: errorData.Message ?? 'Unexpected error',
                 description: `<pre><code>${errorData.ResultBody}</code></pre><strong>Exception:</strong><br />${errorData.InnerException?.Message}`
             });
         }
@@ -41,8 +40,8 @@ export class StitchView {
         this._webview.html = this._getHtml(htmlBody);
     }
 
-    public scrollToPosition(scrollPosition: number) {
-        this._webview.postMessage({ command: 'setScrollPosition', scrollY: scrollPosition});
+    public scrollToPosition(scrollPosition: number): void {
+        void this._webview.postMessage({ command: 'setScrollPosition', scrollY: scrollPosition});
     }
 
     private _getHtml(htmlBody: string): string {

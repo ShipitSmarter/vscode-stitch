@@ -25,7 +25,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         this._debouncedTextUpdate = debounce(() => this._updateContext(), this._getConfigDebounceTimeout());
         this._createContext();
         if (this._context) {
-            vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
+            void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
         }
 
         this._statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
@@ -51,37 +51,19 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         });
 
-        this._register(this._statusBar);        
+        this._register(this._statusBar);
         this._register(onDidChangeConfigurationListener);
         this._register(onDidChangeActiveTextEditorListener);
         this._register(onDidChangeTextEditorListener);
         this._register(onDidChangeVisibleTextEditorsListener);
     }
 
-    private _updateStatusBar() {
-        if (this._context) {
-            this._statusBar.show();
-            this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${this._context.activeScenario.name}`;
-        } else {
-            this._statusBar.hide();
-        }        
-    }
-
-    private _clearContext() {
-        vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
-        this._context = undefined;
-        this._updateStatusBar();
-        PdfPreview.disposeAll();
-        ContextHandler._treeProvider.refresh();
-    }
-
     public static create(): vscode.Disposable {
-        this._ensureContext();
-        return this._current!;
+        return this._ensureContext();
     }
 
-    dispose() {
-        vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
+    public dispose(): void {
+        void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
         super.dispose();
     }
 
@@ -94,11 +76,11 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return this._treeProvider;
     }
 
-    public static showPreview(extensionUri: vscode.Uri): any {
+    public static showPreview(extensionUri: vscode.Uri): void {
 
-        this._ensureContext();
+        const context = this._ensureContext();
 
-        const currentPreview = this._current!._preview;
+        const currentPreview = context._preview;
 
         if (currentPreview) {
             currentPreview.reveal();
@@ -107,13 +89,13 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
-            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
+            void vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
             return;
         }
 
-        this._current!._preview = this._current!._register(StitchPreview.create(extensionUri, endpoint));
-        this._current?._register(this._current!._preview!.onDidDispose(() => this._onPreviewDidDspose()));
-        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+        context._preview = context._register(StitchPreview.create(extensionUri, endpoint));
+        context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
     }
 
     public static selectScenario(): void {
@@ -123,15 +105,15 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
         const normalizeResult = FileScrambler.getScenarios(this._current._context.integrationFilePath);
         if (!normalizeResult.success) {
-            vscode.window.showErrorMessage('Some error occured for selecting a scenario!\nMake sure you have implemented the scenario.');
+            void vscode.window.showErrorMessage('Some error occured for selecting a scenario!\nMake sure you have implemented the scenario.');
             return;
         }
 
         const scenarios = normalizeResult.scenarios;
-        const quickPickItems = scenarios.map(x => x.name).sort();
-        vscode.window.showQuickPick(quickPickItems).then((x): void => {
-            if (x && this._current) {
-                this._current._context!.activeScenario = scenarios.find(s => s.name === x)!;
+        const quickPickItems = Object.keys(scenarios).sort();
+        void vscode.window.showQuickPick(quickPickItems).then((name): void => {
+            if (name && this._current?._context) {
+                this._current._context.activeScenario = scenarios[name];
                 this._treeProvider.refresh();
                 this._current._updateStatusBar();
                 if (this._current._preview) {
@@ -141,7 +123,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         });
     }
 
-    public static handlePreviewCommand(command: ICommand, extensionUri: vscode.Uri) {
+    public static handlePreviewCommand(command: ICommand, extensionUri: vscode.Uri): void {
         if (!this._current?._preview) {
             return;
         }
@@ -149,13 +131,30 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         this._current._preview.handleCommand(command, extensionUri);
     }
 
-    private static _ensureContext() {
+    private _updateStatusBar() {
+        if (this._context) {
+            this._statusBar.show();
+            this._statusBar.text = `${CONSTANTS.statusbarTitlePrefix}${this._context.activeScenario.name}`;
+        } else {
+            this._statusBar.hide();
+        }
+    }
 
-        if (this._current){
-            return;
+    private _clearContext() {
+        void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
+        this._context = undefined;
+        this._updateStatusBar();
+        PdfPreview.disposeAll();
+        ContextHandler._treeProvider.refresh();
+    }
+
+    private static _ensureContext(): ContextHandler {
+
+        if (!this._current){
+            this._current = new ContextHandler();
         }
 
-        this._current = new ContextHandler();        
+        return this._current;
     }
 
     private _createContext() {
@@ -184,7 +183,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
-            vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
+            void vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
             return;
         }
 
@@ -193,14 +192,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         }
         ContextHandler._treeProvider.setEndpoint(endpoint);
         
-        vscode.window.showInformationMessage('The Stitch editor endpoint has been updated to: ' + endpoint);
+        void vscode.window.showInformationMessage('The Stitch editor endpoint has been updated to: ' + endpoint);
     }
 
     private _onUpdateDebounceTimeout() {
         const timeout = this._getConfigDebounceTimeout();
         this._debouncedTextUpdate = debounce(() => this._updateContext(), timeout);
 
-        vscode.window.showInformationMessage('The Stitch debounce timeout has been updated to: ' + timeout + ' ms');
+        void vscode.window.showInformationMessage(`The Stitch debounce timeout has been updated to: ${timeout} ms`);
     }
 
     private static _onPreviewDidDspose() {
@@ -208,14 +207,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             return;
         }
 
-        vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
         this._current._preview = undefined;
     }
 
     private _getConfigDebounceTimeout() : number {
         const debounceTimeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
         if (!debounceTimeout) {
-            vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
+            void vscode.window.showErrorMessage(MESSAGES.debounceTimeoutNotConfigured);
             return CONSTANTS.defaultDebounceTimeout;
         }
         return debounceTimeout;
@@ -231,7 +230,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         }
 
         if (this._context) {
-            vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
+            void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
 
             if (this._context.integrationFilePath !== previousContext?.integrationFilePath) {
                 PdfPreview.disposeAll();
@@ -244,15 +243,19 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
         try {
             ContextHandler._treeProvider.refresh(); 
-        } catch (e: any) {
-            vscode.window.showErrorMessage(e.message);
+        } catch (e) {
+            if (e instanceof Error) {
+                void vscode.window.showErrorMessage(e.message);
+            }
         }
-        
+
         if (this._preview) {
             try {
                 this._preview.update();
-            } catch (e: any) {
-                vscode.window.showErrorMessage(e.message);
+            } catch (e) {
+                if (e instanceof Error) {
+                    void vscode.window.showErrorMessage(e.message);
+                }
             }
         }
     }

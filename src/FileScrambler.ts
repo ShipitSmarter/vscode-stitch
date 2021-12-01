@@ -2,20 +2,20 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
-import { ScenarioSource, IntegrationRequestModel, IntegrationFile, ScenarioResult, ActiveFile, Context, ReadWorkspaceFileFunc, StepConfiguration } from './types';
+import { ScenarioSource, IntegrationRequestModel, IntegrationFile, ScenarioResult, ActiveFile, Context, ReadWorkspaceFileFunc } from './types';
 import { CONSTANTS } from './constants';
 
 export class FileScrambler {
-    
+
     public static collectFiles(context: Context): IntegrationRequestModel {
 
         const files: IntegrationFile[] = [];
 
-        let integrationPath = context.integrationFilePath;
+        const integrationPath = context.integrationFilePath;
         const integrationContent = this._readFile(context, integrationPath);
-        let integration;
+        let integration: Integration;
         try {
-            integration = JSON.parse(integrationContent);
+            integration = <Integration>JSON.parse(integrationContent);
         }
         catch (e) {
             throw new Error(`Integration file ${integrationPath} has invalid JSON`);
@@ -25,12 +25,12 @@ export class FileScrambler {
 
         // load translation files if required
         if (integration.Translations && integration.Translations.length > 0) {
-            let translationsRoot = this._findWithinParent(root, 'translations', 5);
+            const translationsRoot = this._findWithinParent(root, 'translations', 5);
             if (translationsRoot === undefined) {
                 throw new Error(`Unable to locate 'translations' folder!`);
             }
-            integration.Translations.forEach((translation: String) => {
-                const translationFilePath = path.join(translationsRoot!, `${translation}.csv`);
+            integration.Translations.forEach((translation: string) => {
+                const translationFilePath = path.join(translationsRoot, `${translation}.csv`);
                 files.push({
                     filename: `translations/${translation}.csv`,
                     filecontent: this._readFile(context, translationFilePath)
@@ -38,7 +38,7 @@ export class FileScrambler {
             });
         }
 
-        let importsPath = path.join(root, '../' + CONSTANTS.importsDirectoryName);
+        const importsPath = path.join(root, '../' + CONSTANTS.importsDirectoryName);
 
         let pathsToInclude = [
             ...glob.sync(`${root}/*.json`, undefined),
@@ -56,13 +56,13 @@ export class FileScrambler {
         }
 
         // Load renderTemplate step additionalFiles
-        let additionalFiles: string[] = [];
+        const additionalFiles: string[] = [];
         let requiredNestingLevel = 0;
-        const renderTemplateSteps = integration.Steps?.filter((s: any) => 'AdditionalFiles' in s) || [];
+        const renderTemplateSteps = integration.Steps?.filter((s) => 'AdditionalFiles' in s) || [];
         for (const step of renderTemplateSteps) {
-            for (const file of step.AdditionalFiles) {
+            for (const file of <string[]>step.AdditionalFiles) {
                 if (file.startsWith('../')) {
-                    var nestingLevel = (file.match(/\.\.\//g) || []).length; // Count occurences of '../'
+                    const nestingLevel = (file.match(/\.\.\//g) || []).length; // Count occurences of '../'
                     if (nestingLevel > requiredNestingLevel) { requiredNestingLevel = nestingLevel; }
                 }
 
@@ -102,8 +102,8 @@ export class FileScrambler {
         };
     }
 
-    static getScenarioFiles(context: Context): IntegrationFile[] {
-        let scenarioFilesToInclude = [
+    public static getScenarioFiles(context: Context): IntegrationFile[] {
+        const scenarioFilesToInclude = [
             ...glob.sync(`${context.activeScenario.path}/input.*`, undefined),
             ...glob.sync(`${context.activeScenario.path}/step.*.*`, undefined)
         ];
@@ -123,21 +123,20 @@ export class FileScrambler {
         return files && files[0];
     }
 
-    static getScenarioStepFilepath(scenario: ScenarioSource, stepName: string) : string {
+    public static getScenarioStepFilepath(scenario: ScenarioSource, stepName: string) : string {
         const files = glob.sync(`${scenario.path}/step.${stepName}.*`);
         return files && files[0];
     }
 
-
-    static getStepTypes(context: Context): Record<string, string> {
+    public static getStepTypes(context: Context): Record<string, string> {
         const integrationPath = context.integrationFilePath;
         const integrationContent = this._readFile(context, integrationPath);
-        const integration = JSON.parse(integrationContent);
-        const steps = <any[]>integration.Steps;
+        const integration = <Integration>JSON.parse(integrationContent);
+        const steps = integration.Steps;
 
-        let result: Record<string, string> = {};
+        const result: Record<string, string> = {};
         if (steps) {
-            for (let step of steps) {
+            for (const step of steps) {
                 result[step.Id] = step.$type;
             }
         }
@@ -145,37 +144,29 @@ export class FileScrambler {
         return result;
     }
 
-    private static _findWithinParent(root: string, folderNameToLookFor: string, maxUp: number) : string | undefined  {
-        const pathCheck = path.join(root, folderNameToLookFor);
-        if (maxUp === 0) { return undefined; }
-        if (fs.existsSync(pathCheck)) { return pathCheck; }
-        else {
-            return this._findWithinParent(path.dirname(root), folderNameToLookFor, --maxUp);
-        }
-    }
-
     public static isValidScenario(scenario: ScenarioSource): boolean {
         return glob.sync(`${scenario.path}/input.*`, undefined).length >= 1;
     }
 
     public static getScenarios(integrationFilePath: string): ScenarioResult {
-        let result: ScenarioSource[] = [];
+        const result: Record<string, ScenarioSource> = {};
         let i,
             scenarioPath,
-            invalid = false;
+            isInvalid = false;
 
         const integrationDir = path.dirname(integrationFilePath);
-        let dirs = glob.sync(`${integrationDir}/${CONSTANTS.scenariosDirectoryName}/*/`, undefined);
-        if (!dirs || !dirs.length) { invalid = true; }
+        const dirs = glob.sync(`${integrationDir}/${CONSTANTS.scenariosDirectoryName}/*/`, undefined);
+        if (!dirs || !dirs.length) { isInvalid = true; }
         for (i = 0; i < dirs.length; i++) {
             scenarioPath = dirs[i];
-            result.push({
-                name: path.basename(scenarioPath),
+            const scenarioName = path.basename(scenarioPath);
+            result[scenarioName] = {
+                name: scenarioName,
                 path: scenarioPath
-            });
+            };
         }
 
-        return { success: !invalid, scenarios: result };
+        return { success: !isInvalid, scenarios: result };
     }
 
     public static determineContext(activeFile: ActiveFile, currentContext: Context | undefined): Context | undefined {
@@ -226,18 +217,29 @@ export class FileScrambler {
                 );
             }
         }
+
+        return;
+    }
+
+    private static _findWithinParent(root: string, folderNameToLookFor: string, maxUp: number) : string | undefined  {
+        const pathCheck = path.join(root, folderNameToLookFor);
+        if (maxUp === 0) { return undefined; }
+        if (fs.existsSync(pathCheck)) { return pathCheck; }
+        else {
+            return this._findWithinParent(path.dirname(root), folderNameToLookFor, --maxUp);
+        }
     }
 
     private static _createContext(activeFile: ActiveFile, integrationFilePath: string, integrationFilename: string): Context | undefined {
         const normalizeResult = this.getScenarios(integrationFilePath);
         if (!normalizeResult.success) {
-            vscode.window.showErrorMessage(`No scenarios found!\nTo provide a scenario create a "scenarios" directory next to the ${integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`);
+            void vscode.window.showErrorMessage(`No scenarios found!\nTo provide a scenario create a "scenarios" directory next to the ${integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`);
             return;
         }
 
-        const scenario = normalizeResult.scenarios[0];
+        const scenario = normalizeResult.scenarios[Object.keys(normalizeResult.scenarios)[0]];
         if (!this.isValidScenario(scenario)) {
-            vscode.window.showErrorMessage(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.(txt|json|xml)`);
+            void vscode.window.showErrorMessage(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.(txt|json|xml)`);
             return;
         }
 
@@ -245,11 +247,11 @@ export class FileScrambler {
             activeFile, 
             integrationFilePath,
             integrationFilename,
-            activeScenario: normalizeResult.scenarios[0],
+            activeScenario: scenario,
         };
     }
 
-    static _isScenarioFile(filepath: string) : boolean {
+    private static _isScenarioFile(filepath: string) : boolean {
         // files are stored like this
         // /scenarios/sample1/input.txt
         // - *.integration.json
@@ -258,7 +260,7 @@ export class FileScrambler {
                 && path.basename(parentParentDirectory) === CONSTANTS.scenariosDirectoryName;
     }
 
-    static _makeBlobStorageLikePath(absolutePath: string, root: string, nestingStructure: string): string {
+    private static _makeBlobStorageLikePath(absolutePath: string, root: string, nestingStructure: string): string {
         let blobPath = path.normalize(absolutePath)
             .replace(path.normalize(root), ''); // trim the root path
 
@@ -274,7 +276,7 @@ export class FileScrambler {
             .replace(/\.\.\//g, ''); // Remove '../' from start
     }
 
-    static _readFile(context: Context, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc = this._readWorkspaceFile) : string {
+    private static _readFile(context: Context, filepath: string, readWorkspaceFile: ReadWorkspaceFileFunc = _readWorkspaceFile) : string {
         const normalizedPath = path.normalize(filepath);
         if (normalizedPath === context.activeFile.filepath) {
             return context.activeFile.filecontent;
@@ -285,15 +287,28 @@ export class FileScrambler {
             return workspaceFileContent;
         }
 
-        const readOptions = { encoding: 'utf8', flag: 'r' };
-        return fs.readFileSync(normalizedPath, readOptions);
-    }
-
-    private static _readWorkspaceFile(filepath: string): string | undefined {
-        const textDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === filepath);
-        if (textDoc) {
-            return textDoc.getText();
-        }
+        return fs.readFileSync(normalizedPath, 'utf8');
     }
 }
 
+function _readWorkspaceFile(filepath: string): string | undefined {
+    const textDoc = vscode.workspace.textDocuments.find(doc => doc.fileName === filepath);
+    if (textDoc) {
+        return textDoc.getText();
+    }
+
+    return;
+}
+
+/* eslint-disable @typescript-eslint/naming-convention */
+interface Integration {
+    Translations: string[];
+    Steps?: Step[];
+}
+
+interface Step {
+    $type: string;
+    Id: string;
+    [keys: string]: unknown[] | string | number;
+}
+/* eslint-enable @typescript-eslint/naming-convention */

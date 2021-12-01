@@ -5,7 +5,7 @@ export class TreeBuilder {
 
     public static generateTreeItemModel(treeData: FormatModel, beginPath: string): TreeItem {
 
-        let tree: TreeItem = { name: beginPath, path: beginPath };
+        const tree: TreeItem = { name: beginPath, path: beginPath };
         if (!treeData) {
             return tree;
         }
@@ -18,14 +18,14 @@ export class TreeBuilder {
     public static generateTreeItemStep(stepId: string, stepType: string, responseData: FormatModel): TreeItem {
 
         const path = `Steps.${stepId}`;
-        let tree: TreeItem = { name: path, path };
+        const tree: TreeItem = { name: path, path };
 
         /* eslint-disable @typescript-eslint/naming-convention */
-        let obj: any = {
+        const obj: StepResultAggregate = {
             HasStartCondition: false,
-                HasSuccessCondition: false,
-                Success: true,
-                Started: null,
+            HasSuccessCondition: false,
+            Success: true,
+            Started: null,
         };
 
         switch(stepType) {
@@ -36,7 +36,7 @@ export class TreeBuilder {
                     IsSuccessStatusCode: true
                 };
                 if (responseData?.formattedJson) {
-                    obj.Model = JSON.parse(responseData.formattedJson);
+                    obj.Model = <Record<string, unknown>>JSON.parse(responseData.formattedJson);
                 }
                 break;
             case CONSTANTS.renderTemplateStepConfigurationType:
@@ -57,22 +57,27 @@ export class TreeBuilder {
         return tree;
     }
 
-    static _isNumber(n: string | number): boolean {
+    private static _isNumber(n: string | number): boolean {
         return !isNaN(parseFloat(String(n))) && isFinite(Number(n));
     }
 
-    static _addNodes(parent: TreeItem, obj: any) {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+    /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+    /* eslint-disable @typescript-eslint/no-unsafe-call */
+    /* eslint-disable @typescript-eslint/no-unsafe-argument */
+    private static _addNodes(parent: TreeItem, obj: any) {
 
         Object.keys(obj).forEach(key => {
 
-            let child: TreeItem = {
+            const child: TreeItem = {
                 name: key,
                 path: parent.isCollection
                     ? this._isNumber(key)
                         ? `${parent.path}[${key}]` : `x.${key}`
                     : `${parent.path}.${key}`
             };
-            let childObj = obj[key];
+            const childObj = obj[key];
 
             if (!parent.children) {
                 parent.children = [];
@@ -99,5 +104,35 @@ export class TreeBuilder {
             }
         });
     }
-
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+    /* eslint-enable @typescript-eslint/no-unsafe-assignment */
+    /* eslint-enable @typescript-eslint/no-unsafe-member-access */
+    /* eslint-enable @typescript-eslint/no-unsafe-call */
+    /* eslint-enable @typescript-eslint/no-unsafe-argument */
 }
+
+/* eslint-disable @typescript-eslint/naming-convention */
+interface StepResultAggregate {
+    HasStartCondition: boolean;
+    HasSuccessCondition: boolean;
+    Success: boolean;
+    Started: boolean | null;
+
+    Response?: StepResultHttpResponse | StepResultRenderResponse;
+    Model?: Record<string, unknown>;
+}
+
+interface StepResultHttpResponse {
+    BodyFormat: string;
+    StatusCode: number;
+    IsSuccessStatusCode: boolean;
+}
+
+interface StepResultRenderResponse {
+    Content: string;
+    ContentType: string;
+    StatusCode: number;
+    IsSuccessStatusCode: boolean;
+    ErrorMessage: string;
+}
+/* eslint-enable @typescript-eslint/naming-convention */

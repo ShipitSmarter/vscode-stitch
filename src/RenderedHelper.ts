@@ -5,11 +5,11 @@ import { RenderTemplateStepResult, StitchResponse } from './types';
 
 export class RenderedHelper {
 
-    public static show(options: { filename: string; content: string; }) {
+    public static show(options: { filename: string; content: string; }): void {
         if (!options.content) { return; }
 
         const firstChar = options.content[0];
-        var extension = '.txt';
+        let extension = '.txt';
         if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
         else if (firstChar === '<') { extension = '.xml'; }
         else if (firstChar === '{' || firstChar === '[') { extension = '.json'; }
@@ -18,19 +18,19 @@ export class RenderedHelper {
         this._updateRendered(untitledFile, options.content, true);
     }
 
-    public static update(response: StitchResponse) {
+    public static update(response: StitchResponse): void {
         this._updateRenderedUntitled(response);
         this._updateRenderedPdf(response);
     }
 
-    private static _updateRendered(untitledUri: vscode.Uri, content: string, show: boolean = false) {
-        vscode.workspace.openTextDocument(untitledUri).then(document => {
+    private static _updateRendered(untitledUri: vscode.Uri, content: string, show = false) {
+        void vscode.workspace.openTextDocument(untitledUri).then(document => {
             const lastLine = document.lineAt(document.lineCount-1);
             const edit = new vscode.WorkspaceEdit();
-            edit.replace(untitledUri, new vscode.Range(new vscode.Position(0,0), lastLine.range.end), content);
+            edit.replace(untitledUri, new vscode.Range(new vscode.Position(0, 0), lastLine.range.end), content);
             return vscode.workspace.applyEdit(edit).then(success => {
                 if (success && show) {
-                    vscode.window.showTextDocument(document, undefined, true);
+                    void vscode.window.showTextDocument(document, undefined, true);
                 }
             });
         });
@@ -44,7 +44,7 @@ export class RenderedHelper {
             if (o.fileName.startsWith('stitch-response.')) {
                 this._updateRendered(o.uri, JSON.stringify(response.result, null, 2));
             } else {
-                let match = o.fileName.match(/^stitch-step-request-(.*?)\./);
+                const match = /^stitch-step-request-(.*?)\./.exec(o.fileName);
                 if (match?.length === 2) {
                     this._updateRendered(o.uri, response.stepConfigurations[match[1]].template.trim());
                 }
@@ -67,5 +67,4 @@ export class RenderedHelper {
             PdfPreview.setOrUpdatePdfData(stepId, renderResponse.response.content);
         }
     }
-
 }

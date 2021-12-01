@@ -1,3 +1,4 @@
+import { fail } from "assert";
 import { expect } from "chai";
 import { TreeBuilder } from "../../../TreeBuilder";
 import { FormatModel } from "../../../types";
@@ -39,7 +40,10 @@ suite('TreeBuilder Tests', () => {
 
             expect(result.isCollection).undefined;
             expect(result.exampleValue).undefined;
-            const children = result.children!;
+            const children = result.children;
+            if (!children) {
+                fail();
+            }
             expect(children.length).equal(3);
             expect(children[0]).deep.equal({ name: 'numeric', path: 'Model.numeric', exampleValue: '123' });
             expect(children[1]).deep.equal({ name: 'text', path: 'Model.text', exampleValue: 'abc' });
@@ -61,12 +65,18 @@ suite('TreeBuilder Tests', () => {
             const beginPath = 'Model';
             const result = TreeBuilder.generateTreeItemModel(formatData, beginPath);
 
-            const textChild = result.children![0];
+            if (!result.children) {
+                fail();
+            }
+            const textChild = result.children[0];
 
             expect(textChild.name).equal('texts');
             expect(textChild.path).equal('Model.texts');
             expect(textChild.isCollection).true;
-            const children = textChild.children!;
+            const children = textChild.children;
+            if (!children) {
+                fail();
+            }
             expect(children.length).equal(2);
             expect(children[0]).deep.equal({ name: '0', path: 'Model.texts[0]', exampleValue: 'option1' });
             expect(children[1]).deep.equal({ name: '1', path: 'Model.texts[1]', exampleValue: 'option2' });
@@ -88,11 +98,17 @@ suite('TreeBuilder Tests', () => {
             const beginPath = 'Model';
             const result = TreeBuilder.generateTreeItemModel(formatData, beginPath);
 
-            const textChild = result.children![0];
+            if (!result.children) {
+                fail();
+            }
+            const textChild = result.children[0];
             expect(textChild.isCollection).true;
             expect(textChild.name).equal('objects');
             expect(textChild.path).equal('Model.objects');
-            const children = textChild.children!;
+            const children = textChild.children;
+            if (!children) {
+                fail();
+            }
             expect(children.length).equal(3);
             // the children get path x.{property} because when using these in scriban, they are used in a foreach (var x in collection)
             expect(children[0]).deep.equal({ name: 'simple', path: 'x.simple', exampleValue: 'simple1' });
