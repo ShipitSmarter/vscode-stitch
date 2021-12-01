@@ -15,7 +15,7 @@ export class TreeBuilder {
         return tree;
     }
 
-    public static generateTreeItemStep(stepId: string, stepType: string, responseData: FormatModel): TreeItem {
+    public static generateTreeItemStep(stepId: string, stepType: string, responseData?: FormatModel): TreeItem {
 
         const path = `Steps.${stepId}`;
         const tree: TreeItem = { name: path, path };
@@ -83,7 +83,11 @@ export class TreeBuilder {
                 parent.children = [];
             }
             parent.children.push(child);
-            if (!childObj) { return; }
+
+            if (childObj === undefined || childObj === null) {
+                child.exampleValue = 'null';
+                return;
+            }
 
             if (typeof childObj === 'object') {
                 if (Array.isArray(childObj) && childObj.length > 0) {

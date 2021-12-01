@@ -399,4 +399,46 @@ suite('FileScrambler Tests', () => {
             assert.isUndefined(result);
         });
     });
+
+    suite('getStepTypes()', () => {
+        const context: Context = {
+            activeFile: { filecontent: '', filepath: ''},
+            activeScenario: { name: '', path: '' },
+            integrationFilename: 'my.integration.json',
+            integrationFilePath: 'some/path/my.integration.json',
+        };
+
+        test('Multiple steps finds types correctle', () => {
+            mockFs({
+                'some/path': {
+                    'my.integration.json': `{
+                        "Steps": [
+                            { "$type": "StepType1, Core", "Id": "Step1" },
+                            { "$type": "StepType2, Core", "Id": "Step2" }
+                        ]
+                    }`
+                }
+            });
+
+            const result = FileScrambler.getStepTypes(context);
+            
+            assert.isDefined(result);
+            assert.strictEqual(Object.keys(result).length, 2);
+            assert.strictEqual(result['Step1'], 'StepType1, Core');
+            assert.strictEqual(result['Step2'], 'StepType2, Core');
+        });
+
+        test('No steps works correctly', () => {
+            mockFs({
+                'some/path': {
+                    'my.integration.json': '{}'
+                }
+            });
+
+            const result = FileScrambler.getStepTypes(context);
+            
+            assert.isDefined(result);
+            assert.strictEqual(Object.keys(result).length, 0);
+        });
+    });
 });
