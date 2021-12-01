@@ -173,14 +173,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _onUpdateConfiguration(e: vscode.ConfigurationChangeEvent) {
         if (e.affectsConfiguration(CONSTANTS.configKeyEndpointUrl)) {
-            this._onUpdateEndoint();
+            this._onUpdateEndpoint();
         }
         if (e.affectsConfiguration(CONSTANTS.configKeyDebounceTimeout)) {
             this._onUpdateDebounceTimeout();
         }
     }
 
-    private _onUpdateEndoint() {
+    private _onUpdateEndpoint() {
 
         const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
         if (!endpoint) {
@@ -191,6 +191,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         if (this._preview) {
             this._preview.setEndpoint(endpoint);
         }
+        ContextHandler._treeProvider.setEndpoint(endpoint);
         
         vscode.window.showInformationMessage('The Stitch editor endpoint has been updated to: ' + endpoint);
     }

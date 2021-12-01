@@ -13,7 +13,6 @@ import { RenderedHelper } from './RenderedHelper';
 export class StitchPreview extends Disposable implements vscode.Disposable {
 
     private _view: StitchView;
-    
     private _result?: StitchResponse;
     private _scrollPosition?: number;
     private _currentIntegrationPath?: string;
@@ -83,41 +82,15 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         var model: IntegrationRequestModel;
         try {
             model = FileScrambler.collectFiles(context);
-        } catch(error: any) {
-            this._view.displayError({
-                title: 'Collecting files failed',
-                description: error.message
-            }, JSON.stringify(error));
-            return;
-        }
+        } catch(error: any) { return this._handleError(error, 'Collecting files failed'); }
 
         axios.post(this._editorEndpoint, model)
-            .then(res => {
-                this._view.displayResult(res.data);
-                if (res.data.result) {
-                    if (this._scrollPosition) {
-                        this._view.scrollToPosition(this._scrollPosition);
-                        this._scrollPosition = undefined;
-                    }
-                    this._result = <StitchResponse>res.data;
-                    RenderedHelper.update(this._result);
-                }
-            })
-            .catch(err => {
-                this._view.displayError({
-                    title: 'Request failed',
-                    description: err.message,
-                }, JSON.stringify(err));
-            });
-    }
-
-    // TODO: Temp solution, should be removed
-    public currentResponse(): StitchResponse | undefined {
-        return this._result;
+            .then(res => this._handleResponse(res.data))
+            .catch(err => this._handleError(err, 'Request failed'));
     }
 
     public handleCommand(command: ICommand, extensionUri: vscode.Uri) {
-        const response = this.currentResponse();
+        const response = this._result;
         if (!response) { return; }
 
         switch (command.action) {
@@ -146,4 +119,32 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
                 return;
         }
     }
+
+    private _handleResponse(responseData: any) {
+        const okResult = responseData.result;
+        if (okResult) {
+            this._view.displayResult(responseData);
+            if (this._scrollPosition) {
+                this._view.scrollToPosition(this._scrollPosition);
+                this._scrollPosition = undefined;
+            }
+
+            this._result = <StitchResponse>responseData;
+            RenderedHelper.update(this._result);
+        } 
+        else {
+            if (!this._scrollPosition){
+                this._panel.webview.postMessage({command: 'requestScrollPosition'});
+            }
+
+            this._view.displayResultError(responseData);
+        }
+    }
+
+    private _handleError(error: any, title: string) {
+        this._view.displayError({
+            title,
+            description: error.message,
+        }, JSON.stringify(error));
+    }    
 }

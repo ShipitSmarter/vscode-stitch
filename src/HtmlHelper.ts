@@ -1,6 +1,7 @@
 import * as path from 'path';
 import { CONSTANTS } from "./constants";
 import {
+    BaseStepConfiguration,
     BaseStepResult,
     CommandAction,
     HttpStepConfiguration,
@@ -10,27 +11,73 @@ import {
     SftpStepConfiguration,
     StepConfiguration,
     StepResult,
+    StitchResponse,
 } from "./types";
 
 export namespace HtmlHelper {
-    export function getStepHtml(step: StepResult, configuration: StepConfiguration) {
+
+    export function createHtml(response: StitchResponse): string {
+        return `<div class="container">
+                    ${_createStepsHtml(response)}
+                    ${_createResponseHtml(response)}                    
+                </div>
+                <div class="quicknav"><strong>&nbsp;Nav</strong> ${_createNavHtml(response.integrationContext.steps)}</div>`;
+    }
+
+    export function escapeHtml(unsafe: string) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function _createStepsHtml(response: StitchResponse): string {
+        var stepsHtml = Object.keys(response.integrationContext.steps)
+            .map(key => { return _createStepHtml(
+                response.integrationContext.steps[key],
+                response.stepConfigurations[key] ?? <BaseStepConfiguration> { id: key, template: '' });
+            }).join('');
+        
+        if (stepsHtml) {
+            return `<h2>Steps</h2>${stepsHtml}`;
+        }
+        return '';
+    }
+
+    function _createResponseHtml(response: StitchResponse): string {
+        const resultStatusCode = response.resultStatusCode ? response.resultStatusCode : 200;
+        const actionCommand = `{action: ${CommandAction.viewIntegrationResponse} }`;
+        const body =  `<pre><code>${JSON.stringify(response.result, null, 2)}</code></pre>`;
+
+        return `<h2 id="integration_response">Response</h2>
+                ${_createActionHtml('', resultStatusCode, '', actionCommand, body)}`;
+    }
+
+    function _createNavHtml(steps: Record<string, StepResult>): string {
+        var stepsNav = Object.keys(steps).map(key => { return `<a href="#${key}">${key}</a>`; }).join('');
+        return `${stepsNav}<a href="#integration_response">Response</a>`;
+    }
+
+    function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
         switch (step.$type) {
             case CONSTANTS.httpStepResultTypeType:
-                return _getActionStepHtml('HTTP', configuration, _getHttpStepHtml(<HttpStepConfiguration>configuration));
+                return _createActionStepHtml('HTTP', configuration, _getHttpStepHtml(<HttpStepConfiguration>configuration));
             case CONSTANTS.renderTemplateStepResultType:
-                return _getActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
+                return _createActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
             case CONSTANTS.mailStepResultType:
-                return _getActionStepHtml('Mail', configuration, _getMailStepHtml(<MailStepConfiguration>configuration));
+                return _createActionStepHtml('Mail', configuration, _getMailStepHtml(<MailStepConfiguration>configuration));
             case CONSTANTS.sftpStepResultType:
-                return _getActionStepHtml('SFTP', configuration, _getSftpStepHtml(<SftpStepConfiguration>configuration));
+                return _createActionStepHtml('SFTP', configuration, _getSftpStepHtml(<SftpStepConfiguration>configuration));
             case CONSTANTS.skippedStepResultType:
-                return _getActionStepHtml('Skipped', configuration, '');
+                return _createActionStepHtml('Skipped', configuration, '');
             default:
-                return _getActionStepHtml('Unknown', configuration, _getDefaultStepHtml(step, configuration));
+                return _createActionStepHtml('Unknown', configuration, _getDefaultStepHtml(step, configuration));
         }
     }
 
-    export function getActionHtml(title: string, type:string, anchor: string, postMessageAction: string, body: string) {
+    function _createActionHtml(title: string, type:string, anchor: string, postMessageAction: string, body: string) {
         return `<div class="action" id="${anchor}">
                     <span class="title">${title}</span>
                     <span class="type">${type}</span>
@@ -46,17 +93,9 @@ export namespace HtmlHelper {
                 </div>`;
     }
 
-    export function escapeHtml(unsafe: string) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    function _getActionStepHtml(title: string, step: StepConfiguration, body: string) {
-        return getActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
+    
+    function _createActionStepHtml(title: string, step: StepConfiguration, body: string) {
+        return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
                     `${body}
                     <pre><code>${escapeHtml(step.template)}</code></pre>`);
     }
@@ -117,3 +156,7 @@ export namespace HtmlHelper {
                 </p>`;
     }
 }
+
+
+
+
