@@ -5,6 +5,7 @@ import { TreeBuilder } from './TreeBuilder';
 import { FormatModel, TreeItem } from './types';
 import { FileScrambler } from './FileScrambler';
 import axios, { AxiosResponse } from 'axios';
+import { delay } from './helpers';
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
 const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
@@ -70,9 +71,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
     public async getFirstRoot(): Promise<TreeItem> {
         // delay for a bit, because context might be updating
-        await new Promise((resolve) => {
-            setTimeout(() => resolve(undefined), 200);
-        });
+        await delay(200);
 
         return this._tree[0];
     }

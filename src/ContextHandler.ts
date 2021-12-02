@@ -5,7 +5,7 @@ import { COMMANDS, CONSTANTS, MESSAGES } from "./constants";
 import { Disposable } from "./dispose";
 import { FileScrambler } from "./FileScrambler";
 import { PdfPreview } from "./PdfPreview";
-import { debounce } from "./debounce";
+import { debounce, delay } from "./helpers";
 import { StitchTreeProvider } from "./StitchTreeProvider";
 
 
@@ -23,7 +23,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         super();
 
         this._debouncedTextUpdate = debounce(() => this._updateContext(), this._getConfigDebounceTimeout());
-        this._createContext();
+        this._context = this._createContext();
         if (this._context) {
             void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
         }
@@ -45,8 +45,12 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             this._debouncedTextUpdate();
         });
 
-        const onDidChangeVisibleTextEditorsListener = vscode.window.onDidChangeVisibleTextEditors((e): void => {
-            if (e.length === 0) {
+
+        const onDidChangeVisibleTextEditorsListener = vscode.window.onDidChangeVisibleTextEditors(async (): Promise<void> => {
+            // delay is needed to wait for textDocuments on workspace to be updated
+            await delay(50);
+            const activeEditorCount = vscode.workspace.textDocuments.filter(t => ['file', 'untitled'].includes(t.uri.scheme)).length;
+            if (activeEditorCount === 0) {
                 this._clearContext();
             }
         });
@@ -145,6 +149,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         this._context = undefined;
         this._updateStatusBar();
         PdfPreview.disposeAll();
+        if (this._preview) { this._preview.dispose(); }
         ContextHandler._treeProvider.refresh();
     }
 
@@ -157,7 +162,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return this._current;
     }
 
-    private _createContext() {
+    private _createContext(): Context | undefined {
         const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor || activeEditor.document.isUntitled) {
             return;
@@ -167,7 +172,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             filepath: activeEditor.document.fileName,
             filecontent: activeEditor.document.getText()
         };
-        this._context = FileScrambler.determineContext(activeFile, this._context);
+        return FileScrambler.determineContext(activeFile, this._context);
     }
 
     private _onUpdateConfiguration(e: vscode.ConfigurationChangeEvent) {
@@ -222,15 +227,15 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _updateContextOnChangeActiveEditor(): void {
         const previousContext = this._context;
-        this._createContext();
-        if (previousContext?.integrationFilePath !== this._context?.integrationFilePath){
+        const newContext = this._createContext();
+        if (previousContext?.integrationFilePath !== newContext?.integrationFilePath){
             this._updateContext();
         }
     }
 
     private _updateContext(): void {
         const previousContext = this._context;
-        this._createContext();
+        this._context = this._createContext();
 
         if (!previousContext && !this._context) {
             this._clearContext();

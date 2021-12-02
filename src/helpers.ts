@@ -5,3 +5,9 @@ export function debounce<Params extends unknown[]>(func: (...args: Params) => un
         timer = setTimeout(() => { func(...args); }, timeout);
     };
 }
+
+export async function delay(ms: number): Promise<void> {
+    await new Promise((resolve) => {
+        setTimeout(() => resolve(undefined), ms);
+    });
+}
