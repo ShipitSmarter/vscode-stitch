@@ -8,7 +8,6 @@ import { PdfPreview } from "./PdfPreview";
 import { debounce, delay } from "./helpers";
 import { StitchTreeProvider } from "./StitchTreeProvider";
 
-
 export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private static _treeProvider = new StitchTreeProvider();
@@ -45,7 +44,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             this._debouncedTextUpdate();
         });
 
-
         const onDidChangeVisibleTextEditorsListener = vscode.window.onDidChangeVisibleTextEditors(async (): Promise<void> => {
             // delay is needed to wait for textDocuments on workspace to be updated
             await delay(50);
@@ -60,6 +58,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         this._register(onDidChangeActiveTextEditorListener);
         this._register(onDidChangeTextEditorListener);
         this._register(onDidChangeVisibleTextEditorsListener);
+        this._register(vscode.workspace.onDidCreateFiles(() => this._updateContext()));
+        this._register(vscode.workspace.onDidDeleteFiles(() => this._updateContext()));
+        this._register(vscode.workspace.onDidRenameFiles(() => this._updateContext()));
     }
 
     public static create(): vscode.Disposable {

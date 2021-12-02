@@ -108,7 +108,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         this.refresh();
     }
 
-    private _fetchTreeItems() {
+    private _fetchTreeItems(): Promise<TreeItem[]> {
         const context = ContextHandler.getContext();
         if (!context) {
             return Promise.resolve([]);
@@ -117,18 +117,28 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         const files = FileScrambler.getScenarioFiles(context);
         const steps = FileScrambler.getStepTypes(context);
 
+        if (files.length === 0) {
+            return Promise.resolve([]);
+        }
+
         const requests = [];
-        for(const file of files) {
-            if (file.filename.startsWith('step')) {
-                const stepId = file.filename.split('.')[1];
+        const inputFiles = files.filter(f => f.filename.startsWith('input'));
+        if (inputFiles.length > 0) {
+            requests
+                .push(axios.post(this._endpointUrl, { file:  inputFiles[0] })
+                .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemModel(res.data, 'Model'); })
+            );
+        }
+
+        for (const stepId of Object.keys(steps)) {
+            const file = files.find(f => f.filename.startsWith(`step.${stepId}`));
+            if (file) {
                 requests.push(axios.post(this._endpointUrl, { file })
                     .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); })
                 );
             }
             else {
-                requests.push(axios.post(this._endpointUrl, { file })
-                    .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemModel(res.data, 'Model'); })
-                );
+                requests.push(Promise.resolve(TreeBuilder.generateTreeItemStep(stepId, steps[stepId])));
             }
         }
 
