@@ -1,4 +1,5 @@
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { CONSTANTS } from "./constants";
 import {
     BaseStepConfiguration,
@@ -11,17 +12,29 @@ import {
     SftpStepConfiguration,
     StepConfiguration,
     StepResult,
+    StitchError,
     StitchResponse,
 } from "./types";
 
-export abstract class HtmlHelper {
+export class HtmlHelper {
 
-    public static createHtml(response: StitchResponse): string {
-        return `<div class="container">
-                    ${_createStepsHtml(response)}
-                    ${_createResponseHtml(response)}
-                </div>
-                <div class="quicknav"><strong>&nbsp;Nav</strong> ${_createNavHtml(response.integrationContext.steps)}</div>`;
+    public constructor(private _cspSource: string, private _resolveAsUri: (...p: string[]) => vscode.Uri) {}
+
+    public createHtml(response: StitchResponse): string {
+        return this._createHtmlWrapper(
+            `<div class="container">
+                ${_createStepsHtml(response)}
+                ${_createResponseHtml(response)}
+            </div>
+            <div class="quicknav"><strong>&nbsp;Nav</strong> ${_createNavHtml(response.integrationContext.steps)}</div>`
+        );
+    }
+
+    public createErrorHtml(error: StitchError, extraBody?: string): string {
+        extraBody = HtmlHelper.escapeHtml(extraBody || '');
+        const htmlBody = `<h1 class="error">${error.title}</h1>
+                          <p>${HtmlHelper.escapeHtml(error.description)}</p><p>${extraBody}</p>`;
+        return  this._createHtmlWrapper(htmlBody);
     }
 
     public static escapeHtml(unsafe: string): string {
@@ -31,6 +44,34 @@ export abstract class HtmlHelper {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
+    }
+
+    private _createHtmlWrapper(htmlBody: string): string {       
+        return `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Stitch Preview</title>
+    
+                <meta http-equiv="Content-Security-Policy" content="
+                    default-src 'none';
+                    style-src ${this._cspSource};
+                    script-src 'unsafe-inline' ${this._cspSource};
+                    img-src ${this._cspSource} https:;">
+                <link href="${this._resolveAsUri('assets', 'style.css')}" rel="stylesheet">
+                <script>
+                    window.acquireVsCodeApi = acquireVsCodeApi;
+                </script>
+            </head>
+            <body>
+                ${htmlBody}
+                <script>
+                    const vscode = window.acquireVsCodeApi();
+                </script>
+                <script src="${this._resolveAsUri('assets', 'preview.js')}"></script>
+            </body>
+            </html>`;
     }
 }
 

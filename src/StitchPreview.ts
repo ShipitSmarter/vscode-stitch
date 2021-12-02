@@ -1,21 +1,21 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import axios from 'axios';
-import { StitchView } from './StitchView';
 import { FileScrambler } from './FileScrambler';
 import { Disposable } from './dispose';
 import { CONSTANTS } from './constants';
-import { CommandAction, ErrorData, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchResponse } from './types';
+import { CommandAction, ErrorData, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchError, StitchResponse } from './types';
 import { PdfPreview } from './PdfPreview';
 import { ContextHandler } from './ContextHandler';
 import { RenderedHelper } from './RenderedHelper';
+import { HtmlHelper } from './HtmlHelper';
 
 export class StitchPreview extends Disposable implements vscode.Disposable {
 
-    private _view: StitchView;
     private _result?: StitchResponse;
     private _scrollPosition?: number;
     private _currentIntegrationPath?: string;
+    private _htmlHelper: HtmlHelper;
 
     public static create(extensionUri: vscode.Uri, endpoint: string): StitchPreview {
 
@@ -40,13 +40,20 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     ) {
         super();
 
-        this._view = new StitchView(_panel.webview, extensionUri);
+        const resolveAsUri = (...p: string[]): vscode.Uri => {
+            return this._panel.webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...p));
+        };
+        this._htmlHelper = new HtmlHelper(_panel.webview.cspSource, resolveAsUri);
         this.update();
 
         const onPanelDisposeListener = this._panel.onDidDispose(() => this.dispose());
+        const onDidReceiveMessageListener = this._panel.webview.onDidReceiveMessage(
+            (command: ICommand) => { ContextHandler.handlePreviewCommand(command, extensionUri); }
+        );
 
         this._register(this._panel);
         this._register(onPanelDisposeListener);
+        this._register(onDidReceiveMessageListener);
     }
 
     public dispose(): void {
@@ -67,7 +74,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
 
         const context = ContextHandler.getContext();
         if (!context) {
-            this._view.displayError({
+            this._handleStitchError({
                 title: `No ${CONSTANTS.integrationExtension} file found`,
                 description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
             });
@@ -82,9 +89,9 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         let model: IntegrationRequestModel | undefined;
         try {
             model = FileScrambler.collectFiles(context);
-        } catch(error) { 
-            if (error instanceof Error){
-                return this._handleError(error, 'Collecting files failed'); 
+        } catch (error) {
+            if (error instanceof Error) {
+                return this._handleError(error, 'Collecting files failed');
             }
         }
 
@@ -135,29 +142,45 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     private _handleResponse(responseData: ResponseData) {
         const okResult = responseData.result;
         if (okResult) {
-            this._view.displayResult(<StitchResponse>responseData);
+            this._panel.webview.html = this._htmlHelper.createHtml(<StitchResponse>responseData);
             if (this._scrollPosition) {
-                this._view.scrollToPosition(this._scrollPosition);
+                void this._panel.webview.postMessage({ command: 'setScrollPosition', scrollY: this._scrollPosition });
                 this._scrollPosition = undefined;
             }
 
             this._result = <StitchResponse>responseData;
             RenderedHelper.update(this._result);
-        } 
+        }
         else {
-            if (!this._scrollPosition){
-                void this._panel.webview.postMessage({command: 'requestScrollPosition'});
+            if (!this._scrollPosition) {
+                void this._panel.webview.postMessage({ command: 'requestScrollPosition' });
             }
 
-            this._view.displayResultError(<ErrorData>responseData);
+            const errorData = <ErrorData>responseData;
+            if (errorData.ClassName === 'Core.Exceptions.StitchResponseSerializationException') {
+                this._handleStitchError({
+                    title: errorData.Message ?? 'Unexpected error',
+                    description: `${errorData.ResultBody}`
+                }, `Exception:<br />${errorData.InnerException?.Message}`);
+            }
+            else {
+                this._handleStitchError({
+                    title: 'Render error',
+                    description: errorData.message || `${errorData.Message}`
+                }, errorData.StackTraceString);
+            }
         }
     }
 
     private _handleError(error: Error, title: string) {
-        this._view.displayError({
+        this._panel.webview.html = this._htmlHelper.createErrorHtml({
             title,
             description: error.message,
         }, JSON.stringify(error));
+    }
+
+    private _handleStitchError(error: StitchError, extraBody?: string) {
+        this._panel.webview.html = this._htmlHelper.createErrorHtml(error, extraBody);
     }
 }
 

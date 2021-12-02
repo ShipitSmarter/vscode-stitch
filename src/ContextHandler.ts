@@ -37,7 +37,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         });
 
         const onDidChangeActiveTextEditorListener = vscode.window.onDidChangeActiveTextEditor((e): void => {
-            e && ['file'].includes(e.document.uri.scheme) && this._updateContext();
+            e && ['file'].includes(e.document.uri.scheme) && this._updateContextOnChangeActiveEditor();
         });
 
         const onDidChangeTextEditorListener = vscode.workspace.onDidChangeTextDocument((e): void => {
@@ -218,6 +218,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             return CONSTANTS.defaultDebounceTimeout;
         }
         return debounceTimeout;
+    }
+
+    private _updateContextOnChangeActiveEditor(): void {
+        const previousContext = this._context;
+        this._createContext();
+        if (previousContext?.integrationFilePath !== this._context?.integrationFilePath){
+            this._updateContext();
+        }
     }
 
     private _updateContext(): void {
