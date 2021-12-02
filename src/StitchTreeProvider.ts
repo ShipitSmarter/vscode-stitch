@@ -1,23 +1,49 @@
 import * as vscode from 'vscode';
-import { COMMANDS } from './constants';
-import { StitchPreview } from './StitchPreview';
+import { COMMANDS, CONSTANTS } from './constants';
+import { ContextHandler } from './ContextHandler';
 import { TreeBuilder } from './TreeBuilder';
-import { HttpStepResult, TreeItem } from './types';
+import { FormatModel, TreeItem } from './types';
+import { FileScrambler } from './FileScrambler';
+import axios, { AxiosResponse } from 'axios';
+import { delay } from './helpers';
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
+const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
 
 export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
-    
-    private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | null> = new vscode.EventEmitter<TreeItem | null>();
-	readonly onDidChangeTreeData: vscode.Event<TreeItem | null> = this._onDidChangeTreeData.event;
 
-    private tree: TreeItem[] | undefined;
-    
-    constructor(context: vscode.ExtensionContext) {
+    private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | null> = new vscode.EventEmitter<TreeItem | null>();
+    public readonly onDidChangeTreeData: vscode.Event<TreeItem | null> = this._onDidChangeTreeData.event;
+
+    private _endpointUrl: string; 
+    private _tree: TreeItem[] = [];
+
+    public constructor() {
+        const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
+        this._endpointUrl = `${endpoint}/editor/model`;
     }
 
-    getTreeItem(element: TreeItem): vscode.TreeItem {
-        
+    public static async openScenarioFile(treeItem: TreeItem): Promise<void> {
+        const scenario = ContextHandler.getContext()?.activeScenario;
+        if (!scenario) { return; }
+
+        if (treeItem.path === 'Model') {
+            const inputPath = FileScrambler.getScenarioInputFilepath(scenario);
+            const uri = vscode.Uri.file(inputPath);
+            await vscode.window.showTextDocument(uri);
+            return;
+        }
+
+        const match = stepPathRegex.exec(treeItem.path);
+        const stepName = match && match[1];
+        if (stepName) {
+            const stepPath = FileScrambler.getScenarioStepFilepath(scenario, stepName);
+            const uri = vscode.Uri.file(stepPath);
+            await vscode.window.showTextDocument(uri);
+        }
+    }
+
+    public getTreeItem(element: TreeItem): vscode.TreeItem {
         const collapsible = element.children && element.children.length;
         const treeItem: vscode.TreeItem = new vscode.TreeItem(
             this._getLabel(element), 
@@ -28,49 +54,98 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             title: '',
             arguments: [element]
         };
-        treeItem.description = element.exampleValue;        
-        treeItem.contextValue = element.path.match(rootPathRegex) && element.children ? 'SCENARIO_FILE' : undefined;
+        treeItem.description = element.exampleValue;
+        treeItem.contextValue = rootPathRegex.exec(element.path) && element.children ? 'SCENARIO_FILE' : undefined;
         return treeItem;
     }
-    
-    getChildren(element?: TreeItem): vscode.ProviderResult<TreeItem[]> {
+
+    public getChildren(element?: TreeItem): vscode.ProviderResult<TreeItem[]> {
         if (element) {
             return Promise.resolve(element.children);
+        } else if (this._tree.length) {
+            return Promise.resolve(this._tree);
         } else {
-            return Promise.resolve(this.tree);
+            return this._fetchTreeItems();
         }
     }
-    
-    public insertProperty(item: TreeItem) {
+
+    public async getFirstRoot(): Promise<TreeItem> {
+        // delay for a bit, because context might be updating
+        await delay(200);
+
+        return this._tree[0];
+    }
+
+    public getParent(): vscode.ProviderResult<TreeItem> {
+        return Promise.resolve(undefined);
+    }
+
+    public insertProperty(item: TreeItem): void {
         const editor = vscode.window.activeTextEditor;
         if (!editor) { return; }
         
         const insertText = this._getInsertText(item);
-        editor.edit(editBuilder => {
+        void editor.edit(editBuilder => {
             editBuilder.replace(editor.selection, insertText);
         });
     }
 
-    public refresh() {
-        this.tree = this._buildTree();
-        this._onDidChangeTreeData.fire(null);
-	}
-
-    private _buildTree(): TreeItem[] | undefined {
-    
-        const currentResponse = StitchPreview.currentResponse();
-        if (!currentResponse) {
-            return;
-        }
-
-        const ctx = currentResponse.integrationContext;
-        return [
-            TreeBuilder.generateTree(ctx.model, "Model"),
-            ...Object.keys(ctx.steps).map(stepId => TreeBuilder.generateTree((ctx.steps[stepId] as HttpStepResult)?.model, `Steps.${stepId}.Model`))
-        ];
+    public refresh(): void {
+        this._fetchTreeItems()
+            ?.then(treeItems => {
+                this._tree = treeItems;
+                this._onDidChangeTreeData.fire(null);
+            })
+            .catch(err => {
+                if (err instanceof Error) { 
+                    void vscode.window.showErrorMessage(`Could not update tree: ${err.message}`); 
+                }
+            });
     }
 
-    _getInsertText(item: TreeItem) : string {
+    public setEndpoint(endpoint: string): void {
+        this._endpointUrl = `${endpoint}/editor/model`;
+        this.refresh();
+    }
+
+    private _fetchTreeItems(): Promise<TreeItem[]> {
+        const context = ContextHandler.getContext();
+        if (!context) {
+            return Promise.resolve([]);
+        }
+
+        const files = FileScrambler.getScenarioFiles(context);
+        const steps = FileScrambler.getStepTypes(context);
+
+        if (files.length === 0) {
+            return Promise.resolve([]);
+        }
+
+        const requests = [];
+        const inputFiles = files.filter(f => f.filename.startsWith('input'));
+        if (inputFiles.length > 0) {
+            requests
+                .push(axios.post(this._endpointUrl, { file:  inputFiles[0] })
+                .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemModel(res.data, 'Model'); })
+            );
+        }
+
+        for (const stepId of Object.keys(steps)) {
+            const file = files.find(f => f.filename.startsWith(`step.${stepId}`));
+            if (file) {
+                requests.push(axios.post(this._endpointUrl, { file })
+                    .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); })
+                );
+            }
+            else {
+                requests.push(Promise.resolve(TreeBuilder.generateTreeItemStep(stepId, steps[stepId])));
+            }
+        }
+
+        return Promise.all(requests);
+    }    
+
+    private _getInsertText(item: TreeItem) : string {
         if (item.isCollection && item.children) {
             return `{{ for x in ${item.path} }}
     {{ x.${item.children[0].name} }} 
@@ -79,8 +154,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         return `{{${item.path}}}`;
     }
 
-    _getLabel(item: TreeItem) : string {
+    private _getLabel(item: TreeItem) : string {
         return item.isCollection ? `${item.name} []` : item.name;
     }
-
 }

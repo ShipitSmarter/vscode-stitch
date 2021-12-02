@@ -2,6 +2,17 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.1.0
+- Model tree view can now be opened without having to open the preview window
+- Model tree view now updates even if the integration preview gives a render error
+- Model tree view now shows all steps (before only HTTP steps)
+- Selected scenario is not reset to default as long as the integration context lives
+- Fixed bug with not correctly resetting scroll position in preview after encountering multiple errors in sequence
+- Add support for integrations with no steps specified
+- Added command to open model tree view (Stitch: Show Model Tree) while in an *.integration.json file
+- Context update not happening anymore when not needed (e.g. switching between files in the same integration context)
+- Updated all package dependencies to latest versions
+
 ## 1.0.2
 - Improve preview of skipped and unknown step types
 

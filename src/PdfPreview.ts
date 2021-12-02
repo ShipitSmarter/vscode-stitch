@@ -5,79 +5,82 @@ import { Disposable } from './dispose';
 
 export class PdfPreview extends Disposable implements vscode.Disposable {
 
-    public static createOrShow(stepId: string, extensionUri: vscode.Uri): void {
-        if (PdfPreview.previews.has(stepId)) {
-          const preview = PdfPreview.previews.get(stepId) as PdfPreview;
-          preview._panel.reveal(undefined, true);
-        }
-        else {
-          new PdfPreview(stepId, extensionUri);
-        }
-    }
+    private static readonly _previews: Map<string, PdfPreview> = new Map<string, PdfPreview>();
 
-    public static setOrUpdatePdfData(stepId: string, pdfBase64Data: string): void {
-      if (PdfPreview.previews.has(stepId)) {
-        const preview = PdfPreview.previews.get(stepId) as PdfPreview;
-        preview.setOrUpdatePdfData(pdfBase64Data);
-      }
-    }
-
-    private static readonly previews: Map<string, PdfPreview> = new Map<string, PdfPreview>();
-    public static disposeAll(): void {
-      PdfPreview.previews.forEach(p => p.dispose());
-      PdfPreview.previews.clear();
-    }
-    public static get renderedSteps() {
-      return this.previews.keys();
-    }
-    public static disposeRenderedStep(stepId: string) {
-      const preview = PdfPreview.previews.get(stepId);
-      preview?.dispose();
+    public static disposeRenderedStep(stepId: string): void {
+        const preview = PdfPreview._previews.get(stepId);
+        preview?.dispose();
     }
 
     private readonly _panel: vscode.WebviewPanel;
 
     private constructor(
-      public readonly stepId: string,
-      _extensionUri: vscode.Uri
+        public readonly stepId: string,
+        _extensionUri: vscode.Uri
     ) {
-      super();
+        super();
 
-      const showOptions = {
-        viewColumn: vscode.ViewColumn.Active,
-        preserveFocus: true
-      };
-      
-      const options: vscode.WebviewPanelOptions & vscode.WebviewOptions = {
-          enableScripts: true,
-          localResourceRoots: [
-              vscode.Uri.file(path.join(_extensionUri.path, 'assets')),
-              vscode.Uri.file(path.join(_extensionUri.path, 'lib', 'pdfjs'))
-          ],
-          retainContextWhenHidden: true,
-      };
-    
-      this._panel = vscode.window.createWebviewPanel('stitchPreview', '', showOptions, options);
-      this._panel.iconPath = vscode.Uri.joinPath(_extensionUri, 'assets/icon.png');
+        const showOptions = {
+          viewColumn: vscode.ViewColumn.Active,
+          preserveFocus: true
+        };
 
-      const viewerHtmlData = PdfPreview._getHtml(this._panel.webview, _extensionUri);
-      this._panel.webview.html = Buffer.from(viewerHtmlData).toString('utf8');
+        const options: vscode.WebviewPanelOptions & vscode.WebviewOptions = {
+            enableScripts: true,
+            localResourceRoots: [
+                vscode.Uri.file(path.join(_extensionUri.path, 'assets')),
+                vscode.Uri.file(path.join(_extensionUri.path, 'lib', 'pdfjs'))
+            ],
+            retainContextWhenHidden: true,
+        };
 
-      this._panel.title = `${CONSTANTS.panelTitlePrefix}step-${stepId}-response.pdf`;
-      this._register(this._panel);
+        this._panel = vscode.window.createWebviewPanel('stitchPreview', '', showOptions, options);
+        this._panel.iconPath = vscode.Uri.joinPath(_extensionUri, 'assets/icon.png');
 
-      this._panel.onDidDispose(() => this.dispose());
+        const viewerHtmlData = PdfPreview._getHtml(this._panel.webview, _extensionUri);
+        this._panel.webview.html = Buffer.from(viewerHtmlData).toString('utf8');
 
-      PdfPreview.previews.set(stepId, this);
+        this._panel.title = `${CONSTANTS.panelTitlePrefix}step-${stepId}-response.pdf`;
+
+        this._register(this._panel);
+        this._register(this._panel.onDidDispose(() => this.dispose()));
+
+        PdfPreview._previews.set(stepId, this);
+    }
+
+    public static createOrShow(stepId: string, extensionUri: vscode.Uri): void {
+        if (PdfPreview._previews.has(stepId)) {
+            const preview = PdfPreview._previews.get(stepId) as PdfPreview;
+            preview._panel.reveal(undefined, true);
+        }
+        else {
+            new PdfPreview(stepId, extensionUri);
+        }
+    }
+
+    public static setOrUpdatePdfData(stepId: string, pdfBase64Data: string): void {
+        if (PdfPreview._previews.has(stepId)) {
+            const preview = PdfPreview._previews.get(stepId) as PdfPreview;
+            preview.setOrUpdatePdfData(pdfBase64Data);
+        }
+    }
+
+    public static disposeAll(): void {
+        PdfPreview._previews.forEach(p => p.dispose());
+        PdfPreview._previews.clear();
+    }
+
+    public static get renderedSteps(): IterableIterator<string> {
+        return this._previews.keys();
     }
 
     public setOrUpdatePdfData(pdfBase64Data: string): void {
-      this._panel.webview.postMessage({ command: 'loadData', data: pdfBase64Data });
+        void this._panel.webview.postMessage({ command: 'loadData', data: pdfBase64Data });
     }
 
-    dispose(): void {
-      PdfPreview.previews.delete(this.stepId);
-      super.dispose();
+    public dispose(): void {
+        PdfPreview._previews.delete(this.stepId);
+        super.dispose();
     }
 
     private static _getHtml(webview: vscode.Webview, extensionUri: vscode.Uri): string {

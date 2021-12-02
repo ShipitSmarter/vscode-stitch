@@ -24,6 +24,6 @@
     ],
     "Response": {
         "StatusCode": 200,
-        "Body": "{}"
+        "Body": "{ \"test\": \"{{Steps.MailError.Started}}\" }"
     }
 }
