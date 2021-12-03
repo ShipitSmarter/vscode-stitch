@@ -1,21 +1,29 @@
 import { CONSTANTS } from "./constants";
-import { FormatModel, TreeItem } from "./types";
+import { DetectedModel, TreeItem } from "./types";
 
 export class TreeBuilder {
 
-    public static generateTreeItemModel(treeData: FormatModel, beginPath: string): TreeItem {
+    public static generateTreeItemInput(treeData: DetectedModel): TreeItem {
 
-        const tree: TreeItem = { name: beginPath, path: beginPath };
-        if (!treeData) {
-            return tree;
+        const tree: TreeItem = { name: 'Input', path: '' };
+        
+        /* eslint-disable @typescript-eslint/naming-convention */
+        if (treeData) {
+            const obj : InputRequest = {
+                Model: <Record<string, unknown>>JSON.parse(treeData.model.formattedJson),
+                Request: {
+                    Method: treeData.httpRequest?.method,
+                    Headers: treeData.httpRequest?.headers
+                }
+            };
+            this._addNodes(tree, obj);
         }
-
-        this._addNodes(tree, JSON.parse(treeData.formattedJson));
+        /* eslint-enable @typescript-eslint/naming-convention */
 
         return tree;
     }
 
-    public static generateTreeItemStep(stepId: string, stepType: string, responseData?: FormatModel): TreeItem {
+    public static generateTreeItemStep(stepId: string, stepType: string, responseData?: DetectedModel): TreeItem {
 
         const path = `Steps.${stepId}`;
         const tree: TreeItem = { name: path, path };
@@ -35,8 +43,8 @@ export class TreeBuilder {
                     StatusCode: 0,
                     IsSuccessStatusCode: true
                 };
-                if (responseData?.formattedJson) {
-                    obj.Model = <Record<string, unknown>>JSON.parse(responseData.formattedJson);
+                if (responseData?.model.formattedJson) {
+                    obj.Model = <Record<string, unknown>>JSON.parse(responseData.model.formattedJson);
                 }
                 break;
             case CONSTANTS.renderTemplateStepConfigurationType:
@@ -70,14 +78,12 @@ export class TreeBuilder {
 
         Object.keys(obj).forEach(key => {
 
+            const childObj = obj[key];
+
             const child: TreeItem = {
                 name: key,
-                path: parent.isCollection
-                    ? this._isNumber(key)
-                        ? `${parent.path}[${key}]` : `x.${key}`
-                    : `${parent.path}.${key}`
+                path: TreeBuilder._determinePath(parent, key, childObj)
             };
-            const childObj = obj[key];
 
             if (!parent.children) {
                 parent.children = [];
@@ -113,9 +119,34 @@ export class TreeBuilder {
     /* eslint-enable @typescript-eslint/no-unsafe-member-access */
     /* eslint-enable @typescript-eslint/no-unsafe-call */
     /* eslint-enable @typescript-eslint/no-unsafe-argument */
+
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    private static _determinePath(parent: TreeItem, key: string, childObj: any): string {
+        
+        if (parent.isCollection) {
+            return this._isNumber(key) ? `${parent.path}[${key}]` : `x.${key}`;
+        }
+
+        if (parent.path === ''){
+            return key;
+        }
+
+        const isDictObj = key.indexOf('-') !== -1 && (typeof childObj === 'string');
+        return isDictObj ? `${parent.path}['${key}']` : `${parent.path}.${key}`;
+    }
+    /* eslint-enable @typescript-eslint/no-explicit-any */
+    
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
+interface InputRequest {
+    Model: Record<string, unknown>;
+    Request: {
+        Method?: string;
+        Headers?: Record<string, string>;
+    }
+}
+
 interface StepResultAggregate {
     HasStartCondition: boolean;
     HasSuccessCondition: boolean;
