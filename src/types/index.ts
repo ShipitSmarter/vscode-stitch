@@ -150,11 +150,13 @@ export interface ICommand {
     content: string;
 }
 
+
 export enum CommandAction {
     viewStepRequest = 0,
     viewStepResponse = 1,
     viewIntegrationResponse = 2,
     storeScrollPosition = 3,
+    createHttpRequest = 4,
 }
 
 export enum Format {

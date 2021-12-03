@@ -2,6 +2,7 @@ export const CONSTANTS = {
     integrationExtension: '.integration.json',
     scenariosDirectoryName: 'scenarios',
     importsDirectoryName: 'imports',
+    httpFileExtension: '.http',
 
     panelTitlePrefix: 'Preview: ',
     statusbarTitlePrefix: 'Scenario: ',

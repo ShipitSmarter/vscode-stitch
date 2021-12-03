@@ -10,7 +10,8 @@ export class RenderedHelper {
 
         const firstChar = options.content[0];
         let extension = '.txt';
-        if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
+        if (options.filename.endsWith(CONSTANTS.httpFileExtension)) { extension = ''; }
+        else if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
         else if (firstChar === '<') { extension = '.xml'; }
         else if (firstChar === '{' || firstChar === '[') { extension = '.json'; }
 

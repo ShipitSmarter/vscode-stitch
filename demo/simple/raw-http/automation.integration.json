@@ -18,6 +18,13 @@
             "Method": "POST",
             "Url": "https://express.tnt.com/expressconnect/track.do",
             "Template": "{{ include 'request-body.sbn' }}"
+        },
+        {
+            "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
+            "Id": "Healthcheck",
+            "Method": "GET",
+            "Url": "https://www.shipitsmarter.com/health/health.html",
+            "Template": ""
         }
     ],
     "Imports": [],

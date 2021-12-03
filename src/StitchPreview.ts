@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FileScrambler } from './FileScrambler';
 import { Disposable } from './dispose';
 import { CONSTANTS } from './constants';
-import { CommandAction, ErrorData, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchError, StitchResponse } from './types';
+import { CommandAction, ErrorData, HttpStepConfiguration, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchError, StitchResponse } from './types';
 import { PdfPreview } from './PdfPreview';
 import { ContextHandler } from './ContextHandler';
 import { RenderedHelper } from './RenderedHelper';
@@ -134,6 +134,22 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
             }
             case CommandAction.storeScrollPosition: {
                 this._scrollPosition = +command.content;
+                return;
+            }
+            case CommandAction.createHttpRequest: {
+                const step = command.content;
+                const httpConfig = <HttpStepConfiguration>response.stepConfigurations[step];
+                let headers = '';
+                if (httpConfig.headers) {
+                    headers = Object.keys(httpConfig.headers).map(key => `${key}: ${httpConfig.headers?.[key]}`).join('\r\n');
+                }
+                RenderedHelper.show({
+                    filename: `stitch-step-request-${step}.http`,
+                    content: `${httpConfig.method} ${httpConfig.url} HTTP/1.1\r\n` +
+                             `${headers}\r\n` +
+                             '\r\n' +
+                             `${httpConfig.template}`
+                });
                 return;
             }
         }
