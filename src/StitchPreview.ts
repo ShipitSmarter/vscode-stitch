@@ -139,16 +139,9 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
             case CommandAction.createHttpRequest: {
                 const step = command.content;
                 const httpConfig = <HttpStepConfiguration>response.stepConfigurations[step];
-                let headers = '';
-                if (httpConfig.headers) {
-                    headers = Object.keys(httpConfig.headers).map(key => `${key}: ${httpConfig.headers?.[key]}`).join('\r\n');
-                }
                 RenderedHelper.show({
                     filename: `stitch-step-request-${step}.http`,
-                    content: `${httpConfig.method} ${httpConfig.url} HTTP/1.1\r\n` +
-                             `${headers}\r\n` +
-                             '\r\n' +
-                             `${httpConfig.template}`
+                    content: RenderedHelper.createHttpRequestContent(httpConfig)
                 });
                 return;
             }
