@@ -1,5 +1,5 @@
 import { CONSTANTS } from "./constants";
-import { DetectedModel, TreeItem } from "./types";
+import { DetectedModel, ErrorData, TreeItem } from "./types";
 
 export class TreeBuilder {
 
@@ -10,7 +10,7 @@ export class TreeBuilder {
         /* eslint-disable @typescript-eslint/naming-convention */
         if (treeData) {
             const obj : InputRequest = {
-                Model: <Record<string, unknown>>JSON.parse(treeData.model.formattedJson),
+                Model: <Record<string, unknown>>JSON.parse(treeData.model?.formattedJson || '"ERROR"'),
                 Request: {
                     Method: treeData.httpRequest?.method,
                     Headers: treeData.httpRequest?.headers
@@ -23,7 +23,7 @@ export class TreeBuilder {
         return tree;
     }
 
-    public static generateTreeItemStep(stepId: string, stepType: string, responseData?: DetectedModel): TreeItem {
+    public static generateTreeItemStep(stepId: string, stepType: string, responseData?: DetectedModel | ErrorData): TreeItem {
 
         const path = `Steps.${stepId}`;
         const tree: TreeItem = { name: path, path };
@@ -38,16 +38,22 @@ export class TreeBuilder {
 
         switch(stepType) {
             case CONSTANTS.httpStepConfigurationType:
+            {
                 obj.Response = {
                     BodyFormat: 'json',
                     StatusCode: 0,
                     IsSuccessStatusCode: true
                 };
-                if (responseData?.model.formattedJson) {
+                if (responseData && 'model' in responseData) {
                     obj.Model = <Record<string, unknown>>JSON.parse(responseData.model.formattedJson);
                 }
+                else if (responseData && 'StackTraceString' in responseData) {
+                    obj.Model = <Record<string, unknown>>JSON.parse('"ERROR"');
+                }
                 break;
+            }
             case CONSTANTS.renderTemplateStepConfigurationType:
+            {
                 obj.Response = {
                     Content: 'base64',
                     ContentType: 'application/pdf',
@@ -56,6 +62,7 @@ export class TreeBuilder {
                     ErrorMessage: ''
                 };
                 break;
+            }
             default:
                 break;
         }
