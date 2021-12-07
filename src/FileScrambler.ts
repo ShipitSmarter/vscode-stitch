@@ -178,7 +178,8 @@ export class FileScrambler {
             return this._createContext(
                 activeFile,
                 filepath,
-                path.basename(filepath)
+                path.basename(filepath),
+                currentContext
             );
         }
 
@@ -196,7 +197,8 @@ export class FileScrambler {
             return this._createContext(
                 activeFile,
                 path.normalize(integrations[0]),
-                path.basename(integrations[0])
+                path.basename(integrations[0]),
+                currentContext
             );
         }
 
@@ -213,7 +215,8 @@ export class FileScrambler {
                 return this._createContext(
                     activeFile,
                     currentContext.integrationFilePath,
-                    currentContext.integrationFilename
+                    currentContext.integrationFilename,
+                    currentContext
                 );
             }
         }
@@ -230,17 +233,22 @@ export class FileScrambler {
         }
     }
 
-    private static _createContext(activeFile: ActiveFile, integrationFilePath: string, integrationFilename: string): Context | undefined {
+    private static _createContext(activeFile: ActiveFile, integrationFilePath: string, 
+        integrationFilename: string, currentContext: Context | undefined
+    ): Context | undefined {
         const normalizeResult = this.getScenarios(integrationFilePath);
         if (!normalizeResult.success) {
             void vscode.window.showErrorMessage(`No scenarios found!\nTo provide a scenario create a "scenarios" directory next to the ${integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`);
             return;
         }
 
-        const scenario = normalizeResult.scenarios[Object.keys(normalizeResult.scenarios)[0]];
-        if (!this.isValidScenario(scenario)) {
-            void vscode.window.showErrorMessage(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.(txt|json|xml)`);
-            return;
+        let scenario = currentContext?.activeScenario;
+        if (!scenario || currentContext?.integrationFilePath !== integrationFilePath){
+            scenario = normalizeResult.scenarios[Object.keys(normalizeResult.scenarios)[0]];
+            if (!this.isValidScenario(scenario)) {
+                void vscode.window.showErrorMessage(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.(txt|json|xml)`);
+                return;
+            }
         }
 
         return <Context>{

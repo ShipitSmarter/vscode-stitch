@@ -1,16 +1,17 @@
 import * as vscode from 'vscode';
 import { CONSTANTS } from './constants';
 import { PdfPreview } from './PdfPreview';
-import { RenderTemplateStepResult, StitchResponse } from './types';
+import { HttpStepConfiguration, RenderTemplateStepResult, StitchResponse } from './types';
 
 export class RenderedHelper {
-
+    
     public static show(options: { filename: string; content: string; }): void {
         if (!options.content) { return; }
 
         const firstChar = options.content[0];
         let extension = '.txt';
-        if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
+        if (options.filename.endsWith(CONSTANTS.httpFileExtension)) { extension = ''; }
+        else if (options.content.startsWith('<!DOCTYPE html>') || options.content.startsWith('<html>')) { extension = '.html'; }
         else if (firstChar === '<') { extension = '.xml'; }
         else if (firstChar === '{' || firstChar === '[') { extension = '.json'; }
 
@@ -21,6 +22,17 @@ export class RenderedHelper {
     public static update(response: StitchResponse): void {
         this._updateRenderedUntitled(response);
         this._updateRenderedPdf(response);
+    }
+
+    public static createHttpRequestContent(httpConfig: HttpStepConfiguration): string {
+        let headers = '';
+        if (httpConfig.headers) {
+            headers = Object.keys(httpConfig.headers).map(key => `${key}: ${httpConfig.headers?.[key]}`).join('\r\n');
+        }
+        return `${httpConfig.method} ${httpConfig.url} HTTP/1.1\r\n` +
+               `${headers}\r\n` +
+               '\r\n' +
+               `${httpConfig.template}`;
     }
 
     private static _updateRendered(untitledUri: vscode.Uri, content: string, show = false) {
@@ -46,7 +58,13 @@ export class RenderedHelper {
             } else {
                 const match = /^stitch-step-request-(.*?)\./.exec(o.fileName);
                 if (match?.length === 2) {
-                    this._updateRendered(o.uri, response.stepConfigurations[match[1]].template.trim());
+                    const stepConfig = response.stepConfigurations[match[1]];
+                    if (o.fileName.endsWith(CONSTANTS.httpFileExtension)) {
+                        const httpContent = this.createHttpRequestContent(<HttpStepConfiguration>stepConfig);
+                        this._updateRendered(o.uri, httpContent);
+                    } else {
+                        this._updateRendered(o.uri, stepConfig.template.trim());
+                    }
                 }
             }
         });

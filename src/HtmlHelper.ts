@@ -158,6 +158,7 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
     if (configuration.headers) {
         html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
     }
+    html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 
     return html;
 }

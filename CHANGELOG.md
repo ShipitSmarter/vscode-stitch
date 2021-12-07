@@ -2,6 +2,12 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.1.1
+- Support RAW HTTP Request and Response
+- Create HTTP Request from step
+- Keep active scenario if context not changed
+- Model tree now has better error information
+
 # 1.1.0
 - Model tree view can now be opened without having to open the preview window
 - Model tree view now updates even if the integration preview gives a render error

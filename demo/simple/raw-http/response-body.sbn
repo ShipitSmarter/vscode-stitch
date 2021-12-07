@@ -1,0 +1,7 @@
+{
+    "Who": "AutomationTesting",
+    "Content-Type": "{{Request.Headers['Content-Type']}}",
+    "myCustomHeader": "{{Request.Headers.Custom}}",
+    "value": "{{Steps.FirstOne.Model.Result.Time}}"
+}
+

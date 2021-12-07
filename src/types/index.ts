@@ -115,10 +115,26 @@ export interface RenderTemplateStepResult extends BaseStepResult {
     }
 }
 
+export interface DetectedModel {
+    httpRequest?: HttpRequestModel;
+    httpResponse?: HttpResponseModel;
+    model: FormatModel;
+}
+
 export interface FormatModel {
     format: Format;
     formattedInput: string;
     formattedJson: string;
+}
+
+export interface HttpRequestModel {
+    method: string;
+    headers: Record<string, string>;
+}
+
+export interface HttpResponseModel {
+    statusCode: number;
+    headers: Record<string, string>;
 }
 
 export interface TreeItem {
@@ -134,11 +150,13 @@ export interface ICommand {
     content: string;
 }
 
+
 export enum CommandAction {
     viewStepRequest = 0,
     viewStepResponse = 1,
     viewIntegrationResponse = 2,
     storeScrollPosition = 3,
+    createHttpRequest = 4,
 }
 
 export enum Format {

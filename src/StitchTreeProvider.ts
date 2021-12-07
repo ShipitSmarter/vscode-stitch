@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { COMMANDS, CONSTANTS } from './constants';
 import { ContextHandler } from './ContextHandler';
 import { TreeBuilder } from './TreeBuilder';
-import { FormatModel, TreeItem } from './types';
+import { DetectedModel, TreeItem } from './types';
 import { FileScrambler } from './FileScrambler';
 import axios, { AxiosResponse } from 'axios';
 import { delay } from './helpers';
@@ -126,7 +126,9 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         if (inputFiles.length > 0) {
             requests
                 .push(axios.post(this._endpointUrl, { file:  inputFiles[0] })
-                .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemModel(res.data, 'Model'); })
+                .then((res: AxiosResponse<DetectedModel>) => { 
+                    return TreeBuilder.generateTreeItemInput(res.data); 
+                })
             );
         }
 
@@ -134,7 +136,9 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             const file = files.find(f => f.filename.startsWith(`step.${stepId}`));
             if (file) {
                 requests.push(axios.post(this._endpointUrl, { file })
-                    .then((res: AxiosResponse<FormatModel>) => { return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); })
+                    .then((res: AxiosResponse<DetectedModel>) => { 
+                        return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); 
+                    })
                 );
             }
             else {
