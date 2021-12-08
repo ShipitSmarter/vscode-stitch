@@ -128,7 +128,7 @@ Here the `track.integration.json` contains 2 steps, identified by the `Id` prope
 This extension contributes the following settings:
 
 * `stitch.endpointUrl`: set to the desired endpoint to test stitch integrations
-
+* `stitch.debounceTimeout`: set to the desired amount (ms) to wait with updating the context after file changes (prevents updating on every character insert)
 
 ## Release Notes
 
