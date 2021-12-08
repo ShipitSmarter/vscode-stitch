@@ -1,3 +1,5 @@
+name: Publish to VS Marketplace
+
 on:
   push:
     tags:

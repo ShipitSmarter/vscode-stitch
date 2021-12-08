@@ -1,5 +1,7 @@
 # vscode-stitch
 
+[![CI](https://github.com/ShipitSmarter/vscode-stitch/actions/workflows/CI/badge.svg?branch=master)](https://github.com/ShipitSmarter/vscode-stitch/actions/workflows/main.yml?query=branch%3Amaster) [![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/shipitsmarter.vscode-stitch.svg)](https://marketplace.visualstudio.com/items?itemName=shipitsmarter.vscode-stitch)
+
 This is a vscode extension to help with creating, testing and debugging Stitch integration files.
 
 To get started open the *Command Palette* (`Ctrl`+`Shift`+`P`) and search for `Stitch: Preview`
