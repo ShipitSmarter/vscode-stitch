@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+
+# 1.1.2
+- Moving docs
+
 # 1.1.1
 - Support RAW HTTP Request and Response
 - Create HTTP Request from step
