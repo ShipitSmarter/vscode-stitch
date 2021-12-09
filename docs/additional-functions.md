@@ -144,11 +144,11 @@ The excaped string value
 
 > **input**
 ```scriban-html
-TODO: insert example!
+{{'te"st' | json.escape}}
 ```
 > **output**
 ```html
-TODO: insert example output!
+te\"st
 ```
 
 [:top:](#additional-functions)
@@ -174,11 +174,11 @@ The excaped string value
 
 > **input**
 ```scriban-html
-TODO: insert example!
+{{'te\\"st' | json.unescape}}
 ```
 > **output**
 ```html
-TODO: insert example output!
+te"st
 ```
 
 [:top:](#additional-functions)
@@ -223,5 +223,3 @@ myobject | json.serialize true
     }
 }
 ```
-
-> Note: This document was automatically generated from the sourcecode using `DocGen` program
