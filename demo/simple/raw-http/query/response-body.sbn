@@ -1,0 +1,4 @@
+{
+    "queryParam": "{{ Request.Query.queryParam[0] }}",
+    "queryMultipleParam": {{ Request.Query.queryMultipleParam }}
+}
