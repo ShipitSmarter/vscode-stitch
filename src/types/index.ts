@@ -130,6 +130,7 @@ export interface FormatModel {
 export interface HttpRequestModel {
     method: string;
     headers: Record<string, string>;
+    query: Record<string, string[]>;
 }
 
 export interface HttpResponseModel {

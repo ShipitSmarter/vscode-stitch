@@ -13,7 +13,8 @@ export class TreeBuilder {
                 Model: <Record<string, unknown>>JSON.parse(treeData.model?.formattedJson || '"ERROR"'),
                 Request: {
                     Method: treeData.httpRequest?.method,
-                    Headers: treeData.httpRequest?.headers
+                    Headers: treeData.httpRequest?.headers,
+                    Query: treeData.httpRequest?.query,
                 }
             };
             this._addNodes(tree, obj);
@@ -89,7 +90,7 @@ export class TreeBuilder {
 
             const child: TreeItem = {
                 name: key,
-                path: TreeBuilder._determinePath(parent, key, childObj)
+                path: TreeBuilder._determinePath(parent, key)
             };
 
             if (!parent.children) {
@@ -128,7 +129,7 @@ export class TreeBuilder {
     /* eslint-enable @typescript-eslint/no-unsafe-argument */
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    private static _determinePath(parent: TreeItem, key: string, childObj: any): string {
+    private static _determinePath(parent: TreeItem, key: string): string {
         
         if (parent.isCollection) {
             return this._isNumber(key) ? `${parent.path}[${key}]` : `x.${key}`;
@@ -138,7 +139,7 @@ export class TreeBuilder {
             return key;
         }
 
-        const isDictObj = key.indexOf('-') !== -1 && (typeof childObj === 'string');
+        const isDictObj = key.indexOf('-') !== -1;
         return isDictObj ? `${parent.path}['${key}']` : `${parent.path}.${key}`;
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -151,6 +152,7 @@ interface InputRequest {
     Request: {
         Method?: string;
         Headers?: Record<string, string>;
+        Query?: Record<string, string[]>;
     }
 }
 

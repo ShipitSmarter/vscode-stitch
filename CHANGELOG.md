@@ -2,6 +2,8 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.1.3
+- Add `Request.Query` to TreeView
 
 # 1.1.2
 - Moving docs

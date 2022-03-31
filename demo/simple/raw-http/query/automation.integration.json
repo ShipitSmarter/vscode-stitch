@@ -1,0 +1,29 @@
+{
+    "Request": {
+        "AuthenticationMethods": [
+            {
+                "Key": "hash-1-asd/asd",
+                "Id": "dummy-ConnectKeyId",
+                "Description": "dummy"
+            }
+        ]
+    },
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",
+            "Id": "FirstOne",
+            "Headers": {
+                "Content-Type": "application/json"
+            },
+            "Method": "POST",
+            "Url": "https://example.com",
+            "Template": ""
+        }
+    ],
+    "Imports": [],
+    "Response": {
+        "Body": "{{ include 'response-body.sbn' }}",
+        "Headers": {},
+        "StatusCode": 200
+    }
+}

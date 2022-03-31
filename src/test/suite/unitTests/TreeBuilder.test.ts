@@ -44,9 +44,10 @@ suite('TreeBuilder Tests', () => {
                 fail('Request should have children');
             }
             
-            chai.expect(reqChildren.length).equal(2);
+            chai.expect(reqChildren.length).equal(3);
             chai.expect(reqChildren[0]).deep.equal({ name: 'Method', path: 'Request.Method', exampleValue: 'null'});
             chai.expect(reqChildren[1]).deep.equal({ name: 'Headers', path: 'Request.Headers', exampleValue: 'null'});
+            chai.expect(reqChildren[2]).deep.equal({ name: 'Query', path: 'Request.Query', exampleValue: 'null'});
         });
 
         test('Request: taken from input.httpRequest', () => {
@@ -63,6 +64,10 @@ suite('TreeBuilder Tests', () => {
                     headers: {
                         'Content-Type': 'application/json',
                         'Custom': 'testing'
+                    },
+                    query: {
+                        'property-with-dash': ['5'],
+                        'propertyWithoutDash': ['4']
                     }
                 }
             };
@@ -83,9 +88,11 @@ suite('TreeBuilder Tests', () => {
                 fail('Request should have children');
             }
             
-            chai.expect(reqChildren.length).equal(2);
+            // Reuqest.Method
+            chai.expect(reqChildren.length).equal(3);
             chai.expect(reqChildren[0]).deep.equal({ name: 'Method', path: 'Request.Method', exampleValue: 'POST'});
 
+            // Request.Headers
             chai.expect(reqChildren[1].name).equal('Headers');
             chai.expect(reqChildren[1].path).equal('Request.Headers');
             const headerChildren = reqChildren[1].children;
@@ -95,6 +102,21 @@ suite('TreeBuilder Tests', () => {
             chai.expect(headerChildren.length).equal(2);
             chai.expect(headerChildren[0]).deep.equal({ name: 'Content-Type', path: "Request.Headers['Content-Type']", exampleValue: 'application/json'});
             chai.expect(headerChildren[1]).deep.equal({ name: 'Custom', path: 'Request.Headers.Custom', exampleValue: 'testing'});
+
+            // Request.Query
+            chai.expect(reqChildren[2].name).equal('Query');
+            chai.expect(reqChildren[2].path).equal('Request.Query');
+            const queryChildren = reqChildren[2].children;
+            if (!queryChildren) {
+                fail('Query should have children');
+            }
+            chai.expect(queryChildren.length).equal(2);
+            chai.expect(queryChildren[0].name).equal('property-with-dash');
+            chai.expect(queryChildren[0].path).equal("Request.Query['property-with-dash']");
+            chai.expect(queryChildren[0].isCollection).equal(true);
+            chai.expect(queryChildren[1].name).equal('propertyWithoutDash');
+            chai.expect(queryChildren[1].path).equal("Request.Query.propertyWithoutDash");
+            chai.expect(queryChildren[1].isCollection).equal(true);
         });
 
         test('Model: simple property types, can be handled', () => {
