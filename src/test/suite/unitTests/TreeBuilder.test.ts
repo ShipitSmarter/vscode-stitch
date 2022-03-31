@@ -63,7 +63,8 @@ suite('TreeBuilder Tests', () => {
                     headers: {
                         'Content-Type': 'application/json',
                         'Custom': 'testing'
-                    }
+                    },
+                    query: {}
                 }
             };
             /* eslint-enable @typescript-eslint/naming-convention */
