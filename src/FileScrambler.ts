@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
+import * as yaml from 'yaml';
 import { ScenarioSource, IntegrationRequestModel, IntegrationFile, ScenarioResult, ActiveFile, Context, ReadWorkspaceFileFunc } from './types';
 import { CONSTANTS } from './constants';
 
@@ -13,14 +14,7 @@ export class FileScrambler {
 
         const integrationPath = context.integrationFilePath;
         const integrationContent = this._readFile(context, integrationPath, readWorkspaceFile);
-        let integration: Integration;
-        try {
-            integration = <Integration>JSON.parse(integrationContent);
-        }
-        catch (e) {
-            throw new Error(`Integration file ${integrationPath} has invalid JSON`);
-        }
-
+        let integration = this.parseIntegration(integrationContent, integrationPath);
         let root = path.dirname(integrationPath) + path.sep;
 
         // load translation files if required
@@ -131,7 +125,7 @@ export class FileScrambler {
     public static getStepTypes(context: Context, readWorkspaceFile: ReadWorkspaceFileFunc = _readWorkspaceFile): Record<string, string> {
         const integrationPath = context.integrationFilePath;
         const integrationContent = this._readFile(context, integrationPath, readWorkspaceFile);
-        const integration = <Integration>JSON.parse(integrationContent);
+        const integration = this.parseIntegration(integrationContent, integrationPath);
         const steps = integration.Steps;
 
         const result: Record<string, string> = {};
@@ -222,6 +216,18 @@ export class FileScrambler {
         }
 
         return;
+    }
+
+    private static parseIntegration(content: string, path: string ) : Integration
+    {
+        try {
+            // path should be parsed: check extension for yaml,yml,json
+            //let yamlobject = yaml.parse(content);
+            return <Integration>JSON.parse(content);
+        }
+        catch (e) {
+            throw new Error(`Integration file ${path} has invalid JSON`);
+        }
     }
 
     private static _findWithinParent(root: string, folderNameToLookFor: string, maxUp: number) : string | undefined  {
