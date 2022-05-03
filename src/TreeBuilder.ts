@@ -6,11 +6,11 @@ export class TreeBuilder {
     public static generateTreeItemInput(treeData: DetectedModel): TreeItem {
 
         const tree: TreeItem = { name: 'Input', path: '' };
-        
+
         /* eslint-disable @typescript-eslint/naming-convention */
         if (treeData) {
-            const obj : InputRequest = {
-                Model: <Record<string, unknown>>JSON.parse(treeData.model?.formattedJson || '"ERROR"'),
+            const obj: InputRequest = {
+                Model: <Record<string, unknown>>JSON.parse(treeData.model || '"ERROR"'),
                 Request: {
                     Method: treeData.httpRequest?.method,
                     Headers: treeData.httpRequest?.headers,
@@ -37,33 +37,33 @@ export class TreeBuilder {
             Started: null,
         };
 
-        switch(stepType) {
+        switch (stepType) {
             case CONSTANTS.httpStepConfigurationType:
-            {
-                obj.Response = {
-                    BodyFormat: 'json',
-                    StatusCode: 0,
-                    IsSuccessStatusCode: true
-                };
-                if (responseData && 'model' in responseData) {
-                    obj.Model = <Record<string, unknown>>JSON.parse(responseData.model.formattedJson);
+                {
+                    obj.Response = {
+                        BodyFormat: 'json',
+                        StatusCode: 0,
+                        IsSuccessStatusCode: true
+                    };
+                    if (responseData && 'model' in responseData) {
+                        obj.Model = <Record<string, unknown>>JSON.parse(responseData.model);
+                    }
+                    else if (responseData && 'StackTraceString' in responseData) {
+                        obj.Model = <Record<string, unknown>>JSON.parse('"ERROR"');
+                    }
+                    break;
                 }
-                else if (responseData && 'StackTraceString' in responseData) {
-                    obj.Model = <Record<string, unknown>>JSON.parse('"ERROR"');
-                }
-                break;
-            }
             case CONSTANTS.renderTemplateStepConfigurationType:
-            {
-                obj.Response = {
-                    Content: 'base64',
-                    ContentType: 'application/pdf',
-                    StatusCode: 200,
-                    IsSuccessStatusCode: true,
-                    ErrorMessage: ''
-                };
-                break;
-            }
+                {
+                    obj.Response = {
+                        Content: 'base64',
+                        ContentType: 'application/pdf',
+                        StatusCode: 200,
+                        IsSuccessStatusCode: true,
+                        ErrorMessage: ''
+                    };
+                    break;
+                }
             default:
                 break;
         }
@@ -149,7 +149,6 @@ export class TreeBuilder {
             key.indexOf('@') !== -1 ||
             key.indexOf('#') !== -1;
     }
-    
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */

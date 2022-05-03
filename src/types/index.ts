@@ -118,13 +118,7 @@ export interface RenderTemplateStepResult extends BaseStepResult {
 export interface DetectedModel {
     httpRequest?: HttpRequestModel;
     httpResponse?: HttpResponseModel;
-    model: FormatModel;
-}
-
-export interface FormatModel {
-    format: Format;
-    formattedInput: string;
-    formattedJson: string;
+    model: string;
 }
 
 export interface HttpRequestModel {
@@ -158,13 +152,6 @@ export enum CommandAction {
     viewIntegrationResponse = 2,
     storeScrollPosition = 3,
     createHttpRequest = 4,
-}
-
-export enum Format {
-    unknown = 0,
-    json = 1,
-    xml = 2,
-    binary = 3,
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
