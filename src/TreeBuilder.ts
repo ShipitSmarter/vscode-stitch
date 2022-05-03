@@ -130,19 +130,25 @@ export class TreeBuilder {
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     private static _determinePath(parent: TreeItem, key: string): string {
-        
+
         if (parent.isCollection) {
             return this._isNumber(key) ? `${parent.path}[${key}]` : `x.${key}`;
         }
 
-        if (parent.path === ''){
+        if (parent.path === '') {
             return key;
         }
 
-        const isDictObj = key.indexOf('-') !== -1;
-        return isDictObj ? `${parent.path}['${key}']` : `${parent.path}.${key}`;
+        return this._useArrayIndexerForPath(key) ? `${parent.path}['${key}']` : `${parent.path}.${key}`;
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
+
+    private static _useArrayIndexerForPath(key: string): boolean {
+        return key.indexOf('-') !== -1 ||
+            key.indexOf(':') !== -1 ||
+            key.indexOf('@') !== -1 ||
+            key.indexOf('#') !== -1;
+    }
     
 }
 
