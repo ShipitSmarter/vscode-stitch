@@ -9,8 +9,9 @@ export class TreeBuilder {
 
         /* eslint-disable @typescript-eslint/naming-convention */
         if (treeData) {
+            
             const obj: InputRequest = {
-                Model: <Record<string, unknown>>JSON.parse(treeData.model || '"ERROR"'),
+                Model: _determineModelFromTreeData(treeData),
                 Request: {
                     Method: treeData.httpRequest?.method,
                     Headers: treeData.httpRequest?.headers,
@@ -46,7 +47,7 @@ export class TreeBuilder {
                         IsSuccessStatusCode: true
                     };
                     if (responseData && 'model' in responseData) {
-                        obj.Model = <Record<string, unknown>>JSON.parse(responseData.model);
+                        obj.Model = _determineModelFromTreeData(responseData);
                     }
                     else if (responseData && 'StackTraceString' in responseData) {
                         obj.Model = <Record<string, unknown>>JSON.parse('"ERROR"');
@@ -183,5 +184,12 @@ interface StepResultRenderResponse {
     StatusCode: number;
     IsSuccessStatusCode: boolean;
     ErrorMessage: string;
+}
+
+function _determineModelFromTreeData(treeData: DetectedModel): Record<string, unknown> {
+    const json = !treeData.model
+        ? '"ERROR"'
+        : (typeof treeData.model === 'string') ? treeData.model : treeData.model.formattedJson;
+    return <Record<string, unknown>>JSON.parse(json);
 }
 /* eslint-enable @typescript-eslint/naming-convention */

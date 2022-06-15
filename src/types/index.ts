@@ -118,8 +118,24 @@ export interface RenderTemplateStepResult extends BaseStepResult {
 export interface DetectedModel {
     httpRequest?: HttpRequestModel;
     httpResponse?: HttpResponseModel;
-    model: string;
+    model: string | FormatModel; // FormatModel is here for backwards compatibility
 }
+
+// Backwards compatibility
+// ----------------------------------------
+export interface FormatModel {
+    format: Format;
+    formattedInput: string;
+    formattedJson: string;
+}
+export enum Format {
+    unknown = 0,
+    json = 1,
+    xml = 2,
+    binary = 3,
+}
+// ----------------------------------------
+
 
 export interface HttpRequestModel {
     method: string;

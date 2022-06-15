@@ -257,7 +257,7 @@ suite('TreeBuilder Tests', () => {
             const stepId = 'TestStep';
             const stepType = CONSTANTS.httpStepConfigurationType;
             
-            const result = TreeBuilder.generateTreeItemStep(stepId, stepType, { 
+            const result = TreeBuilder.generateTreeItemStep(stepId, stepType, <DetectedModel>{ 
                 model: `{
                         "testProp1": "value1",
                         "testObj1": {
