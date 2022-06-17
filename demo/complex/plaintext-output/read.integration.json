@@ -1,0 +1,10 @@
+{
+    "Response": {
+        "Body": "{{include 'response-body.sbn'}}",
+        "OutputType": "PlainText",
+        "Headers": {
+            "x-my": "Hi there"
+        },
+        "StatusCode": 200
+    }
+}

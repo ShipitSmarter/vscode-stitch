@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.2.0
+- Support for different OutputTypes (Json, Xml, PlainText, BinaryAsBase64)
+
 # 1.1.3
 - Add `Request.Query` to TreeView
 

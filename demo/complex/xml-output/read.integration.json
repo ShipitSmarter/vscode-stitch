@@ -1,0 +1,8 @@
+{
+    "Response": {
+        "Body": "{{include 'response-body.sbn'}}",
+        "OutputType": "Xml",
+        "Headers": {},
+        "StatusCode": 200
+    }
+}

@@ -38,11 +38,24 @@ export interface StitchError {
     description: string;
 }
 
-export interface StitchResponse {
-    result: unknown;
-    resultStatusCode: number;
+export interface EditorSimulateIntegrationResponse {
+    result: IntegrationResult;
     stepConfigurations: Record<string, StepConfiguration>;
     integrationContext: IntegrationContext;
+}
+
+export interface IntegrationResult {
+    body: string;
+    statusCode: number;
+    headers: Record<string, string>;
+    outputType: StitchOutputType;
+}
+
+export enum StitchOutputType {
+    json = 0,
+    xml = 1,
+    plainText = 2,
+    binaryAsBase64 = 3 
 }
 
 export interface BaseStepConfiguration {
