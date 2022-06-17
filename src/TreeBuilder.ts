@@ -147,6 +147,7 @@ export class TreeBuilder {
     private static _useArrayIndexerForPath(key: string): boolean {
         return key.indexOf('-') !== -1 ||
             key.indexOf(':') !== -1 ||
+            key.indexOf(' ') !== -1 ||
             key.indexOf('@') !== -1 ||
             key.indexOf('#') !== -1;
     }
