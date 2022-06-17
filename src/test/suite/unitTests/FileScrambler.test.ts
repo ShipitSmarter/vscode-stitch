@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import * as mockFs from 'mock-fs'; // must be first!
 
 import { assert, expect } from 'chai';
