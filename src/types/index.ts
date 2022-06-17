@@ -52,10 +52,10 @@ export interface IntegrationResult {
 }
 
 export enum StitchOutputType {
-    json = 0,
-    xml = 1,
-    plainText = 2,
-    binaryAsBase64 = 3 
+    json = 'Json',
+    xml = 'Xml',
+    plainText = 'PlainText',
+    binaryAsBase64 = 'BinaryAsBase64' 
 }
 
 export interface BaseStepConfiguration {
@@ -142,10 +142,10 @@ export interface FormatModel {
     formattedJson: string;
 }
 export enum Format {
-    unknown = 0,
-    json = 1,
-    xml = 2,
-    binary = 3,
+    unknown = 'Unknown',
+    json = 'Json',
+    xml = 'Xml',
+    binary = 'Binary',
 }
 // ----------------------------------------
 

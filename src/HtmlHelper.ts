@@ -15,8 +15,7 @@ import {
     SftpStepConfiguration,
     StepConfiguration,
     StepResult,
-    StitchError,
-    StitchOutputType,
+    StitchError
 } from "./types";
 
 export class HtmlHelper {
@@ -104,7 +103,7 @@ function _createResponseHtml(response: EditorSimulateIntegrationResponse): strin
     }
 
     return `<h2 id="integration_response">Response</h2>
-            ${_createActionHtml(`${response.result.statusCode}`, _getOutputTypeString(response.result.outputType), '', actionCommand, body)}`;
+            ${_createActionHtml(`${response.result.statusCode}`, response.result.outputType, '', actionCommand, body)}`;
 }
 
 function _createNavHtml(steps: Record<string, StepResult>): string {
@@ -207,17 +206,6 @@ function _getSftpStepHtml(configuration: SftpStepConfiguration) {
                 Username:&nbsp;${configuration.username}<br />
                 Password:&nbsp;${configuration.password}
             </p>`;
-}
-
-
-function _getOutputTypeString(outputType: StitchOutputType): string {
-    switch (outputType) {
-        case StitchOutputType.json: return 'Json';
-        case StitchOutputType.xml: return 'Xml';
-        case StitchOutputType.plainText: return 'Plain Text';
-        case StitchOutputType.binaryAsBase64: return 'Binary (base64)';
-        default: return `Not mapped: ${outputType}`;
-    }
 }
 
 /**
