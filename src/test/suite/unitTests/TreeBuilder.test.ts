@@ -3,7 +3,7 @@ import * as chai from "chai";
 import * as chaiSubset from "chai-subset";
 import { CONSTANTS } from "../../../constants";
 import { TreeBuilder } from "../../../TreeBuilder";
-import { DetectedModel, Format, FormatModel, TreeItem } from "../../../types";
+import { DetectedModel, TreeItem } from "../../../types";
 
 suite('TreeBuilder Tests', () => {
     chai.use(chaiSubset);
@@ -12,13 +12,8 @@ suite('TreeBuilder Tests', () => {
 
         test('no treeData return Input root with Model and Request', () => {
             const treeData = {};
-            const formatData: FormatModel = {
-                format: Format.json,
-                formattedInput: '',
-                formattedJson: JSON.stringify(treeData),
-            };
             const detectedModel: DetectedModel = {
-                model: formatData
+                model: JSON.stringify(treeData)
             };
             const result = TreeBuilder.generateTreeItemInput(detectedModel);
 
@@ -54,11 +49,7 @@ suite('TreeBuilder Tests', () => {
 
             /* eslint-disable @typescript-eslint/naming-convention */
             const detectedModel: DetectedModel = {
-                model: {
-                    format: Format.json,
-                    formattedInput: '',
-                    formattedJson: JSON.stringify({})
-                },
+                model:JSON.stringify({}),
                 httpRequest: {
                     method: 'POST',
                     headers: {
@@ -187,14 +178,9 @@ suite('TreeBuilder Tests', () => {
 
         // Helpers
 
-        function _getModelChildren(treeData: unknown): TreeItem[] {
-            const formatData: FormatModel = {
-                format: Format.json,
-                formattedInput: '',
-                formattedJson: JSON.stringify(treeData),
-            };
+        function _getModelChildren(treeData: unknown): TreeItem[] {            
             const detectedModel: DetectedModel = {
-                model: formatData
+                model: JSON.stringify(treeData)
             };
             const result = TreeBuilder.generateTreeItemInput(detectedModel);
 
@@ -271,11 +257,8 @@ suite('TreeBuilder Tests', () => {
             const stepId = 'TestStep';
             const stepType = CONSTANTS.httpStepConfigurationType;
             
-            const result = TreeBuilder.generateTreeItemStep(stepId, stepType, { 
-                model: {
-                    format: Format.json, 
-                    formattedInput: '',
-                    formattedJson: `{
+            const result = TreeBuilder.generateTreeItemStep(stepId, stepType, <DetectedModel>{ 
+                model: `{
                         "testProp1": "value1",
                         "testObj1": {
                             "testSubProp1": "value2"
@@ -284,7 +267,6 @@ suite('TreeBuilder Tests', () => {
                             "value3"
                         ]
                     }`
-                }
             });
 
             if (!result.children) {

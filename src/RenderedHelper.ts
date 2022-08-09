@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { CONSTANTS } from './constants';
+import { unescapeResponseBody } from './helpers';
 import { PdfPreview } from './PdfPreview';
-import { HttpStepConfiguration, RenderTemplateStepResult, StitchResponse } from './types';
+import { HttpStepConfiguration, RenderTemplateStepResult, EditorSimulateIntegrationResponse } from './types';
 
 export class RenderedHelper {
     
@@ -19,7 +20,7 @@ export class RenderedHelper {
         this._updateRendered(untitledFile, options.content, true);
     }
 
-    public static update(response: StitchResponse): void {
+    public static update(response: EditorSimulateIntegrationResponse): void {
         this._updateRenderedUntitled(response);
         this._updateRenderedPdf(response);
     }
@@ -48,13 +49,13 @@ export class RenderedHelper {
         });
     }
 
-    private static _updateRenderedUntitled(response: StitchResponse) {
+    private static _updateRenderedUntitled(response: EditorSimulateIntegrationResponse) {
         const open = vscode.workspace.textDocuments.filter(t => t.uri.scheme === 'untitled' && t.fileName.startsWith('stitch-'));
         if (open.length === 0 || !response) {return;}
 
         open.forEach(o => {
             if (o.fileName.startsWith('stitch-response.')) {
-                this._updateRendered(o.uri, JSON.stringify(response.result, null, 2));
+                this._updateRendered(o.uri, unescapeResponseBody(response.result));
             } else {
                 const match = /^stitch-step-request-(.*?)\./.exec(o.fileName);
                 if (match?.length === 2) {
@@ -70,7 +71,7 @@ export class RenderedHelper {
         });
     }
 
-    private static _updateRenderedPdf(response: StitchResponse) {
+    private static _updateRenderedPdf(response: EditorSimulateIntegrationResponse) {
 
         for (const stepId of PdfPreview.renderedSteps) {
             if (response.integrationContext.steps[stepId]?.$type !== CONSTANTS.renderTemplateStepResultType) { 

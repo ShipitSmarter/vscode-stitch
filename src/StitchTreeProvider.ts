@@ -84,10 +84,25 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         const editor = vscode.window.activeTextEditor;
         if (!editor) { return; }
         
-        const insertText = this._getInsertText(item);
+        const isWithinScribanBlock = this._isWithinScribanCodeBlock(editor);
+
+        const insertText = isWithinScribanBlock 
+            ? this._getInsertTextInsideScribanBlock(item) 
+            : this._getInsertTextOutsideScribanBlock(item);
         void editor.edit(editBuilder => {
             editBuilder.replace(editor.selection, insertText);
         });
+    }
+
+    private _isWithinScribanCodeBlock(editor: vscode.TextEditor): boolean {
+        const startOffset = editor.document.offsetAt(editor.selection.start);
+        const beforeText = editor.document.getText().substring(0, startOffset);
+        const openBlockOffset = beforeText.lastIndexOf('{{');
+        const closeBlockOffset = beforeText.lastIndexOf('}}');
+        if (openBlockOffset > closeBlockOffset) {
+            return true;
+        }
+        return false;
     }
 
     public refresh(): void {
@@ -149,13 +164,22 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         return Promise.all(requests);
     }    
 
-    private _getInsertText(item: TreeItem) : string {
+    private _getInsertTextOutsideScribanBlock(item: TreeItem) : string {
         if (item.isCollection && item.children) {
             return `{{ for x in ${item.path} }}
-    {{ x.${item.children[0].name} }} 
+    {{ x.${item.children[0].name} }}
 {{ end }}`;
         }
         return `{{${item.path}}}`;
+    }
+
+    private _getInsertTextInsideScribanBlock(item: TreeItem) : string {
+        if (item.isCollection && item.children) {
+            return `for x in ${item.path}
+    x.${item.children[0].name}
+end`;
+        }
+        return `${item.path}`;
     }
 
     private _getLabel(item: TreeItem) : string {

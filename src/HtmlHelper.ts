@@ -1,26 +1,28 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { CONSTANTS } from "./constants";
+import { unescapeResponseBody } from './helpers';
 import {
     BaseStepConfiguration,
     BaseStepResult,
     CommandAction,
+    EditorSimulateIntegrationResponse,
     HttpStepConfiguration,
+    IntegrationResult,
     MailStepConfiguration,
     RenderTemplateStepConfiguration,
     RenderTemplateStepResult,
     SftpStepConfiguration,
     StepConfiguration,
     StepResult,
-    StitchError,
-    StitchResponse,
+    StitchError
 } from "./types";
 
 export class HtmlHelper {
 
-    public constructor(private _cspSource: string, private _resolveAsUri: (...p: string[]) => vscode.Uri) {}
+    public constructor(private _cspSource: string, private _resolveAsUri: (...p: string[]) => vscode.Uri) { }
 
-    public createHtml(response: StitchResponse): string {
+    public createHtml(response: EditorSimulateIntegrationResponse): string {
         return this._createHtmlWrapper(
             `<div class="container">
                 ${_createStepsHtml(response)}
@@ -34,7 +36,7 @@ export class HtmlHelper {
         extraBody = HtmlHelper.escapeHtml(extraBody || '');
         const htmlBody = `<h1 class="error">${error.title}</h1>
                           <p>${HtmlHelper.escapeHtml(error.description)}</p><p>${extraBody}</p>`;
-        return  this._createHtmlWrapper(htmlBody);
+        return this._createHtmlWrapper(htmlBody);
     }
 
     public static escapeHtml(unsafe: string): string {
@@ -46,7 +48,7 @@ export class HtmlHelper {
             .replace(/'/g, "&#039;");
     }
 
-    private _createHtmlWrapper(htmlBody: string): string {       
+    private _createHtmlWrapper(htmlBody: string): string {
         return `<!DOCTYPE html>
             <html lang="en">
             <head>
@@ -75,25 +77,33 @@ export class HtmlHelper {
     }
 }
 
-function _createStepsHtml(response: StitchResponse): string {
+function _createStepsHtml(response: EditorSimulateIntegrationResponse): string {
     const stepsHtml = Object.keys(response.integrationContext.steps)
-        .map(key => { return _createStepHtml(
-            response.integrationContext.steps[key],
-            response.stepConfigurations[key] ?? <BaseStepConfiguration> { id: key, template: '' });
+        .map(key => {
+            return _createStepHtml(
+                response.integrationContext.steps[key],
+                response.stepConfigurations[key] ?? <BaseStepConfiguration>{ id: key, template: '' });
         }).join('');
-    
+
     if (stepsHtml) {
         return `<h2>Steps</h2>${stepsHtml}`;
     }
     return '';
 }
 
-function _createResponseHtml(response: StitchResponse): string {
+function _createResponseHtml(response: EditorSimulateIntegrationResponse): string {
     const actionCommand = `{action: ${CommandAction.viewIntegrationResponse} }`;
-    const body =  `<pre><code>${JSON.stringify(response.result, null, 2)}</code></pre>`;
+
+
+    let body = `<pre><code>${_getResponseBody(response.result)}</code></pre>`;
+
+    if (response.result.headers) {
+        body = `<p>${Object.keys(response.result.headers).map(key => `${key}:&nbsp;${response.result.headers?.[key]}<br />`).join('')}</p>
+                ${body}`;
+    }
 
     return `<h2 id="integration_response">Response</h2>
-            ${_createActionHtml('', `${response.resultStatusCode}`, '', actionCommand, body)}`;
+            ${_createActionHtml(`${response.result.statusCode}`, response.result.outputType, '', actionCommand, body)}`;
 }
 
 function _createNavHtml(steps: Record<string, StepResult>): string {
@@ -118,7 +128,7 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
     }
 }
 
-function _createActionHtml(title: string, type:string, anchor: string, postMessageAction: string, body: string) {
+function _createActionHtml(title: string, type: string, anchor: string, postMessageAction: string, body: string) {
     return `<div class="action" id="${anchor}">
                 <span class="title">${title}</span>
                 <span class="type">${type}</span>
@@ -137,7 +147,7 @@ function _createActionHtml(title: string, type:string, anchor: string, postMessa
 
 function _createActionStepHtml(title: string, step: StepConfiguration, body: string) {
     return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
-                `${body}
+        `${body}
                 <pre><code>${HtmlHelper.escapeHtml(step.template)}</code></pre>`);
 }
 
@@ -172,10 +182,10 @@ function _getRenderTemplateStepHtml(step: RenderTemplateStepResult, configuratio
                      </dl>`;
     }
     if (step.response.isSuccessStatusCode) {
-        stepHtml +=    `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${configuration.id}' });">View PDF</button>`;
+        stepHtml += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${configuration.id}' });">View PDF</button>`;
     }
     else {
-        stepHtml +=    `<strong>OUTPUT | Error (${step.response.statusCode})</strong><br />
+        stepHtml += `<strong>OUTPUT | Error (${step.response.statusCode})</strong><br />
                         ${step.response.errorMessage}<br />`;
     }
     return stepHtml;
@@ -196,4 +206,16 @@ function _getSftpStepHtml(configuration: SftpStepConfiguration) {
                 Username:&nbsp;${configuration.username}<br />
                 Password:&nbsp;${configuration.password}
             </p>`;
+}
+
+/**
+ * NOTE: we could do some fancy parsing/formatting here, But this is not done so the actual output is displayed!
+ * @param result 
+ * @returns HTML that can be displayed/rendered
+ */
+function _getResponseBody(result: IntegrationResult): string {
+
+    const unescapedBody = unescapeResponseBody(result);
+    // when displaying we should escape html characters
+    return HtmlHelper.escapeHtml(unescapedBody);
 }

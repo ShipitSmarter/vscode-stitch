@@ -1,0 +1,7 @@
+{
+    "Response": {
+        "Body": "{{include 'response-body.sbn'}}",
+        "OutputType": "BinaryAsBase64",
+        "StatusCode": 200
+    }
+}

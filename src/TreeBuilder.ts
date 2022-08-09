@@ -6,11 +6,12 @@ export class TreeBuilder {
     public static generateTreeItemInput(treeData: DetectedModel): TreeItem {
 
         const tree: TreeItem = { name: 'Input', path: '' };
-        
+
         /* eslint-disable @typescript-eslint/naming-convention */
         if (treeData) {
-            const obj : InputRequest = {
-                Model: <Record<string, unknown>>JSON.parse(treeData.model?.formattedJson || '"ERROR"'),
+            
+            const obj: InputRequest = {
+                Model: _determineModelFromTreeData(treeData),
                 Request: {
                     Method: treeData.httpRequest?.method,
                     Headers: treeData.httpRequest?.headers,
@@ -37,33 +38,33 @@ export class TreeBuilder {
             Started: null,
         };
 
-        switch(stepType) {
+        switch (stepType) {
             case CONSTANTS.httpStepConfigurationType:
-            {
-                obj.Response = {
-                    BodyFormat: 'json',
-                    StatusCode: 0,
-                    IsSuccessStatusCode: true
-                };
-                if (responseData && 'model' in responseData) {
-                    obj.Model = <Record<string, unknown>>JSON.parse(responseData.model.formattedJson);
+                {
+                    obj.Response = {
+                        BodyFormat: 'json',
+                        StatusCode: 0,
+                        IsSuccessStatusCode: true
+                    };
+                    if (responseData && 'model' in responseData) {
+                        obj.Model = _determineModelFromTreeData(responseData);
+                    }
+                    else if (responseData && 'StackTraceString' in responseData) {
+                        obj.Model = <Record<string, unknown>>JSON.parse('"ERROR"');
+                    }
+                    break;
                 }
-                else if (responseData && 'StackTraceString' in responseData) {
-                    obj.Model = <Record<string, unknown>>JSON.parse('"ERROR"');
-                }
-                break;
-            }
             case CONSTANTS.renderTemplateStepConfigurationType:
-            {
-                obj.Response = {
-                    Content: 'base64',
-                    ContentType: 'application/pdf',
-                    StatusCode: 200,
-                    IsSuccessStatusCode: true,
-                    ErrorMessage: ''
-                };
-                break;
-            }
+                {
+                    obj.Response = {
+                        Content: 'base64',
+                        ContentType: 'application/pdf',
+                        StatusCode: 200,
+                        IsSuccessStatusCode: true,
+                        ErrorMessage: ''
+                    };
+                    break;
+                }
             default:
                 break;
         }
@@ -130,20 +131,26 @@ export class TreeBuilder {
 
     /* eslint-disable @typescript-eslint/no-explicit-any */
     private static _determinePath(parent: TreeItem, key: string): string {
-        
+
         if (parent.isCollection) {
             return this._isNumber(key) ? `${parent.path}[${key}]` : `x.${key}`;
         }
 
-        if (parent.path === ''){
+        if (parent.path === '') {
             return key;
         }
 
-        const isDictObj = key.indexOf('-') !== -1;
-        return isDictObj ? `${parent.path}['${key}']` : `${parent.path}.${key}`;
+        return this._useArrayIndexerForPath(key) ? `${parent.path}['${key}']` : `${parent.path}.${key}`;
     }
     /* eslint-enable @typescript-eslint/no-explicit-any */
-    
+
+    private static _useArrayIndexerForPath(key: string): boolean {
+        return key.indexOf('-') !== -1 ||
+            key.indexOf(':') !== -1 ||
+            key.indexOf(' ') !== -1 ||
+            key.indexOf('@') !== -1 ||
+            key.indexOf('#') !== -1;
+    }
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -178,5 +185,12 @@ interface StepResultRenderResponse {
     StatusCode: number;
     IsSuccessStatusCode: boolean;
     ErrorMessage: string;
+}
+
+function _determineModelFromTreeData(treeData: DetectedModel): Record<string, unknown> {
+    const json = !treeData.model
+        ? '"ERROR"'
+        : (typeof treeData.model === 'string') ? treeData.model : treeData.model.formattedJson;
+    return <Record<string, unknown>>JSON.parse(json);
 }
 /* eslint-enable @typescript-eslint/naming-convention */

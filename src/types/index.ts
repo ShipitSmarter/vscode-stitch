@@ -38,11 +38,24 @@ export interface StitchError {
     description: string;
 }
 
-export interface StitchResponse {
-    result: unknown;
-    resultStatusCode: number;
+export interface EditorSimulateIntegrationResponse {
+    result: IntegrationResult;
     stepConfigurations: Record<string, StepConfiguration>;
     integrationContext: IntegrationContext;
+}
+
+export interface IntegrationResult {
+    body: string;
+    statusCode: number;
+    headers: Record<string, string>;
+    outputType: StitchOutputType;
+}
+
+export enum StitchOutputType {
+    json = 'Json',
+    xml = 'Xml',
+    plainText = 'PlainText',
+    binaryAsBase64 = 'BinaryAsBase64' 
 }
 
 export interface BaseStepConfiguration {
@@ -118,14 +131,24 @@ export interface RenderTemplateStepResult extends BaseStepResult {
 export interface DetectedModel {
     httpRequest?: HttpRequestModel;
     httpResponse?: HttpResponseModel;
-    model: FormatModel;
+    model: string | FormatModel; // FormatModel is here for backwards compatibility
 }
 
+// Backwards compatibility
+// ----------------------------------------
 export interface FormatModel {
     format: Format;
     formattedInput: string;
     formattedJson: string;
 }
+export enum Format {
+    unknown = 'Unknown',
+    json = 'Json',
+    xml = 'Xml',
+    binary = 'Binary',
+}
+// ----------------------------------------
+
 
 export interface HttpRequestModel {
     method: string;
@@ -158,13 +181,6 @@ export enum CommandAction {
     viewIntegrationResponse = 2,
     storeScrollPosition = 3,
     createHttpRequest = 4,
-}
-
-export enum Format {
-    unknown = 0,
-    json = 1,
-    xml = 2,
-    binary = 3,
 }
 
 /* eslint-disable @typescript-eslint/naming-convention */

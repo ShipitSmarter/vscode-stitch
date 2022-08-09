@@ -19,7 +19,7 @@
             "Template": "{{ include 'file.sbn' }}",
             "Path": "{{ Model.path }}",
             "Username": "{{ Model.username }}",
-            "Password": "{{ decode_secret secret-1-editor-dummyhash }}"
+            "Password": "@Microsoft.Keyvault(SecretName=test)"
         }
     ],
     "Response": {

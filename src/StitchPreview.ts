@@ -4,15 +4,16 @@ import axios from 'axios';
 import { FileScrambler } from './FileScrambler';
 import { Disposable } from './dispose';
 import { CONSTANTS } from './constants';
-import { CommandAction, ErrorData, HttpStepConfiguration, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchError, StitchResponse } from './types';
+import { CommandAction, EditorSimulateIntegrationResponse, ErrorData, HttpStepConfiguration, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchError } from './types';
 import { PdfPreview } from './PdfPreview';
 import { ContextHandler } from './ContextHandler';
 import { RenderedHelper } from './RenderedHelper';
 import { HtmlHelper } from './HtmlHelper';
+import { unescapeResponseBody } from './helpers';
 
 export class StitchPreview extends Disposable implements vscode.Disposable {
 
-    private _result?: StitchResponse;
+    private _result?: EditorSimulateIntegrationResponse;
     private _scrollPosition?: number;
     private _currentIntegrationPath?: string;
     private _htmlHelper: HtmlHelper;
@@ -30,7 +31,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         const panel = vscode.window.createWebviewPanel('stitchPreview', '', showOptions, options);
         panel.iconPath = vscode.Uri.joinPath(extensionUri, 'assets/icon.png');
 
-        return new StitchPreview(panel, `${endpoint}/editor/simulate`, extensionUri);
+        return new StitchPreview(panel, `${endpoint}`, extensionUri);
     }
 
     private constructor(
@@ -66,7 +67,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 
     public setEndpoint(endpoint: string): void {
-        this._editorEndpoint = `${endpoint}/editor/simulate`;
+        this._editorEndpoint = `${endpoint}`;
         this.update();
     }
 
@@ -95,7 +96,8 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
             }
         }
 
-        axios.post(this._editorEndpoint, model)
+        const simulateIntegrationUrl = `${this._editorEndpoint}/editor/simulate/integration`;
+        axios.post(simulateIntegrationUrl, model)
             .then(res => this._handleResponse(<ResponseData>res.data))
             .catch(err => {
                 if (err instanceof Error) {
@@ -128,7 +130,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
             case CommandAction.viewIntegrationResponse: {
                 RenderedHelper.show({
                     filename: `stitch-response`,
-                    content: JSON.stringify(response.result, null, 2)
+                    content: unescapeResponseBody(response.result)
                 });
                 return;
             }
@@ -151,13 +153,14 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     private _handleResponse(responseData: ResponseData) {
         const okResult = responseData.result;
         if (okResult) {
-            this._panel.webview.html = this._htmlHelper.createHtml(<StitchResponse>responseData);
+            this._result = <EditorSimulateIntegrationResponse>responseData;
+
+            this._panel.webview.html = this._htmlHelper.createHtml(this._result);
             if (this._scrollPosition) {
                 void this._panel.webview.postMessage({ command: 'setScrollPosition', scrollY: this._scrollPosition });
                 this._scrollPosition = undefined;
             }
 
-            this._result = <StitchResponse>responseData;
             RenderedHelper.update(this._result);
         }
         else {
@@ -193,6 +196,8 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 }
 
+// Note: needed to be able to handle error
 interface ResponseData {
     result?: unknown;
 }
+
