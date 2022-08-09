@@ -3,6 +3,8 @@
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
 # 1.2.0
+- Model tree is now Scriban context aware (auto adds braces {{}} if needed)
+- Model tree now supports properties that require array indexer
 - Support for different OutputTypes (Json, Xml, PlainText, BinaryAsBase64)
 
 # 1.1.3

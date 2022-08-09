@@ -21,7 +21,7 @@
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.2.2022061701",
+	"version": "1.2.0",
 	"engines": {
 		"vscode": "^1.63.0"
 	},
