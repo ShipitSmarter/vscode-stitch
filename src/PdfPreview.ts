@@ -1,7 +1,7 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { CONSTANTS } from './constants';
-import { Disposable } from './dispose';
+import { Disposable } from './utils/dispose';
 
 export class PdfPreview extends Disposable implements vscode.Disposable {
 

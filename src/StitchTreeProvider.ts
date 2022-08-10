@@ -1,11 +1,13 @@
 import * as vscode from 'vscode';
 import { COMMANDS, CONSTANTS } from './constants';
 import { ContextHandler } from './ContextHandler';
-import { TreeBuilder } from './TreeBuilder';
-import { DetectedModel, TreeItem } from './types';
-import { FileScrambler } from './FileScrambler';
+import { TreeBuilder } from './utils/TreeBuilder';
+import { TreeItem } from './types';
+import { FileScrambler } from './utils/FileScrambler';
 import axios, { AxiosResponse } from 'axios';
-import { delay } from './helpers';
+import { delay } from './utils/helpers';
+import { ScenarioHelper } from './utils/ScenarioHelper';
+import { DetectedModel } from './types/apiTypes';
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
 const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
@@ -28,7 +30,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         if (!scenario) { return; }
 
         if (treeItem.path === 'Model') {
-            const inputPath = FileScrambler.getScenarioInputFilepath(scenario);
+            const inputPath = ScenarioHelper.getScenarioInputFilepath(scenario);
             const uri = vscode.Uri.file(inputPath);
             await vscode.window.showTextDocument(uri);
             return;
@@ -37,7 +39,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         const match = stepPathRegex.exec(treeItem.path);
         const stepName = match && match[1];
         if (stepName) {
-            const stepPath = FileScrambler.getScenarioStepFilepath(scenario, stepName);
+            const stepPath = ScenarioHelper.getScenarioStepFilepath(scenario, stepName);
             const uri = vscode.Uri.file(stepPath);
             await vscode.window.showTextDocument(uri);
         }
@@ -129,7 +131,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             return Promise.resolve([]);
         }
 
-        const files = FileScrambler.getScenarioFiles(context);
+        const files = ScenarioHelper.getScenarioFiles(context);
         const steps = FileScrambler.getStepTypes(context);
 
         if (files.length === 0) {

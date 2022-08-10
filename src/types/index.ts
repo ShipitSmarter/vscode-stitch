@@ -22,145 +22,6 @@ export interface ScenarioSource {
     path: string;
 }
 
-export interface IntegrationRequestModel {
-    integrationFilePath: string;
-    files: IntegrationFile[];
-    scenarioFiles: IntegrationFile[];
-}
-
-export interface IntegrationFile {
-    filename: string;
-    filecontent: string;
-}
-
-export interface StitchError {
-    title: string;
-    description: string;
-}
-
-export interface EditorSimulateIntegrationResponse {
-    result: IntegrationResult;
-    stepConfigurations: Record<string, StepConfiguration>;
-    integrationContext: IntegrationContext;
-}
-
-export interface IntegrationResult {
-    body: string;
-    statusCode: number;
-    headers: Record<string, string>;
-    outputType: StitchOutputType;
-}
-
-export enum StitchOutputType {
-    json = 'Json',
-    xml = 'Xml',
-    plainText = 'PlainText',
-    binaryAsBase64 = 'BinaryAsBase64' 
-}
-
-export interface BaseStepConfiguration {
-    $type: string;
-    id: string;
-    template: string;
-    successCondition?: string;
-    startCondition?: string;
-}
-
-export interface HttpStepConfiguration extends BaseStepConfiguration {
-    method: string;
-    url: string;
-    headers?: Record<string, string>;
-}
-
-export interface MailStepConfiguration extends BaseStepConfiguration {
-    from: string;
-    to: string[];
-    subject: string;
-}
-
-export interface RenderTemplateStepConfiguration extends BaseStepConfiguration {
-    additionalFiles?: string[];
-}
-
-export interface SftpStepConfiguration extends BaseStepConfiguration {
-    host: string;
-    port: number;
-    username: string;
-    password: string;
-    filename: string;
-    path?: string;
-}
-
-export type StepConfiguration = BaseStepConfiguration | HttpStepConfiguration | MailStepConfiguration | RenderTemplateStepConfiguration | SftpStepConfiguration;
-
-export interface IntegrationContext {
-    model: unknown;
-    steps: Record<string, StepResult>; //StepsDictionary
-}
-
-export type StepResult = BaseStepResult | HttpStepResult | RenderTemplateStepResult;
-
-export interface BaseStepResult {
-    $type: string;
-    hasSuccessCondition: boolean;
-    success?: boolean;
-    hasStartCondition: boolean;
-    started?: boolean;
-}
-
-export interface HttpStepResult extends BaseStepResult {
-    response: {
-        bodyFormat: string;
-        statusCode: number;
-        isSuccessStatusCode: boolean;
-    }
-
-    model: unknown;
-}
-
-export interface RenderTemplateStepResult extends BaseStepResult {
-    response: {
-        content: string;
-        contentType: string;
-        statusCode: number;
-        isSuccessStatusCode: boolean;
-        errorMessage: string;
-    }
-}
-
-export interface DetectedModel {
-    httpRequest?: HttpRequestModel;
-    httpResponse?: HttpResponseModel;
-    model: string | FormatModel; // FormatModel is here for backwards compatibility
-}
-
-// Backwards compatibility
-// ----------------------------------------
-export interface FormatModel {
-    format: Format;
-    formattedInput: string;
-    formattedJson: string;
-}
-export enum Format {
-    unknown = 'Unknown',
-    json = 'Json',
-    xml = 'Xml',
-    binary = 'Binary',
-}
-// ----------------------------------------
-
-
-export interface HttpRequestModel {
-    method: string;
-    headers: Record<string, string>;
-    query: Record<string, string[]>;
-}
-
-export interface HttpResponseModel {
-    statusCode: number;
-    headers: Record<string, string>;
-}
-
 export interface TreeItem {
     name: string;
     path: string;
@@ -174,7 +35,6 @@ export interface ICommand {
     content: string;
 }
 
-
 export enum CommandAction {
     viewStepRequest = 0,
     viewStepResponse = 1,
@@ -182,16 +42,3 @@ export enum CommandAction {
     storeScrollPosition = 3,
     createHttpRequest = 4,
 }
-
-/* eslint-disable @typescript-eslint/naming-convention */
-export interface ErrorData {
-    ClassName?: string;
-    Message?: string;
-    message?: string;
-    InnerException?: {
-        Message: string;
-    };
-    StackTraceString: string;
-    ResultBody: unknown;
-}
-/* eslint-enable @typescript-eslint/naming-convention */

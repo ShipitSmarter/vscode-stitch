@@ -2,11 +2,12 @@ import { Context, ICommand } from "./types";
 import * as vscode from 'vscode';
 import { StitchPreview } from "./StitchPreview";
 import { COMMANDS, CONSTANTS, MESSAGES } from "./constants";
-import { Disposable } from "./dispose";
-import { FileScrambler } from "./FileScrambler";
+import { Disposable } from "./utils/dispose";
+import { FileScrambler } from "./utils/FileScrambler";
 import { PdfPreview } from "./PdfPreview";
-import { debounce, delay } from "./helpers";
+import { debounce, delay } from "./utils/helpers";
 import { StitchTreeProvider } from "./StitchTreeProvider";
+import { ScenarioHelper } from "./utils/ScenarioHelper";
 
 export class ContextHandler extends Disposable implements vscode.Disposable {
 
@@ -16,16 +17,18 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     private _context?: Context;
     private _preview?: StitchPreview;
     private _statusBar: vscode.StatusBarItem;
+    private _channel: vscode.OutputChannel;
     private _debouncedTextUpdate: () => void;
 
     private constructor() {
         super();
-
         this._debouncedTextUpdate = debounce(() => this._updateContext(), this._getConfigDebounceTimeout());
         this._context = this._createContext();
         if (this._context) {
             void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
         }
+
+        this._channel = vscode.window.createOutputChannel('Stitch');
 
         this._statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
         this._statusBar.command = COMMANDS.selectScenario;
@@ -40,8 +43,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         });
 
         const onDidChangeTextEditorListener = vscode.workspace.onDidChangeTextDocument((e): void => {
-            if (e.document.isUntitled) { return; }
-            this._debouncedTextUpdate();
+             if (e.document.isUntitled) { return; }
+             if (e.document.uri.scheme === 'output') { return; }
+             this._debouncedTextUpdate();
         });
 
         const onDidChangeVisibleTextEditorsListener = vscode.window.onDidChangeVisibleTextEditors(async (): Promise<void> => {
@@ -53,6 +57,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         });
 
+        this._register(this._channel);
         this._register(this._statusBar);
         this._register(onDidChangeConfigurationListener);
         this._register(onDidChangeActiveTextEditorListener);
@@ -108,7 +113,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             return;
         }
 
-        const normalizeResult = FileScrambler.getScenarios(this._current._context.integrationFilePath);
+        const normalizeResult = ScenarioHelper.getScenarios(this._current._context.integrationFilePath);
         if (!normalizeResult.success) {
             void vscode.window.showErrorMessage('Some error occured for selecting a scenario!\nMake sure you have implemented the scenario.');
             return;
@@ -134,6 +139,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         }
 
         this._current._preview.handleCommand(command, extensionUri);
+    }
+
+    public static log(value: string): void {
+        if (!this._current?._channel) {
+            return;
+        }
+
+        this._current._channel.appendLine(`${new Date().toLocaleTimeString()} ${value}`);
     }
 
     private _updateStatusBar() {
@@ -204,7 +217,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     private _onUpdateDebounceTimeout() {
         const timeout = this._getConfigDebounceTimeout();
         this._debouncedTextUpdate = debounce(() => this._updateContext(), timeout);
-
         void vscode.window.showInformationMessage(`The Stitch debounce timeout has been updated to: ${timeout} ms`);
     }
 
