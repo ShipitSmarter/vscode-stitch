@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as glob from 'glob';
-import { FileScrambler } from "./FileScrambler";
+import { FileScrambler, IntegrationStep } from "./FileScrambler";
 import { Context } from "../types";
 import { ContextHandler } from '../ContextHandler';
 import { findCommandParentDirectory, findDirectoryWithinParent } from './helpers';
@@ -33,15 +33,18 @@ export class IngrationRequestBuilder {
 
         // 3. load imports based on json
         this._loadImports(integration.integration.Imports);
+
+        // 4. load rendertemplate step additional files
+        this._loadRenderTemplateAdditionalFiles(integration.integration.Steps);
         
-        // 4. load includes (scriban)
+        // 5. load includes (scriban)
         this._loadIncludes(integration.content);
         
         //      should we support loading them from / (this would be `files` directory in StitchConfigs)
-        // 5. for all files determine the most common ancester, and base the File.filename relative to that path!
+        // 6. for all files determine the most common ancester, and base the File.filename relative to that path!
         const files = this._createFileInputsFromFilesToSend();
         
-        // 5. load scenario files 
+        // 7. load scenario files 
         const scenarioFiles = ScenarioHelper.getScenarioFiles(this._context);
 
         return {
@@ -49,7 +52,7 @@ export class IngrationRequestBuilder {
             files,
             scenarioFiles
         };
-    }
+    }    
 
     private _loadTranslations(translations: string[] | undefined) {
         if (!translations || translations.length === 0)
@@ -81,6 +84,21 @@ export class IngrationRequestBuilder {
                 glob.sync(globImport).forEach(x => this._addToFilesToSend(x));
             }
         });
+    }
+
+    private _loadRenderTemplateAdditionalFiles(steps: IntegrationStep[] | undefined) {
+        if (!steps || steps.length === 0)
+        {
+            return;
+        }
+
+        const renderTemplateSteps = steps?.filter((s) => 'AdditionalFiles' in s) || [];
+        for (const step of renderTemplateSteps) {
+            for (const file of <string[]>step.AdditionalFiles) {
+                const additionFile = path.resolve(this._root, file);
+                this._addToFilesToSend(additionFile);
+            }
+        }
     }
     
     private _loadIncludes(content: string) {
