@@ -10,7 +10,7 @@
 			"type": "extensionHost",
 			"request": "launch",
 			"args": [
-				"${workspaceFolder}/demo", // sets the startup path for this extension
+				"${workspaceFolder}/demo-files", // sets the startup path for this extension
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],			
 			"outFiles": [

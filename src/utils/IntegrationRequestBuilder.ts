@@ -3,48 +3,37 @@ import * as glob from 'glob';
 import { FileScrambler, IntegrationStep } from "./FileScrambler";
 import { Context } from "../types";
 import { ContextHandler } from '../ContextHandler';
-import { findCommandParentDirectory, findDirectoryWithinParent } from './helpers';
+import { findDirectoryWithinParent } from './helpers';
 import { ScenarioHelper } from './ScenarioHelper';
 import { FileInput, IntegrationRequestModel } from '../types/apiTypes';
+import { CONSTANTS } from '../constants';
 
 export class IngrationRequestBuilder {
 
     // Dictionary of files for an integration, key=absolute file path, value=file content
     private _filesToSend: Record<string, string>;
     private _context: Context;
-    private _root: string;
-    private _commonPath: string;
+    private _integrationFolder: string;
+    private _rootPath: string;
 
-    public constructor(context: Context) {
+    public constructor(context: Context, rootFolderName: string) {
         this._context = context;
-        this._root = path.dirname(context.integrationFilePath) + path.sep;
-        this._commonPath = this._root;
+        this._integrationFolder = path.dirname(context.integrationFilePath) + path.sep;
+        this._rootPath = this._locateRootFolder(this._integrationFolder, rootFolderName);
         this._filesToSend = {};
     }
 
     public build() : IntegrationRequestModel {
 
-        // 1. parse integration json
         const integration = FileScrambler.readIntegrationFile(this._context);
         this._filesToSend[this._context.integrationFilePath] = integration.content;
 
-        // 2. load translations based on json (exist on root of blob, convention)
         this._loadTranslations(integration.integration.Translations);
-
-        // 3. load imports based on json
         this._loadImports(integration.integration.Imports);
-
-        // 4. load rendertemplate step additional files
         this._loadRenderTemplateAdditionalFiles(integration.integration.Steps);
-        
-        // 5. load includes (scriban)
         this._loadIncludes(integration.content);
         
-        //      should we support loading them from / (this would be `files` directory in StitchConfigs)
-        // 6. for all files determine the most common ancester, and base the File.filename relative to that path!
         const files = this._createFileInputsFromFilesToSend();
-        
-        // 7. load scenario files 
         const scenarioFiles = ScenarioHelper.getScenarioFiles(this._context);
 
         return {
@@ -52,7 +41,7 @@ export class IngrationRequestBuilder {
             files,
             scenarioFiles
         };
-    }    
+    }
 
     private _loadTranslations(translations: string[] | undefined) {
         if (!translations || translations.length === 0)
@@ -60,9 +49,9 @@ export class IngrationRequestBuilder {
             return;
         }
 
-        const translationsRoot = findDirectoryWithinParent(this._root, 'translations', 5);
+        const translationsRoot = findDirectoryWithinParent(this._rootPath, 'translations', 1);
         if (translationsRoot === undefined) {
-            throw new Error(`Unable to locate 'translations' folder!`);
+            throw new Error(`Unable to locate 'translations' folder under ${this._rootPath}!`);
         }
         translations.forEach((translation: string) => {
             this._addToFilesToSend(path.join(translationsRoot, `${translation}.csv`));
@@ -77,10 +66,10 @@ export class IngrationRequestBuilder {
 
         imports.forEach((importItem: string) => {
             if (importItem.indexOf('{{') === -1) {
-                this._addToFilesToSend(path.resolve(this._root, importItem));
+                this._addToFilesToSend(path.resolve(this._integrationFolder, importItem));
             } else {
                 // because the import contains scriban we load the file with a glob pattern
-                const globImport = path.resolve(this._root, importItem.replace(/{{.*?}}/g, '*'));
+                const globImport = path.resolve(this._integrationFolder, importItem.replace(/{{.*?}}/g, '*'));
                 glob.sync(globImport).forEach(x => this._addToFilesToSend(x));
             }
         });
@@ -95,11 +84,11 @@ export class IngrationRequestBuilder {
         const renderTemplateSteps = steps?.filter((s) => 'AdditionalFiles' in s) || [];
         for (const step of renderTemplateSteps) {
             for (const file of <string[]>step.AdditionalFiles) {
-                const additionFile = path.resolve(this._root, file);
+                const additionFile = this._resolvePath(file);
                 this._addToFilesToSend(additionFile);
             }
         }
-    }
+    }    
     
     private _loadIncludes(content: string) {
         const scribanIncludes = this._getScribanIncludes(content);
@@ -108,11 +97,27 @@ export class IngrationRequestBuilder {
         }
 
         scribanIncludes.forEach(scribanInclude => {
-            const includeFilePath = path.resolve(this._root, scribanInclude);
+            const includeFilePath = this._resolvePath(scribanInclude);
             if (this._addToFilesToSend(includeFilePath)) {
                 this._loadIncludes(this._filesToSend[includeFilePath]);
             }
         });
+    }
+
+    private _locateRootFolder(integrationFolder: string, rootFolderName: string) : string {
+        const rootPath = findDirectoryWithinParent(integrationFolder, rootFolderName, CONSTANTS.maxUpForRootFolder);
+        if (!rootPath) {
+            throw new Error(`Unable to locate root folder named '${rootFolderName}' (max up: ${CONSTANTS.maxUpForRootFolder})`);
+        }
+        return rootPath;
+    }
+
+    private _resolvePath(file: string) : string {
+        if (file[0] === '/') {
+            return path.normalize(path.resolve(this._rootPath, file.substring(1)));
+        }
+        return path.normalize(path.resolve(this._integrationFolder, file));
+         
     }
 
     private _createFileInputsFromFilesToSend(): FileInput[] {
@@ -123,7 +128,8 @@ export class IngrationRequestBuilder {
     }
     
     private _makeBlobStorageLikePath(filepath: string): string {
-        const charsToSkip = this._commonPath.length;
+        // blob should not contain the starting path separator
+        const charsToSkip = this._rootPath.endsWith(path.sep) ? this._rootPath.length : this._rootPath.length + 1; 
         return filepath
             .substring(charsToSkip)
             .replace(/\\/g, '/');
@@ -146,7 +152,6 @@ export class IngrationRequestBuilder {
         if (this._filesToSend[normalizedPath]) {
             return false;
         }
-        this._commonPath = findCommandParentDirectory(this._commonPath, normalizedPath) as string;
         ContextHandler.log(`\tLoading file: ${normalizedPath}`);
         this._filesToSend[normalizedPath] = FileScrambler.readFile(this._context, normalizedPath);
         return true;

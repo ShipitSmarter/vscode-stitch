@@ -122,6 +122,12 @@
 					"default": 500,
 					"description": "Amount of ms to wait with no changes before reloading preview",
 					"minimum": 200
+				},
+				"stitch.rootFolderName": {
+					"type": "string",
+					"default": "files",
+					"description": "The name of the root folder where the *.integration.json files are stored",
+					"pattern": "^[a-zA-Z0-9-]+$"
 				}
 			}
 		},

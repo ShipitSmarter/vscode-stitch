@@ -92,7 +92,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
 
         let model: IntegrationRequestModel | undefined;
         try {
-            const builder = new IngrationRequestBuilder(context);
+            const builder = new IngrationRequestBuilder(context, ContextHandler.getRootFolderName());
             model = builder.build();
         } catch (error) {
             if (error instanceof Error) {

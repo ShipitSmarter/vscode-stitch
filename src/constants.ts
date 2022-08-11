@@ -9,6 +9,7 @@ export const CONSTANTS = {
     
     configKeyEndpointUrl: 'stitch.endpointUrl',
     configKeyDebounceTimeout: 'stitch.debounceTimeout',
+    configKeyRootFolderName: 'stitch.rootFolderName',
 
     contextAvailableContextKey: 'stitch:contextAvailable',
     previewActiveContextKey: 'stitch:previewActive',
@@ -23,6 +24,9 @@ export const CONSTANTS = {
     renderTemplateStepConfigurationType: 'Core.Entities.Configs.Steps.RenderTemplateConfiguration, Core',
 
     defaultDebounceTimeout: 500,
+    defaultRootFolderName: 'files',
+
+    maxUpForRootFolder: 5,
 };
 
 export const MESSAGES = {

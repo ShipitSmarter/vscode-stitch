@@ -133,6 +133,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         });
     }
 
+    public static getRootFolderName() : string {
+        const rootFolderName = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyRootFolderName);
+        if (!rootFolderName) {
+            return CONSTANTS.defaultRootFolderName;
+        }
+        return rootFolderName;
+    }
+
     public static handlePreviewCommand(command: ICommand, extensionUri: vscode.Uri): void {
         if (!this._current?._preview) {
             return;
@@ -196,6 +204,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         if (e.affectsConfiguration(CONSTANTS.configKeyDebounceTimeout)) {
             this._onUpdateDebounceTimeout();
         }
+        if (e.affectsConfiguration(CONSTANTS.configKeyRootFolderName)) {
+            this._onUpdateRootFolderName();
+        }
     }
 
     private _onUpdateEndpoint() {
@@ -211,13 +222,19 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         }
         ContextHandler._treeProvider.setEndpoint(endpoint);
         
-        void vscode.window.showInformationMessage('The Stitch editor endpoint has been updated to: ' + endpoint);
+        void vscode.window.showInformationMessage(`The Stitch editor endpoint has been updated to: ${endpoint}`);
     }
 
     private _onUpdateDebounceTimeout() {
         const timeout = this._getConfigDebounceTimeout();
         this._debouncedTextUpdate = debounce(() => this._updateContext(), timeout);
         void vscode.window.showInformationMessage(`The Stitch debounce timeout has been updated to: ${timeout} ms`);
+    }
+
+    private _onUpdateRootFolderName() {
+        const rootFolderName = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyRootFolderName);
+
+        void vscode.window.showInformationMessage(`The Stitch root folder name has been updated to: ${rootFolderName}`);
     }
 
     private static _onPreviewDidDspose() {

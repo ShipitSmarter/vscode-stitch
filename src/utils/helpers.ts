@@ -31,26 +31,3 @@ export function findDirectoryWithinParent(currentFolder: string, folderNameToLoo
         return findDirectoryWithinParent(path.dirname(currentFolder), folderNameToLookFor, --maxUp);
     }
 }
-
-/**
- * Find the common parent directory for two paths
- * @param path1 Path to check
- * @param path2 Other path to check against
- * @returns Common parent directory or undefined
- */
-export function findCommandParentDirectory(path1: string, path2: string) : string | undefined {
-    if (path1 === path2) {
-        return path1;
-    }
-    let posLastDirSeparator = -1;
-
-    for (let i =0; i < path1.length; i++) {
-        if (path1[i] !== path2[i]) {
-            break;
-        }
-        if (path1[i] === path.sep) { posLastDirSeparator = i; }
-    }
-    if (posLastDirSeparator === -1) { return undefined; }
-
-    return path1.substring(0, posLastDirSeparator + 1);
-}
