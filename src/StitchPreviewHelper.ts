@@ -1,10 +1,12 @@
 import * as vscode from 'vscode';
 import { CONSTANTS } from './constants';
-import { unescapeResponseBody } from './helpers';
+import { unescapeResponseBody } from './utils/helpers';
 import { PdfPreview } from './PdfPreview';
-import { HttpStepConfiguration, RenderTemplateStepResult, EditorSimulateIntegrationResponse } from './types';
+import { EditorSimulateIntegrationResponse } from './types/apiTypes';
+import { HttpStepConfiguration } from './types/stepConfiguration';
+import { RenderTemplateStepResult } from './types/stepResult';
 
-export class RenderedHelper {
+export class StitchPreviewHelper {
     
     public static show(options: { filename: string; content: string; }): void {
         if (!options.content) { return; }

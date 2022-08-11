@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.3.0
+- Support for relative and absolute (starting with /) Scriban includes
+  - Rootfolder name can be configured through setting `stitch.rootFolderName`
+
 # 1.2.0
 - Model tree is now Scriban context aware (auto adds braces {{}} if needed)
 - Model tree now supports properties that require array indexer

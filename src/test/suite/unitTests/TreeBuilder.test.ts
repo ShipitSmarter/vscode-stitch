@@ -2,8 +2,9 @@ import { fail } from "assert";
 import * as chai from "chai";
 import * as chaiSubset from "chai-subset";
 import { CONSTANTS } from "../../../constants";
-import { TreeBuilder } from "../../../TreeBuilder";
-import { DetectedModel, TreeItem } from "../../../types";
+import { TreeBuilder } from "../../../utils/TreeBuilder";
+import { TreeItem } from "../../../types";
+import { DetectedModel } from "../../../types/apiTypes";
 
 suite('TreeBuilder Tests', () => {
     chai.use(chaiSubset);

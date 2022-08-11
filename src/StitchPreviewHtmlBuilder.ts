@@ -1,24 +1,13 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import { CONSTANTS } from "./constants";
-import { unescapeResponseBody } from './helpers';
-import {
-    BaseStepConfiguration,
-    BaseStepResult,
-    CommandAction,
-    EditorSimulateIntegrationResponse,
-    HttpStepConfiguration,
-    IntegrationResult,
-    MailStepConfiguration,
-    RenderTemplateStepConfiguration,
-    RenderTemplateStepResult,
-    SftpStepConfiguration,
-    StepConfiguration,
-    StepResult,
-    StitchError
-} from "./types";
+import { unescapeResponseBody } from './utils/helpers';
+import { CommandAction } from "./types";
+import { EditorSimulateIntegrationResponse, IntegrationResult, StitchError } from './types/apiTypes';
+import { BaseStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration, StepConfiguration } from './types/stepConfiguration';
+import { BaseStepResult, RenderTemplateStepResult, StepResult } from './types/stepResult';
 
-export class HtmlHelper {
+export class StitchPreviewHtmlBuilder {
 
     public constructor(private _cspSource: string, private _resolveAsUri: (...p: string[]) => vscode.Uri) { }
 
@@ -33,9 +22,9 @@ export class HtmlHelper {
     }
 
     public createErrorHtml(error: StitchError, extraBody?: string): string {
-        extraBody = HtmlHelper.escapeHtml(extraBody || '');
+        extraBody = StitchPreviewHtmlBuilder.escapeHtml(extraBody || '');
         const htmlBody = `<h1 class="error">${error.title}</h1>
-                          <p>${HtmlHelper.escapeHtml(error.description)}</p><p>${extraBody}</p>`;
+                          <p>${StitchPreviewHtmlBuilder.escapeHtml(error.description)}</p><p>${extraBody}</p>`;
         return this._createHtmlWrapper(htmlBody);
     }
 
@@ -148,7 +137,7 @@ function _createActionHtml(title: string, type: string, anchor: string, postMess
 function _createActionStepHtml(title: string, step: StepConfiguration, body: string) {
     return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
         `${body}
-                <pre><code>${HtmlHelper.escapeHtml(step.template)}</code></pre>`);
+                <pre><code>${StitchPreviewHtmlBuilder.escapeHtml(step.template)}</code></pre>`);
 }
 
 function _getDefaultStepHtml(step: BaseStepResult, configuration: StepConfiguration) {
@@ -217,5 +206,5 @@ function _getResponseBody(result: IntegrationResult): string {
 
     const unescapedBody = unescapeResponseBody(result);
     // when displaying we should escape html characters
-    return HtmlHelper.escapeHtml(unescapedBody);
+    return StitchPreviewHtmlBuilder.escapeHtml(unescapedBody);
 }

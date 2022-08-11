@@ -1,5 +1,6 @@
-import { CONSTANTS } from "./constants";
-import { DetectedModel, ErrorData, TreeItem } from "./types";
+import { CONSTANTS } from "../constants";
+import { TreeItem } from "../types";
+import { DetectedModel, ErrorData } from "../types/apiTypes";
 
 export class TreeBuilder {
 

@@ -9,7 +9,7 @@
         ]
     },    
     "Response": {
-        "Body": "{{include 'response.sbn' }}",
+        "Body": "{{include '/test.sbn' }}",
         "StatusCode": 200
     }
 }

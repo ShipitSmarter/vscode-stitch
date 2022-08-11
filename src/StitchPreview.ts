@@ -1,22 +1,25 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import axios from 'axios';
-import { FileScrambler } from './FileScrambler';
-import { Disposable } from './dispose';
+import { Disposable } from './utils/dispose';
 import { CONSTANTS } from './constants';
-import { CommandAction, EditorSimulateIntegrationResponse, ErrorData, HttpStepConfiguration, ICommand, IntegrationRequestModel, RenderTemplateStepResult, StitchError } from './types';
+import { CommandAction, ICommand } from './types';
 import { PdfPreview } from './PdfPreview';
 import { ContextHandler } from './ContextHandler';
-import { RenderedHelper } from './RenderedHelper';
-import { HtmlHelper } from './HtmlHelper';
-import { unescapeResponseBody } from './helpers';
+import { StitchPreviewHelper } from './StitchPreviewHelper';
+import { StitchPreviewHtmlBuilder } from './StitchPreviewHtmlBuilder';
+import { unescapeResponseBody } from './utils/helpers';
+import { IngrationRequestBuilder } from './utils/IntegrationRequestBuilder';
+import { EditorSimulateIntegrationResponse, ErrorData, IntegrationRequestModel, StitchError } from './types/apiTypes';
+import { RenderTemplateStepResult } from './types/stepResult';
+import { HttpStepConfiguration } from './types/stepConfiguration';
 
 export class StitchPreview extends Disposable implements vscode.Disposable {
 
     private _result?: EditorSimulateIntegrationResponse;
     private _scrollPosition?: number;
     private _currentIntegrationPath?: string;
-    private _htmlHelper: HtmlHelper;
+    private _htmlHelper: StitchPreviewHtmlBuilder;
 
     public static create(extensionUri: vscode.Uri, endpoint: string): StitchPreview {
 
@@ -44,7 +47,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         const resolveAsUri = (...p: string[]): vscode.Uri => {
             return this._panel.webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, ...p));
         };
-        this._htmlHelper = new HtmlHelper(_panel.webview.cspSource, resolveAsUri);
+        this._htmlHelper = new StitchPreviewHtmlBuilder(_panel.webview.cspSource, resolveAsUri);
         this.update();
 
         const onPanelDisposeListener = this._panel.onDidDispose(() => this.dispose());
@@ -89,7 +92,8 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
 
         let model: IntegrationRequestModel | undefined;
         try {
-            model = FileScrambler.collectFiles(context);
+            const builder = new IngrationRequestBuilder(context, ContextHandler.getRootFolderName());
+            model = builder.build();
         } catch (error) {
             if (error instanceof Error) {
                 return this._handleError(error, 'Collecting files failed');
@@ -113,7 +117,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         switch (command.action) {
             case CommandAction.viewStepRequest: {
                 const step = command.content;
-                RenderedHelper.show({
+                StitchPreviewHelper.show({
                     filename: `stitch-step-request-${step}`,
                     content: response.stepConfigurations[step].template.trim()
                 });
@@ -128,7 +132,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
                 return;
             }
             case CommandAction.viewIntegrationResponse: {
-                RenderedHelper.show({
+                StitchPreviewHelper.show({
                     filename: `stitch-response`,
                     content: unescapeResponseBody(response.result)
                 });
@@ -141,9 +145,9 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
             case CommandAction.createHttpRequest: {
                 const step = command.content;
                 const httpConfig = <HttpStepConfiguration>response.stepConfigurations[step];
-                RenderedHelper.show({
+                StitchPreviewHelper.show({
                     filename: `stitch-step-request-${step}.http`,
-                    content: RenderedHelper.createHttpRequestContent(httpConfig)
+                    content: StitchPreviewHelper.createHttpRequestContent(httpConfig)
                 });
                 return;
             }
@@ -161,7 +165,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
                 this._scrollPosition = undefined;
             }
 
-            RenderedHelper.update(this._result);
+            StitchPreviewHelper.update(this._result);
         }
         else {
             if (!this._scrollPosition) {
