@@ -162,9 +162,16 @@ export interface IntegrationFile {
 
 /* eslint-disable @typescript-eslint/naming-convention */
 export interface Integration {
+    Request?: IntegrationRequest;
     Translations?: string[];
     Steps?: IntegrationStep[];
     Imports?: string[];
+}
+
+export interface IntegrationRequest {
+    PreParser?: {
+        ConfigurationFilePath?: string;
+    }
 }
 
 export interface IntegrationStep {

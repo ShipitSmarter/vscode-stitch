@@ -26,7 +26,7 @@ export const CONSTANTS = {
     defaultDebounceTimeout: 500,
     defaultRootFolderName: 'files',
 
-    maxUpForRootFolder: 5,
+    maxUpForRootFolder: 7,
 };
 
 export const MESSAGES = {
