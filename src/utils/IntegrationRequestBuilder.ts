@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as glob from 'glob';
-import { FileScrambler, IntegrationStep } from "./FileScrambler";
+import { FileScrambler, IntegrationRequest, IntegrationStep } from "./FileScrambler";
 import { Context } from "../types";
 import { ContextHandler } from '../ContextHandler';
 import { findDirectoryWithinParent } from './helpers';
@@ -28,6 +28,7 @@ export class IngrationRequestBuilder {
         const integration = FileScrambler.readIntegrationFile(this._context);
         this._filesToSend[this._context.integrationFilePath] = integration.content;
 
+        this._loadPreParserConfig(integration.integration.Request);
         this._loadTranslations(integration.integration.Translations);
         this._loadImports(integration.integration.Imports);
         this._loadRenderTemplateAdditionalFiles(integration.integration.Steps);
@@ -41,6 +42,15 @@ export class IngrationRequestBuilder {
             files,
             scenarioFiles
         };
+    }
+    private _loadPreParserConfig(integrationRequest: IntegrationRequest | undefined) {
+        const preParserConfig = integrationRequest?.PreParser?.ConfigurationFilePath;
+        if (!preParserConfig) {
+            return;
+        }
+
+        const preParserConfigFile = path.join(this._integrationFolder, preParserConfig);
+        this._addToFilesToSend(preParserConfigFile);
     }
 
     private _loadTranslations(translations: string[] | undefined) {
