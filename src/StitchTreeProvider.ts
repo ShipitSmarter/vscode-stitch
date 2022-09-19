@@ -140,13 +140,32 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
 
         const requests = [];
         const inputFiles = files.filter(f => f.filename.startsWith('input'));
+
         if (inputFiles.length > 0) {
-            requests
-                .push(axios.post(this._endpointUrl, { file:  inputFiles[0] })
-                .then((res: AxiosResponse<DetectedModel>) => { 
-                    return TreeBuilder.generateTreeItemInput(res.data); 
-                })
-            );
+
+            const integrationFile = FileScrambler.readIntegrationFile(context);
+            const preParser = integrationFile.integration.Request?.PreParser
+            if (preParser) {
+                requests
+                    .push(axios.post(this._endpointUrl + "/with-preparser", { 
+                            inputFile: inputFiles[0],
+                            preParserConfigFile: ScenarioHelper.getFileInput(context, preParser.ConfigurationFilePath!),
+                            preParser: integrationFile.integration.Request?.PreParser
+                        })
+                        .then((res: AxiosResponse<DetectedModel>) => { 
+                            return TreeBuilder.generateTreeItemInput(res.data); 
+                        })
+                    );
+            } else {
+                requests
+                    .push(axios.post(this._endpointUrl, { file: inputFiles[0] })
+                        .then((res: AxiosResponse<DetectedModel>) => { 
+                            return TreeBuilder.generateTreeItemInput(res.data); 
+                        })
+                    );
+            }
+
+            
         }
 
         for (const stepId of Object.keys(steps)) {

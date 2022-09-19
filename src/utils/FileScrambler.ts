@@ -39,7 +39,7 @@ export class FileScrambler {
             content: integrationContent,
             integration: integration
         };
-    }
+    }    
 
     public static determineContext(activeFile: ActiveFile, currentContext: Context | undefined): Context | undefined {
 
@@ -170,6 +170,7 @@ export interface Integration {
 
 export interface IntegrationRequest {
     PreParser?: {
+        TypeName?: string;
         ConfigurationFilePath?: string;
     }
 }
