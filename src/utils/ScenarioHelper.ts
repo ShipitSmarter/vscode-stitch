@@ -28,6 +28,14 @@ export class ScenarioHelper {
         return { success: !isInvalid, scenarios: result };
     }
 
+    public static getFileInput(context: Context, filePath: string): FileInput {
+        const includePath = path.join(path.dirname(context.integrationFilePath), filePath);
+        return <FileInput>{
+            filename: path.basename(includePath), // scenario files don't require the path, only filename!
+            filecontent: FileScrambler.readFile(context, includePath)
+        };
+    }
+
     public static getScenarioFiles(context: Context): FileInput[] {
         const scenarioFilesToInclude = [
             ...glob.sync(`${context.activeScenario.path}/input.*`, undefined),
@@ -42,7 +50,7 @@ export class ScenarioHelper {
         });
 
         return scenarioFiles;
-    }
+    }    
 
     public static getScenarioInputFilepath(scenario: ScenarioSource) : string {
         const files = glob.sync(`${scenario.path}/input.*`);

@@ -258,6 +258,7 @@ myobject | json.serialize true
 XML functions available through the object 'xml' in scriban.
 
 - [`xml.serialize`](#xmlserialize)
+- [`xml.escape`](#xmlescape)
 
 [:top:](#additional-functions)
 ### `xml.serialize`
@@ -277,6 +278,29 @@ Convert object to XML
 #### Returns
 
 Formatted XML presentation of the value
+
+#### Examples
+
+
+
+[:top:](#additional-functions)
+### `xml.escape`
+
+```
+xml.escape <value>
+```
+
+#### Description
+
+Escape a string so it's safe to use in XML nodes
+
+#### Arguments
+
+- `value`: The value to escape
+
+#### Returns
+
+The XML escaped value
 
 #### Examples
 
