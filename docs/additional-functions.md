@@ -5,6 +5,7 @@ This document describes the various additional function available in scriban.
             
 - [`custom` functions](#custom-functions)
 - [`json` functions](#json-functions)
+- [`xml` functions](#xml-functions)
 
 [:top:](#additional-functions)
 
@@ -15,6 +16,7 @@ Custom functions available through the object 'custom' in scriban.
 - [`custom.date_parse_exact`](#customdate_parse_exact)
 - [`custom.base64_encode`](#custombase64_encode)
 - [`custom.base64_decode`](#custombase64_decode)
+- [`custom.make_array`](#custommake_array)
 
 [:top:](#additional-functions)
 ### `custom.date_parse_exact`
@@ -110,6 +112,38 @@ The decoded string
 > **output**
 ```html
 hello
+```
+
+[:top:](#additional-functions)
+### `custom.make_array`
+
+```
+custom.make_array <input>
+```
+
+#### Description
+
+Create a error for the input, can handle single objects and arrays
+
+#### Arguments
+
+- `input`: 
+
+#### Returns
+
+A ScriptArray from the input
+
+#### Examples
+
+> **input**
+```scriban-html
+{{ "123" | custom.make_array }}
+{{ [123,1213] | custom.make_array }}
+```
+> **output**
+```html
+["123"]
+[123,1213]
 ```
 [:top:](#additional-functions)
 
@@ -213,13 +247,38 @@ myobject | json.serialize true
 > **output**
 ```html
 {
-    "member1": {
-        "Value": "yes",
-        "IsReadOnly": false
-    },
-    "member2": {
-        "Value": 123,
-        "IsReadOnly": false
-    }
+    "member1": "yes",
+    "member2": 123
 }
 ```
+[:top:](#additional-functions)
+
+## `xml` functions
+
+XML functions available through the object 'xml' in scriban.
+
+- [`xml.serialize`](#xmlserialize)
+
+[:top:](#additional-functions)
+### `xml.serialize`
+
+```
+xml.serialize <value>
+```
+
+#### Description
+
+Convert object to XML
+
+#### Arguments
+
+- `value`: 
+
+#### Returns
+
+Formatted XML presentation of the value
+
+#### Examples
+
+
+
