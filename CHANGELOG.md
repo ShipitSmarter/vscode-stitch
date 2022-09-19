@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.3.2
+- Model tree view now also support input which should be pre parsed
+
 # 1.3.1
 - Add Request.PreParser configuration support
 - Change maxUp to 7 (was 5) for locating Root folder
