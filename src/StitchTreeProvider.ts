@@ -144,12 +144,12 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         if (inputFiles.length > 0) {
 
             const integrationFile = FileScrambler.readIntegrationFile(context);
-            const preParser = integrationFile.integration.Request?.PreParser
-            if (preParser) {
+            const preParser = integrationFile.integration.Request?.PreParser;
+            if (preParser && preParser.ConfigurationFilePath) {
                 requests
                     .push(axios.post(this._endpointUrl + "/with-preparser", { 
                             inputFile: inputFiles[0],
-                            preParserConfigFile: ScenarioHelper.getFileInput(context, preParser.ConfigurationFilePath!),
+                            preParserConfigFile: ScenarioHelper.getFileInput(context, preParser.ConfigurationFilePath),
                             preParser: integrationFile.integration.Request?.PreParser
                         })
                         .then((res: AxiosResponse<DetectedModel>) => { 
