@@ -3,10 +3,48 @@
 This document describes the various additional function available in scriban.
 
             
+- [`ascii` functions](#ascii-functions)
 - [`custom` functions](#custom-functions)
 - [`json` functions](#json-functions)
 - [`xml` functions](#xml-functions)
 
+[:top:](#additional-functions)
+
+## `ascii` functions
+
+Unicode to ASCII transliteration
+
+- [`ascii.transliterate`](#asciitransliterate)
+
+[:top:](#additional-functions)
+### `ascii.transliterate`
+
+```
+ascii.transliterate <text>
+```
+
+#### Description
+
+Simplify Unicode to ASCII using Transliteration (Spelling). Will return value from [Output](https://github.com/anyascii/anyascii#examples) column.
+
+#### Arguments
+
+- `text`: The Unicode text to convert.
+
+#### Returns
+
+Text as ASCII/// 
+
+#### Examples
+
+> **input**
+```scriban-html
+{{ "Blöße" | ascii.transliterate }}
+```
+> **output**
+```html
+Blosse
+```
 [:top:](#additional-functions)
 
 ## `custom` functions
