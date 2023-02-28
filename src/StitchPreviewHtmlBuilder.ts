@@ -157,27 +157,33 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
     if (configuration.headers) {
         html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
     }
+    if (configuration.encodingName) {
+        html += `<p>Encoding name:&nbsp;${configuration.encodingName}</p>`;
+    }
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 
     return html;
 }
 
 function _getRenderTemplateStepHtml(step: RenderTemplateStepResult, configuration: RenderTemplateStepConfiguration) {
-    let stepHtml = '';
+    let html = '';
     if (configuration.additionalFiles) {
-        stepHtml += `<dl>
+        html += `<dl>
                          <dt>Additional files</dt>
                          ${configuration.additionalFiles.map(f => `<dd>${f}</dd>`).join('')}
                      </dl>`;
     }
+    if (configuration.encodingName) {
+        html += `<p>Encoding name:&nbsp;${configuration.encodingName}</p>`;
+    }
     if (step.response.isSuccessStatusCode) {
-        stepHtml += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${configuration.id}' });">View PDF</button>`;
+        html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.viewStepResponse}, content: '${configuration.id}' });">View PDF</button>`;
     }
     else {
-        stepHtml += `<strong>OUTPUT | Error (${step.response.statusCode})</strong><br />
+        html += `<strong>OUTPUT | Error (${step.response.statusCode})</strong><br />
                         ${step.response.errorMessage}<br />`;
     }
-    return stepHtml;
+    return html;
 }
 
 function _getMailStepHtml(configuration: MailStepConfiguration) {
@@ -189,12 +195,16 @@ function _getMailStepHtml(configuration: MailStepConfiguration) {
 }
 
 function _getSftpStepHtml(configuration: SftpStepConfiguration) {
-    return `<p>
+    let html = `<p>
                 Url:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.host}:${configuration.port}<br />
                 File:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${path.join(configuration.path ?? '', configuration.filename)}<br />
                 Username:&nbsp;${configuration.username}<br />
                 Password:&nbsp;${configuration.password}
             </p>`;
+    if (configuration.encodingName) {
+        html += `<p>Encoding name:&nbsp;${configuration.encodingName}</p>`;
+    }
+    return html;
 }
 
 /**
