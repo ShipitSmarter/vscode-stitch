@@ -10,6 +10,7 @@ export interface BaseStepConfiguration {
 
 export interface HttpStepConfiguration extends BaseStepConfiguration {
     method: string;
+    encodingName: string;
     url: string;
     headers?: Record<string, string>;
 }
@@ -22,6 +23,7 @@ export interface MailStepConfiguration extends BaseStepConfiguration {
 
 export interface RenderTemplateStepConfiguration extends BaseStepConfiguration {
     additionalFiles?: string[];
+    encodingName: string;
 }
 
 export interface SftpStepConfiguration extends BaseStepConfiguration {
@@ -31,4 +33,5 @@ export interface SftpStepConfiguration extends BaseStepConfiguration {
     password: string;
     filename: string;
     path?: string;
+    encodingName: string;
 }

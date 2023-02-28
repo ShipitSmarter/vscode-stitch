@@ -23,7 +23,8 @@
             "Method": "GET",
             "Headers":{},
             "Url": "https://api-gw.dhlparcel.nl/track-trace?key={{Model.Shipment.AWB}}",
-            "Template": ""
+            "Template": "",
+            "EncodingName": "us-ascii"
         },
         {
             "$type": "Core.Entities.Configs.Steps.HttpConfiguration, Core",

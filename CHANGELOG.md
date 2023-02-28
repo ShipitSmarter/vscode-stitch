@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.3.3
+- EncodingName is shown when it is set in a step
+
 # 1.3.2
 - Model tree view now also support input which should be pre parsed
 
