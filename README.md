@@ -1,6 +1,10 @@
 # vscode-stitch
 
-[![CI](https://github.com/ShipitSmarter/vscode-stitch/workflows/CI/badge.svg?branch=master)](https://github.com/ShipitSmarter/vscode-stitch/actions/workflows/main.yml?query=branch%3Amaster) [![Marketplace Version](https://vsmarketplacebadge.apphb.com/version-short/shipitsmarter.vscode-stitch.svg)](https://marketplace.visualstudio.com/items?itemName=shipitsmarter.vscode-stitch)
+
+[![The MIT License](https://flat.badgen.net/badge/license/MIT/orange)](http://opensource.org/licenses/MIT)
+[![Extension](https://flat.badgen.net/vs-marketplace/v/shipitsmarter.vscode-stitch)](https://marketplace.visualstudio.com/items?itemName=shipitsmarter.vscode-stitch)
+[![Installs](https://flat.badgen.net/vs-marketplace/i/shipitsmarter.vscode-stitch)](https://marketplace.visualstudio.com/items?itemName=shipitsmarter.vscode-stitch)
+
 
 This is a vscode extension to help with creating, testing and debugging Stitch integration files. Within an integration we support using scriban for templating.
 
