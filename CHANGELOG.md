@@ -2,8 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
-# 1.3.3
+# 1.4.0
 - EncodingName is shown when it is set in a step
+- Bump all dependencies and require new vscode version
 
 # 1.3.2
 - Model tree view now also support input which should be pre parsed
