@@ -1,4 +1,4 @@
-export type StepConfiguration = BaseStepConfiguration | HttpStepConfiguration | MailStepConfiguration | RenderTemplateStepConfiguration | SftpStepConfiguration;
+export type StepConfiguration = BaseStepConfiguration | HttpStepConfiguration | MailStepConfiguration | RenderTemplateStepConfiguration | SftpStepConfiguration | HttpMulipartStepConfiguration;
 
 export interface BaseStepConfiguration {
     $type: string;
@@ -34,4 +34,18 @@ export interface SftpStepConfiguration extends BaseStepConfiguration {
     filename: string;
     path?: string;
     encodingName: string;
+}
+
+export interface HttpMulipartStepConfiguration extends BaseStepConfiguration {
+    method: string;
+    url: string;
+    headers?: Record<string, string>;
+    parts: MultipartContentItem[];
+}
+
+export interface MultipartContentItem {
+    template: string;
+    encodingName: string;
+    headers?: Record<string, string>;
+    outputBase64AsBinary: boolean;
 }

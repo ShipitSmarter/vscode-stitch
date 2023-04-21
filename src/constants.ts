@@ -21,6 +21,7 @@ export const CONSTANTS = {
     skippedStepResultType: 'Core.Entities.StepResults.SkippedStep, Core',
 
     httpStepConfigurationType: 'Core.Entities.Configs.Steps.HttpConfiguration, Core',
+    httpMultipartStepConfigurationType: 'Core.Entities.Configs.Steps.HttpMultipartConfiguration, Core',
     renderTemplateStepConfigurationType: 'Core.Entities.Configs.Steps.RenderTemplateConfiguration, Core',
 
     defaultDebounceTimeout: 500,

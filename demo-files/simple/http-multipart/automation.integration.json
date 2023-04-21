@@ -1,0 +1,35 @@
+{
+    "Steps": [
+        {
+            "$type": "Core.Entities.Configs.Steps.HttpMultipartConfiguration, Core",
+            "Id": "Fedex",
+            "Headers": {
+                "Authorization": "Bearer eyaslkdjaslkjd"
+            },
+            "Method": "POST",
+            "Url": "https://documentapitest.test.fedex.com/sandbox/documents/v1/etds/upload",
+            "Parts": [
+                {
+                    "Headers": {
+                        "Content-Disposition": "form-data; name=\"document\""
+                    },
+                    "Template": "{\"workflowName\": \"ETDPreshipment\"}"
+                },
+                {
+                    "Headers": {
+                        "Content-Disposition": "form-data; name=\"attachment\"; filename=\"SampleInvoicedocument.pdf\"",
+                        "Content-Type": "application/pdf"
+                    },
+                    "Template": "SGVsbG8gV29ybGQ=",
+                    "OutputBase64AsBinary": true
+                }
+            ]
+        }
+    ],
+    "Response": {
+        "Body": "OK",
+        "Headers": {},
+        "StatusCode": 200,
+        "OutputType": "PlainText"
+    }
+}

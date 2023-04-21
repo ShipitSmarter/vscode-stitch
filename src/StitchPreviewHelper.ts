@@ -3,7 +3,7 @@ import { CONSTANTS } from './constants';
 import { unescapeResponseBody } from './utils/helpers';
 import { PdfPreview } from './PdfPreview';
 import { EditorSimulateIntegrationResponse } from './types/apiTypes';
-import { HttpStepConfiguration } from './types/stepConfiguration';
+import { HttpMulipartStepConfiguration, HttpStepConfiguration } from './types/stepConfiguration';
 import { RenderTemplateStepResult } from './types/stepResult';
 
 export class StitchPreviewHelper {
@@ -38,6 +38,30 @@ export class StitchPreviewHelper {
                `${httpConfig.template}`;
     }
 
+    public static createHttpMultipartRequestContent(httpConfig: HttpMulipartStepConfiguration): string {
+        const boundary = `----123abc-${httpConfig.id}-xyz321`;
+        let renderHeaders = httpConfig.headers ?? { "": "" };
+        renderHeaders['Content-Type'] = `multipart/form-data; boundary=${boundary}`;
+      
+        let headers = Object.keys(renderHeaders).map(key => `${key}: ${renderHeaders[key]}`).join('\r\n');
+        let parts = httpConfig.parts.map(part => {
+            let partHeaders = '';
+            if (part.headers) {
+                partHeaders = Object.keys(part.headers).map(key => `${key}: ${part.headers?.[key]}`).join('\r\n');
+            }
+            return `${boundary}\r\n` +
+                `${partHeaders}\r\n` +
+                '\r\n' +
+                `${part.template}\r\n`
+           });
+
+        return `${httpConfig.method} ${httpConfig.url} HTTP/1.1\r\n` +
+               `${headers}\r\n` +
+               '\r\n' +
+               `${parts}` + 
+               `${boundary}--`;
+    }
+
     private static _updateRendered(untitledUri: vscode.Uri, content: string, show = false) {
         void vscode.workspace.openTextDocument(untitledUri).then(document => {
             const lastLine = document.lineAt(document.lineCount-1);
@@ -63,7 +87,10 @@ export class StitchPreviewHelper {
                 if (match?.length === 2) {
                     const stepConfig = response.stepConfigurations[match[1]];
                     if (o.fileName.endsWith(CONSTANTS.httpFileExtension)) {
-                        const httpContent = this.createHttpRequestContent(<HttpStepConfiguration>stepConfig);
+                        const multipart = stepConfig.$type === CONSTANTS.httpMultipartStepConfigurationType;
+                        const httpContent = multipart 
+                            ? this.createHttpMultipartRequestContent(<HttpMulipartStepConfiguration>stepConfig) 
+                            : this.createHttpRequestContent(<HttpStepConfiguration>stepConfig);
                         this._updateRendered(o.uri, httpContent);
                     } else {
                         this._updateRendered(o.uri, stepConfig.template.trim());
