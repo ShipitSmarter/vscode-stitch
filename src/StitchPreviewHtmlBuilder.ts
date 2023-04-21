@@ -29,7 +29,7 @@ export class StitchPreviewHtmlBuilder {
     }
 
     public static escapeHtml(unsafe: string): string {
-        if (!unsafe) return unsafe;
+        if (!unsafe) { return unsafe; }
         return unsafe
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -104,9 +104,10 @@ function _createNavHtml(steps: Record<string, StepResult>): string {
 function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
     switch (step.$type) {
         case CONSTANTS.httpStepResultTypeType:
-            const multi = configuration.$type === CONSTANTS.httpMultipartStepConfigurationType;
             return _createActionStepHtml('HTTP', configuration, 
-                multi ? _getHttpMultipartStepHtml(<HttpMulipartStepConfiguration>configuration) : _getHttpStepHtml(<HttpStepConfiguration>configuration));
+                configuration.$type === CONSTANTS.httpMultipartStepConfigurationType
+                ? _getHttpMultipartStepHtml(<HttpMulipartStepConfiguration>configuration) 
+                : _getHttpStepHtml(<HttpStepConfiguration>configuration));
         case CONSTANTS.renderTemplateStepResultType:
             return _createActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
         case CONSTANTS.mailStepResultType:
@@ -138,9 +139,9 @@ function _createActionHtml(title: string, type: string, anchor: string, postMess
 
 
 function _createActionStepHtml(title: string, step: StepConfiguration, body: string) {
-    let templateCode = StitchPreviewHtmlBuilder.escapeHtml(step.template)
+    let templateCode = StitchPreviewHtmlBuilder.escapeHtml(step.template);
     if (step.$type === CONSTANTS.httpMultipartStepConfigurationType) {
-        templateCode = "Please use the 'Create HTTP request' button to view entire content"
+        templateCode = "Please use the 'Create HTTP request' button to view entire content";
     }
 
     return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
@@ -178,7 +179,7 @@ function _getHttpMultipartStepHtml(configuration: HttpMulipartStepConfiguration)
     if (configuration.headers) {
         html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
     }
-    html += `<p>Parts: ${configuration.parts.length}</p>`
+    html += `<p>Parts: ${configuration.parts.length}</p>`;
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpMultipartRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 
     return html;

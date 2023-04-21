@@ -40,11 +40,11 @@ export class StitchPreviewHelper {
 
     public static createHttpMultipartRequestContent(httpConfig: HttpMulipartStepConfiguration): string {
         const boundary = `----123abc-${httpConfig.id}-xyz321`;
-        let renderHeaders = httpConfig.headers ?? { "": "" };
+        const renderHeaders = httpConfig.headers ?? { };
         renderHeaders['Content-Type'] = `multipart/form-data; boundary=${boundary}`;
       
-        let headers = Object.keys(renderHeaders).map(key => `${key}: ${renderHeaders[key]}`).join('\r\n');
-        let parts = httpConfig.parts.map(part => {
+        const headers = Object.keys(renderHeaders).map(key => `${key}: ${renderHeaders[key]}`).join('\r\n');
+        const parts = httpConfig.parts.map(part => {
             let partHeaders = '';
             if (part.headers) {
                 partHeaders = Object.keys(part.headers).map(key => `${key}: ${part.headers?.[key]}`).join('\r\n');
@@ -52,7 +52,7 @@ export class StitchPreviewHelper {
             return `${boundary}\r\n` +
                 `${partHeaders}\r\n` +
                 '\r\n' +
-                `${part.template}\r\n`
+                `${part.template}\r\n`;
            });
 
         return `${httpConfig.method} ${httpConfig.url} HTTP/1.1\r\n` +
@@ -87,8 +87,8 @@ export class StitchPreviewHelper {
                 if (match?.length === 2) {
                     const stepConfig = response.stepConfigurations[match[1]];
                     if (o.fileName.endsWith(CONSTANTS.httpFileExtension)) {
-                        const multipart = stepConfig.$type === CONSTANTS.httpMultipartStepConfigurationType;
-                        const httpContent = multipart 
+                        const isMultipart = stepConfig.$type === CONSTANTS.httpMultipartStepConfigurationType;
+                        const httpContent = isMultipart 
                             ? this.createHttpMultipartRequestContent(<HttpMulipartStepConfiguration>stepConfig) 
                             : this.createHttpRequestContent(<HttpStepConfiguration>stepConfig);
                         this._updateRendered(o.uri, httpContent);
