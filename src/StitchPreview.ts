@@ -12,7 +12,7 @@ import { unescapeResponseBody } from './utils/helpers';
 import { IngrationRequestBuilder } from './utils/IntegrationRequestBuilder';
 import { EditorSimulateIntegrationResponse, ErrorData, IntegrationRequestModel, StitchError } from './types/apiTypes';
 import { RenderTemplateStepResult } from './types/stepResult';
-import { HttpStepConfiguration } from './types/stepConfiguration';
+import { HttpMulipartStepConfiguration, HttpStepConfiguration } from './types/stepConfiguration';
 
 export class StitchPreview extends Disposable implements vscode.Disposable {
 
@@ -117,9 +117,14 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         switch (command.action) {
             case CommandAction.viewStepRequest: {
                 const step = command.content;
+                const template = response.stepConfigurations[step].template?.trim();
+                if (!template) {
+                    void vscode.window.showInformationMessage("No data to show");
+                    return;
+                }
                 StitchPreviewHelper.show({
                     filename: `stitch-step-request-${step}`,
-                    content: response.stepConfigurations[step].template.trim()
+                    content: template
                 });
                 return;
             }
@@ -148,6 +153,15 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
                 StitchPreviewHelper.show({
                     filename: `stitch-step-request-${step}.http`,
                     content: StitchPreviewHelper.createHttpRequestContent(httpConfig)
+                });
+                return;
+            }
+            case CommandAction.createHttpMultipartRequest: {
+                const step = command.content;
+                const httpConfig = <HttpMulipartStepConfiguration>response.stepConfigurations[step];
+                StitchPreviewHelper.show({
+                    filename: `stitch-step-request-${step}.http`,
+                    content: StitchPreviewHelper.createHttpMultipartRequestContent(httpConfig)
                 });
                 return;
             }

@@ -4,7 +4,7 @@ import { CONSTANTS } from "./constants";
 import { unescapeResponseBody } from './utils/helpers';
 import { CommandAction } from "./types";
 import { EditorSimulateIntegrationResponse, IntegrationResult, StitchError } from './types/apiTypes';
-import { BaseStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration, StepConfiguration } from './types/stepConfiguration';
+import { BaseStepConfiguration, HttpMulipartStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration, StepConfiguration } from './types/stepConfiguration';
 import { BaseStepResult, RenderTemplateStepResult, StepResult } from './types/stepResult';
 
 export class StitchPreviewHtmlBuilder {
@@ -29,6 +29,7 @@ export class StitchPreviewHtmlBuilder {
     }
 
     public static escapeHtml(unsafe: string): string {
+        if (!unsafe) { return unsafe; }
         return unsafe
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -103,7 +104,10 @@ function _createNavHtml(steps: Record<string, StepResult>): string {
 function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
     switch (step.$type) {
         case CONSTANTS.httpStepResultTypeType:
-            return _createActionStepHtml('HTTP', configuration, _getHttpStepHtml(<HttpStepConfiguration>configuration));
+            return _createActionStepHtml('HTTP', configuration, 
+                configuration.$type === CONSTANTS.httpMultipartStepConfigurationType
+                ? _getHttpMultipartStepHtml(<HttpMulipartStepConfiguration>configuration) 
+                : _getHttpStepHtml(<HttpStepConfiguration>configuration));
         case CONSTANTS.renderTemplateStepResultType:
             return _createActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
         case CONSTANTS.mailStepResultType:
@@ -135,9 +139,14 @@ function _createActionHtml(title: string, type: string, anchor: string, postMess
 
 
 function _createActionStepHtml(title: string, step: StepConfiguration, body: string) {
+    let templateCode = StitchPreviewHtmlBuilder.escapeHtml(step.template);
+    if (step.$type === CONSTANTS.httpMultipartStepConfigurationType) {
+        templateCode = "Please use the 'Create HTTP request' button to view entire content";
+    }
+
     return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
         `${body}
-                <pre><code>${StitchPreviewHtmlBuilder.escapeHtml(step.template)}</code></pre>`);
+                <pre><code>${templateCode}</code></pre>`);
 }
 
 function _getDefaultStepHtml(step: BaseStepResult, configuration: StepConfiguration) {
@@ -161,6 +170,17 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
         html += `<p>Encoding name:&nbsp;${configuration.encodingName}</p>`;
     }
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
+
+    return html;
+}
+
+function _getHttpMultipartStepHtml(configuration: HttpMulipartStepConfiguration) {
+    let html = `<p>${configuration.method} ${configuration.url}</p>`;
+    if (configuration.headers) {
+        html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
+    }
+    html += `<p>Parts: ${configuration.parts.length}</p>`;
+    html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpMultipartRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 
     return html;
 }

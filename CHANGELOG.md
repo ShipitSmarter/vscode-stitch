@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.4.1
+- Added support for Multipart HTTP step
+
 # 1.4.0
 - EncodingName is shown when it is set in a step
 - Bump all dependencies and require new vscode version
