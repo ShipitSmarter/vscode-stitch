@@ -135,6 +135,12 @@
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.metadata.schema.json"
 			}
 		],
+		"yamlValidation":[	
+			{
+				"fileMatch": "*.integration.yaml",
+				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.schema.json"
+			}
+		],
 		"viewsContainers": {
 			"activitybar": [
 				{
