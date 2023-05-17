@@ -1,5 +1,6 @@
 export const CONSTANTS = {
-    integrationExtension: '.integration.json',
+    integrationExtensionJson: '.integration.json',
+    integrationExtensionYaml: '.integration.yaml',
     scenariosDirectoryName: 'scenarios',
     importsDirectoryName: 'imports',
     httpFileExtension: '.http',
