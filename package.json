@@ -179,6 +179,9 @@
 		"unittest": "npm run compile && mocha -u tdd ./out/test/suite/unitTests/**.test.js",
 		"deploy": "vsce publish"
 	},
+	"extensionDependencies": [
+		"redhat.vscode-yaml"
+	],
 	"devDependencies": {
 		"@types/chai": "^4.3.4",
 		"@types/chai-subset": "^1.3.3",
