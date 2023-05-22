@@ -84,13 +84,13 @@
 				},
 				{
 					"command": "stitch.showTree",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/"
 				}
 			],
 			"editor/title": [
 				{
 					"command": "stitch.preview",
-					"when": "!stitch:previewActive && resourceFilename =~ /.integration.json$/",
+					"when": "!stitch:previewActive && resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/",
 					"group": "navigation"
 				}
 			],
@@ -157,7 +157,7 @@
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
 					"icon": "assets/icon.png",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/"
 				}
 			]
 		},
@@ -204,6 +204,7 @@
 	},
 	"dependencies": {
 		"axios": "^0.27.2",
-		"glob": "^7.2.3"
+		"glob": "^7.2.3",
+		"yaml": "2.2.2"
 	}
 }
