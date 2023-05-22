@@ -23,7 +23,7 @@ export function unescapeResponseBody(result: IntegrationResult): string {
 }
 
 export function isJson(content: string): boolean{
-    const jsonChars = ['{', '{'];
+    const jsonChars = ['{', '['];
     return jsonChars.some(c => content.startsWith(c));
 }
 
