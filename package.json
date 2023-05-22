@@ -84,13 +84,13 @@
 				},
 				{
 					"command": "stitch.showTree",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/ || resourceFilename =~ /.integration.yml$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json|yaml|yml$/"
 				}
 			],
 			"editor/title": [
 				{
 					"command": "stitch.preview",
-					"when": "!stitch:previewActive && resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/ || resourceFilename =~ /.integration.yml$/",
+					"when": "!stitch:previewActive && resourceFilename =~ /.integration.json|yaml|yml$/",
 					"group": "navigation"
 				}
 			],
@@ -120,7 +120,7 @@
 				"stitch.rootFolderName": {
 					"type": "string",
 					"default": "files",
-					"description": "The name of the root folder where the *.integration.json files are stored",
+					"description": "The name of the root folder where the *.integration.json/yaml files are stored",
 					"pattern": "^[a-zA-Z0-9-]+$"
 				}
 			}
@@ -137,11 +137,7 @@
 		],
 		"yamlValidation":[	
 			{
-				"fileMatch": "*.integration.yaml",
-				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/16330-camel-case-integration-schema/integration_camel.schema.json"
-			},
-			{
-				"fileMatch": "*.integration.yml",
+				"fileMatch": ["*.integration.yaml", "*.integration.yml"],
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/16330-camel-case-integration-schema/integration_camel.schema.json"
 			}
 		],
@@ -161,14 +157,14 @@
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
 					"icon": "assets/icon.png",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/ || resourceFilename =~ /.integration.yml$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
 				}
 			]
 		},
 		"viewsWelcome": [
 			{
 				"view": "stitch.modelTree",
-				"contents": "No *.integration.json file found\n\nPlease open an *.integration.json file to enable the model tree!"
+				"contents": "No *.integration.json/yaml file found\n\nPlease open an *.integration.json/yaml file to enable the model tree!"
 			}
 		]
 	},
