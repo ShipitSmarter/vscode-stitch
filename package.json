@@ -84,13 +84,13 @@
 				},
 				{
 					"command": "stitch.showTree",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/ || resourceFilename =~ /.integration.yml$/"
 				}
 			],
 			"editor/title": [
 				{
 					"command": "stitch.preview",
-					"when": "!stitch:previewActive && resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/",
+					"when": "!stitch:previewActive && resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/ || resourceFilename =~ /.integration.yml$/",
 					"group": "navigation"
 				}
 			],
@@ -139,6 +139,10 @@
 			{
 				"fileMatch": "*.integration.yaml",
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/16330-camel-case-integration-schema/integration_camel.schema.json"
+			},
+			{
+				"fileMatch": "*.integration.yml",
+				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/16330-camel-case-integration-schema/integration_camel.schema.json"
 			}
 		],
 		"viewsContainers": {
@@ -157,7 +161,7 @@
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
 					"icon": "assets/icon.png",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/ || resourceFilename =~ /.integration.yaml$/ || resourceFilename =~ /.integration.yml$/"
 				}
 			]
 		},
