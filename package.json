@@ -157,7 +157,7 @@
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
 					"icon": "assets/icon.png",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.((json|yaml|yml))$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
 				}
 			]
 		},
