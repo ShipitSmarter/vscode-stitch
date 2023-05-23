@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.4.2
+- Added support for YAML integration.yaml files
+- Autocomplete when adding YAML files
+
 # 1.4.1
 - Added support for Multipart HTTP step
 
