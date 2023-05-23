@@ -54,7 +54,7 @@ export class FileScrambler {
         const filepath = activeFile.filepath;
 
         // 1) Active file is the integration file
-        if (filepath.endsWith(CONSTANTS.integrationExtensionJson) || filepath.endsWith(CONSTANTS.integrationExtensionYaml)) {
+        if (CONSTANTS.integrationExtensions.some(e => filepath.endsWith(e))) {
             return this._createContext(
                 activeFile,
                 filepath,
@@ -69,10 +69,13 @@ export class FileScrambler {
         if (this._isScenarioFile(filepath)) {
             folderToCheck = path.join(parentFolder, '../../');
         }
+
+        let integrations: string[] = [];
+        for(let i =0; i < CONSTANTS.integrationExtensions.length; i++)
+        {
+            integrations = integrations.concat(glob.sync(`${folderToCheck}/*${CONSTANTS.integrationExtensions[i]}`, undefined));
+        }
         
-        const integrationsJson = glob.sync(`${folderToCheck}/*${CONSTANTS.integrationExtensionJson}`, undefined);
-        const integrationsYaml = glob.sync(`${folderToCheck}/*${CONSTANTS.integrationExtensionYaml}`, undefined);
-        const integrations = integrationsJson.concat(integrationsYaml); 
         if (integrations && integrations.length > 0) {
             // filepath(vscode uri) => 'c:\\git\\Stitch\\vscode-stitch\\demo\\ups-booking\\scenarios\\0Simple\\step.ShipAccept.txt'
             // glob returns => 'c:/git/Stitch/vscode-stitch/demo/ups-booking/UPSShipping.integration.json'
@@ -105,6 +108,7 @@ export class FileScrambler {
 
         return;
     }
+
 
     private static _createContext(activeFile: ActiveFile, integrationFilePath: string, 
         integrationFilename: string, currentContext: Context | undefined
