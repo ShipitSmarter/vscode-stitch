@@ -22,6 +22,11 @@ export function unescapeResponseBody(result: IntegrationResult): string {
     return unescapedBody;
 }
 
+export function isJson(content: string): boolean{
+    const jsonChars = ['{', '['];
+    return jsonChars.some(c => content.startsWith(c));
+}
+
 export function findDirectoryWithinParent(currentFolder: string, folderNameToLookFor: string, maxUp: number) : string | undefined  {
     const pathCheck = path.join(currentFolder, folderNameToLookFor);
     if (maxUp === 0) { return undefined; }

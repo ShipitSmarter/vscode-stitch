@@ -21,7 +21,7 @@
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.4.1",
+	"version": "1.5.0",
 	"engines": {
 		"vscode": "^1.75.1"
 	},
@@ -84,13 +84,13 @@
 				},
 				{
 					"command": "stitch.showTree",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
 				}
 			],
 			"editor/title": [
 				{
 					"command": "stitch.preview",
-					"when": "!stitch:previewActive && resourceFilename =~ /.integration.json$/",
+					"when": "!stitch:previewActive && resourceFilename =~ /.integration.(json|yaml|yml)$/",
 					"group": "navigation"
 				}
 			],
@@ -120,7 +120,7 @@
 				"stitch.rootFolderName": {
 					"type": "string",
 					"default": "files",
-					"description": "The name of the root folder where the *.integration.json files are stored",
+					"description": "The name of the root folder where the *.integration.json/yaml files are stored",
 					"pattern": "^[a-zA-Z0-9-]+$"
 				}
 			}
@@ -133,6 +133,12 @@
 			{
 				"fileMatch": "*.integration.metadata.json",
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.metadata.schema.json"
+			}
+		],
+		"yamlValidation":[	
+			{
+				"fileMatch": ["*.integration.yaml", "*.integration.yml"],
+				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.schema.json"
 			}
 		],
 		"viewsContainers": {
@@ -151,14 +157,14 @@
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
 					"icon": "assets/icon.png",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.json$/"
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
 				}
 			]
 		},
 		"viewsWelcome": [
 			{
 				"view": "stitch.modelTree",
-				"contents": "No *.integration.json file found\n\nPlease open an *.integration.json file to enable the model tree!"
+				"contents": "No *.integration.json/yaml file found\n\nPlease open an *.integration.json/yaml file to enable the model tree!"
 			}
 		]
 	},
@@ -173,6 +179,9 @@
 		"unittest": "npm run compile && mocha -u tdd ./out/test/suite/unitTests/**.test.js",
 		"deploy": "vsce publish"
 	},
+	"extensionDependencies": [
+		"redhat.vscode-yaml"
+	],
 	"devDependencies": {
 		"@types/chai": "^4.3.4",
 		"@types/chai-subset": "^1.3.3",
@@ -195,6 +204,7 @@
 	},
 	"dependencies": {
 		"axios": "^0.27.2",
-		"glob": "^7.2.3"
+		"glob": "^7.2.3",
+		"yaml": "2.2.2"
 	}
 }

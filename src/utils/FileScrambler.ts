@@ -2,10 +2,12 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as glob from 'glob';
+import * as YAML from 'yaml';
 import { ActiveFile, Context, ReadWorkspaceFileFunc } from '../types';
 import { CONSTANTS } from '../constants';
 import { ContextHandler } from '../ContextHandler';
 import { ScenarioHelper } from './ScenarioHelper';
+import { isJson } from "./helpers";
 
 export class FileScrambler {
     
@@ -29,11 +31,17 @@ export class FileScrambler {
         const integrationContent = FileScrambler.readFile(context, integrationPath);
         let integration: Integration;
         try {
-            integration = <Integration>JSON.parse(integrationContent);
+            if(isJson(integrationContent)){
+                integration = <Integration>JSON.parse(integrationContent);
+            }
+            else{
+                integration = <Integration>YAML.parse(integrationContent);
+            }
         }
         catch (e) {
-            throw new Error(`Integration file ${integrationPath} has invalid JSON`);
+            throw new Error(`Integration file ${integrationPath} has invalid JSON/YAML`);     
         }
+        
 
         return {
             content: integrationContent,
@@ -46,7 +54,7 @@ export class FileScrambler {
         const filepath = activeFile.filepath;
 
         // 1) Active file is the integration file
-        if (filepath.endsWith(CONSTANTS.integrationExtension)) {
+        if (CONSTANTS.integrationExtensions.some(e => filepath.endsWith(e))) {
             return this._createContext(
                 activeFile,
                 filepath,
@@ -61,8 +69,13 @@ export class FileScrambler {
         if (this._isScenarioFile(filepath)) {
             folderToCheck = path.join(parentFolder, '../../');
         }
+
+        let integrations: string[] = [];
+        for(let i =0; i < CONSTANTS.integrationExtensions.length; i++)
+        {
+            integrations = integrations.concat(glob.sync(`${folderToCheck}/*${CONSTANTS.integrationExtensions[i]}`, undefined));
+        }
         
-        const integrations = glob.sync(`${folderToCheck}/*${CONSTANTS.integrationExtension}`, undefined);
         if (integrations && integrations.length > 0) {
             // filepath(vscode uri) => 'c:\\git\\Stitch\\vscode-stitch\\demo\\ups-booking\\scenarios\\0Simple\\step.ShipAccept.txt'
             // glob returns => 'c:/git/Stitch/vscode-stitch/demo/ups-booking/UPSShipping.integration.json'
@@ -95,6 +108,7 @@ export class FileScrambler {
 
         return;
     }
+
 
     private static _createContext(activeFile: ActiveFile, integrationFilePath: string, 
         integrationFilename: string, currentContext: Context | undefined

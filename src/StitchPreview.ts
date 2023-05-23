@@ -79,8 +79,8 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         const context = ContextHandler.getContext();
         if (!context) {
             this._handleStitchError({
-                title: `No ${CONSTANTS.integrationExtension} file found`,
-                description: `Please open an *${CONSTANTS.integrationExtension} file or directory to enable the preview!`
+                title: `No matching file found, supported files: ${CONSTANTS.integrationExtensions.join(', ')}`,
+                description: `Please open a valid file or directory to enable the preview! Valid files include: ${CONSTANTS.integrationExtensions.join(', ')}`
             });
             return;
         }
