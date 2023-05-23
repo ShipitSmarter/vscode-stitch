@@ -2,7 +2,7 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
-# 1.4.2
+# 1.5.0
 - Added support for YAML integration.yaml files
 - Autocomplete when adding YAML files
 
