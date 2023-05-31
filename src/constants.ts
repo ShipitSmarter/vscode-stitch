@@ -19,6 +19,7 @@ export const CONSTANTS = {
     mailStepResultType: 'Core.Entities.StepResults.MailStepResult, Core',
     sftpStepResultType: 'Core.Entities.StepResults.SftpStepResult, Core',
     skippedStepResultType: 'Core.Entities.StepResults.SkippedStep, Core',
+    loopStepResultType: 'Core.Entities.StepResults.LoopResult, Core',
 
     httpStepConfigurationType: 'Core.Entities.Configs.Steps.HttpConfiguration, Core',
     httpMultipartStepConfigurationType: 'Core.Entities.Configs.Steps.HttpMultipartConfiguration, Core',
