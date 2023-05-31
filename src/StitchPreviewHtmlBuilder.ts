@@ -5,7 +5,7 @@ import { unescapeResponseBody } from './utils/helpers';
 import { CommandAction } from "./types";
 import { EditorSimulateIntegrationResponse, IntegrationResult, StitchError } from './types/apiTypes';
 import { BaseStepConfiguration, HttpMulipartStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration, StepConfiguration } from './types/stepConfiguration';
-import { BaseStepResult, RenderTemplateStepResult, StepResult } from './types/stepResult';
+import { BaseStepResult, LoopStepResult, RenderTemplateStepResult, StepResult } from './types/stepResult';
 
 export class StitchPreviewHtmlBuilder {
 
@@ -116,6 +116,8 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
             return _createActionStepHtml('SFTP', configuration, _getSftpStepHtml(<SftpStepConfiguration>configuration));
         case CONSTANTS.skippedStepResultType:
             return _createActionStepHtml('Skipped', configuration, '');
+        case CONSTANTS.loopStepResultType:
+            return _createActionStepHtml('Loop', configuration, _getLoopStepHtml(<LoopStepResult>step));
         default:
             return _createActionStepHtml('Unknown', configuration, _getDefaultStepHtml(step, configuration));
     }
@@ -224,6 +226,13 @@ function _getSftpStepHtml(configuration: SftpStepConfiguration) {
     if (configuration.encodingName) {
         html += `<p>Encoding name:&nbsp;${configuration.encodingName}</p>`;
     }
+    return html;
+}
+
+function _getLoopStepHtml(step: LoopStepResult) {
+    const html = `<p>
+                    Iteration count:&nbsp;${step.count}<br />
+                  </p>`;
     return html;
 }
 

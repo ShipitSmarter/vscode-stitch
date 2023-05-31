@@ -1,5 +1,5 @@
 
-export type StepResult = BaseStepResult | HttpStepResult | RenderTemplateStepResult;
+export type StepResult = BaseStepResult | HttpStepResult | RenderTemplateStepResult | LoopStepResult;
 
 export interface BaseStepResult {
     $type: string;
@@ -27,4 +27,9 @@ export interface RenderTemplateStepResult extends BaseStepResult {
         isSuccessStatusCode: boolean;
         errorMessage: string;
     };
+}
+
+export interface LoopStepResult extends BaseStepResult {
+    count: number;
+    index: number;
 }
