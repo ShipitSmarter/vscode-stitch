@@ -4,7 +4,7 @@ import { CONSTANTS } from "./constants";
 import { unescapeResponseBody } from './utils/helpers';
 import { CommandAction } from "./types";
 import { EditorSimulateIntegrationResponse, IntegrationResult, StitchError } from './types/apiTypes';
-import { BaseStepConfiguration, HttpMulipartStepConfiguration, HttpStepConfiguration, LoopStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration, StepConfiguration } from './types/stepConfiguration';
+import { BaseStepConfiguration, HttpMulipartStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration, StepConfiguration } from './types/stepConfiguration';
 import { BaseStepResult, LoopStepResult, RenderTemplateStepResult, StepResult } from './types/stepResult';
 
 export class StitchPreviewHtmlBuilder {
