@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.5.2
+- Fix issue with multipart http preview
+
 # 1.5.1
 - Added support for the Loop step in the preview window
 

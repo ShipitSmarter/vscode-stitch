@@ -7,7 +7,7 @@
                 "Authorization": "Bearer eyaslkdjaslkjd"
             },
             "Method": "POST",
-            "Url": "https://documentapitest.test.fedex.com/sandbox/documents/v1/etds/upload",
+            "Url": "https://httpbingo.org/post",
             "Parts": [
                 {
                     "Headers": {

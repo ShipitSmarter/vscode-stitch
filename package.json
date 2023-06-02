@@ -15,13 +15,17 @@
 		{
 			"name": "Lennart van Koot",
 			"url": "https://github.com/LennartKoot"
+		},
+		{
+			"name": "Michael Stocks",
+			"url": "https://github.com/Droxx"
 		}
 	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.5.1",
+	"version": "1.5.2",
 	"engines": {
 		"vscode": "^1.75.1"
 	},
