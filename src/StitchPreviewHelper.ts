@@ -39,7 +39,7 @@ export class StitchPreviewHelper {
     }
 
     public static createHttpMultipartRequestContent(httpConfig: HttpMulipartStepConfiguration): string {
-        const boundary = `----123abc-${httpConfig.id}-xyz321`;
+        const boundary = `abc123-${httpConfig.id}-321xyz`;
         const renderHeaders = httpConfig.headers ?? { };
         renderHeaders['Content-Type'] = `multipart/form-data; boundary=${boundary}`;
       
@@ -49,7 +49,7 @@ export class StitchPreviewHelper {
             if (part.headers) {
                 partHeaders = Object.keys(part.headers).map(key => `${key}: ${part.headers?.[key]}`).join('\r\n');
             }
-            return `${boundary}\r\n` +
+            return `--${boundary}\r\n` +
                 `${partHeaders}\r\n` +
                 '\r\n' +
                 `${part.template}\r\n`;
@@ -58,8 +58,8 @@ export class StitchPreviewHelper {
         return `${httpConfig.method} ${httpConfig.url} HTTP/1.1\r\n` +
                `${headers}\r\n` +
                '\r\n' +
-               `${parts}` + 
-               `${boundary}--`;
+               `${parts.join('')}` + 
+               `--${boundary}--`;
     }
 
     private static _updateRendered(untitledUri: vscode.Uri, content: string, show = false) {
