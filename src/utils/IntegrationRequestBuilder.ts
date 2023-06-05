@@ -77,6 +77,8 @@ export class IngrationRequestBuilder {
         imports.forEach((importItem: string) => {
             if (importItem.indexOf('{{') === -1) {
                 this._addToFilesToSend(path.resolve(this._integrationFolder, importItem));
+            } else if (importItem === "[configs]/@locationInstructions"){
+                // we skip this because the file will be provided as a scenario include
             } else {
                 // because the import contains scriban we load the file with a glob pattern
                 const globImport = path.resolve(this._integrationFolder, importItem.replace(/{{.*?}}/g, '*'));
