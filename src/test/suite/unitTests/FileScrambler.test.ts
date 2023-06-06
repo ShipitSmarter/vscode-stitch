@@ -22,6 +22,7 @@ const fileSystemStructure = {
             'my.feature': 'some cucumber'
         },
         'my.integration.json': '{}',
+        'my.schema.json': '{}',
         'template.sbn': 'contents of template.sbn'
     }
 };
@@ -51,6 +52,7 @@ suite('FileScrambler Tests', () => {
                 assert.equal(result.activeFile, activeFile);
                 assert.equal(result.integrationFilename, 'my.integration.json');
                 assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
+                assert.equal(result.schemaFilename, 'my.schema.json');
             });
         });
 
