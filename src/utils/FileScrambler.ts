@@ -159,6 +159,7 @@ export class FileScrambler {
                 return schemaPath;
             }
         }
+        return undefined;
     }
 
     private static _isScenarioFile(filepath: string) : boolean {
