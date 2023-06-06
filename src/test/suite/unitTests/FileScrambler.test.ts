@@ -22,6 +22,7 @@ const fileSystemStructure = {
             'my.feature': 'some cucumber'
         },
         'my.integration.json': '{}',
+        'my.schema.json': '{}',
         'template.sbn': 'contents of template.sbn'
     }
 };
@@ -125,7 +126,7 @@ suite('FileScrambler Tests', () => {
             activeFile: { filecontent: '', filepath: ''},
             activeScenario: { name: '', path: '' },
             integrationFilename: 'my.integration.json',
-            integrationFilePath: 'some/path/my.integration.json',
+            integrationFilePath: 'some/path/my.integration.json'
         };
 
         test('Multiple steps finds types correctle', () => {

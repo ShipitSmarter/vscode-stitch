@@ -5,6 +5,7 @@ export interface IntegrationRequestModel {
     integrationFilePath: string;
     files: FileInput[];
     scenarioFiles: FileInput[];
+    scenarioName: string;
 }
 
 export interface FileInput {

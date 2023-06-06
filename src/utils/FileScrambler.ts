@@ -47,7 +47,7 @@ export class FileScrambler {
             content: integrationContent,
             integration: integration
         };
-    }    
+    }
 
     public static determineContext(activeFile: ActiveFile, currentContext: Context | undefined): Context | undefined {
 
@@ -134,6 +134,27 @@ export class FileScrambler {
             integrationFilename,
             activeScenario: scenario,
         };
+    }
+
+    private static _stripExtension(filename: string) : string {
+        const lastDot = filename.lastIndexOf('.');
+        if (lastDot === -1) {
+            return filename;
+        }
+
+        return filename.substring(0, lastDot);
+    }
+
+    public static findSchemaFile(path: string): string | undefined{
+        const strippedPath = FileScrambler._stripExtension(FileScrambler._stripExtension(path));
+        const schemaExtensions = ['.schema.json', '.schema.yaml', '.schema.yml'];
+        for(let i = 0; i < schemaExtensions.length; i++){
+            const schemaPath = `${strippedPath}${schemaExtensions[i]}`;
+            if(fs.existsSync(schemaPath)){
+                return schemaPath;
+            }
+        }
+        return undefined;
     }
 
     private static _isScenarioFile(filepath: string) : boolean {

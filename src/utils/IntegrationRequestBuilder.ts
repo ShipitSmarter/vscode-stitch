@@ -27,6 +27,10 @@ export class IngrationRequestBuilder {
 
         const integration = FileScrambler.readIntegrationFile(this._context);
         this._filesToSend[this._context.integrationFilePath] = integration.content;
+        const schemaPath = FileScrambler.findSchemaFile(this._context.integrationFilePath);
+        if(schemaPath){
+            this._addToFilesToSend(schemaPath);
+        }
 
         this._loadPreParserConfig(integration.integration.Request);
         this._loadTranslations(integration.integration.Translations);
@@ -40,7 +44,8 @@ export class IngrationRequestBuilder {
         return {
             integrationFilePath: this._makeBlobStorageLikePath(this._context.integrationFilePath),
             files,
-            scenarioFiles
+            scenarioFiles,
+            scenarioName: this._context.activeScenario.name,
         };
     }
     private _loadPreParserConfig(integrationRequest: IntegrationRequest | undefined) {
@@ -75,7 +80,10 @@ export class IngrationRequestBuilder {
         }
 
         imports.forEach((importItem: string) => {
-            if (importItem.indexOf('{{') === -1) {
+            if (importItem === "[configs]/@locationInstructions") {
+                // Here we load the location instructions file
+                this._addToFilesToSend(path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
+            } else if (importItem.indexOf('{{') === -1) {
                 this._addToFilesToSend(path.resolve(this._integrationFolder, importItem));
             } else {
                 // because the import contains scriban we load the file with a glob pattern
@@ -84,6 +92,7 @@ export class IngrationRequestBuilder {
             }
         });
     }
+
 
     private _loadRenderTemplateAdditionalFiles(steps: IntegrationStep[] | undefined) {
         if (!steps || steps.length === 0)

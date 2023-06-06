@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.5.3
+- Added support for configs
+  - via '[configs]/@locationInstructions' placeholder in Imports
+
 # 1.5.2
 - Fix issue with multipart http preview
 
