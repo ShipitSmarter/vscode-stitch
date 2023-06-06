@@ -44,7 +44,8 @@ export class IngrationRequestBuilder {
         return {
             integrationFilePath: this._makeBlobStorageLikePath(this._context.integrationFilePath),
             files,
-            scenarioFiles
+            scenarioFiles,
+            scenarioName: this._context.activeScenario.name,
         };
     }
     private _loadPreParserConfig(integrationRequest: IntegrationRequest | undefined) {
@@ -81,8 +82,9 @@ export class IngrationRequestBuilder {
         imports.forEach((importItem: string) => {
             if (importItem === "[configs]/@locationInstructions") {
                 // Here we load the location instructions file
-                const instructionFile = FileScrambler.readFile(this._context, path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
-                this._filesToSend[path.resolve(this._integrationFolder, CONSTANTS.locationInstructionsFilename)] = instructionFile;
+                //const instructionFile = FileScrambler.readFile(this._context, path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
+                this._addToFilesToSend(path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
+                //this._filesToSend[path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename)] = instructionFile;
             } else if (importItem.indexOf('{{') === -1) {
                 this._addToFilesToSend(path.resolve(this._integrationFolder, importItem));
             } else {
