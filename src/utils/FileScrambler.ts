@@ -128,12 +128,37 @@ export class FileScrambler {
             }
         }
 
+        const strippedPath = FileScrambler._stripExtension(FileScrambler._stripExtension(integrationFilePath));
+        const schemaFilePath = FileScrambler._findSchemaFile(strippedPath);
+        const schemaFilename = schemaFilePath ? path.basename(schemaFilePath) : undefined;
+
         return <Context>{
             activeFile, 
             integrationFilePath,
             integrationFilename,
+            schemaFilePath,
+            schemaFilename,
             activeScenario: scenario,
         };
+    }
+
+    private static _stripExtension(filename: string) : string {
+        const lastDot = filename.lastIndexOf('.');
+        if (lastDot === -1) {
+            return filename;
+        }
+
+        return filename.substring(0, lastDot);
+    }
+
+    private static _findSchemaFile(path: string): string | undefined{
+        const schemaExtensions = ['.schema.json', '.schema.yaml', '.schema.yml'];
+        for(let i = 0; i < schemaExtensions.length; i++){
+            const schemaPath = `${path}${schemaExtensions[i]}`;
+            if(fs.existsSync(schemaPath)){
+                return schemaPath;
+            }
+        }
     }
 
     private static _isScenarioFile(filepath: string) : boolean {
