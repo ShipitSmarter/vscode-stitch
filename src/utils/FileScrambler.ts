@@ -47,7 +47,7 @@ export class FileScrambler {
             content: integrationContent,
             integration: integration
         };
-    }    
+    }
 
     public static determineContext(activeFile: ActiveFile, currentContext: Context | undefined): Context | undefined {
 
@@ -128,16 +128,10 @@ export class FileScrambler {
             }
         }
 
-        const strippedPath = FileScrambler._stripExtension(FileScrambler._stripExtension(integrationFilePath));
-        const schemaFilePath = FileScrambler._findSchemaFile(strippedPath);
-        const schemaFilename = schemaFilePath ? path.basename(schemaFilePath) : undefined;
-
         return <Context>{
             activeFile, 
             integrationFilePath,
             integrationFilename,
-            schemaFilePath,
-            schemaFilename,
             activeScenario: scenario,
         };
     }
@@ -151,10 +145,11 @@ export class FileScrambler {
         return filename.substring(0, lastDot);
     }
 
-    private static _findSchemaFile(path: string): string | undefined{
+    public static findSchemaFile(path: string): string | undefined{
+        const strippedPath = FileScrambler._stripExtension(FileScrambler._stripExtension(path));
         const schemaExtensions = ['.schema.json', '.schema.yaml', '.schema.yml'];
         for(let i = 0; i < schemaExtensions.length; i++){
-            const schemaPath = `${path}${schemaExtensions[i]}`;
+            const schemaPath = `${strippedPath}${schemaExtensions[i]}`;
             if(fs.existsSync(schemaPath)){
                 return schemaPath;
             }

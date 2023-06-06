@@ -27,9 +27,9 @@ export class IngrationRequestBuilder {
 
         const integration = FileScrambler.readIntegrationFile(this._context);
         this._filesToSend[this._context.integrationFilePath] = integration.content;
-        if(this._context.schemaFilePath !== undefined){
-            const schema = FileScrambler.readFile(this._context, this._context.schemaFilePath);
-            this._filesToSend[this._context.schemaFilePath] = schema;
+        const schemaPath = FileScrambler.findSchemaFile(this._context.integrationFilePath);
+        if(schemaPath){
+            this._addToFilesToSend(schemaPath);
         }
 
         this._loadPreParserConfig(integration.integration.Request);
@@ -82,9 +82,7 @@ export class IngrationRequestBuilder {
         imports.forEach((importItem: string) => {
             if (importItem === "[configs]/@locationInstructions") {
                 // Here we load the location instructions file
-                //const instructionFile = FileScrambler.readFile(this._context, path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
                 this._addToFilesToSend(path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
-                //this._filesToSend[path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename)] = instructionFile;
             } else if (importItem.indexOf('{{') === -1) {
                 this._addToFilesToSend(path.resolve(this._integrationFolder, importItem));
             } else {

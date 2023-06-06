@@ -52,7 +52,6 @@ suite('FileScrambler Tests', () => {
                 assert.equal(result.activeFile, activeFile);
                 assert.equal(result.integrationFilename, 'my.integration.json');
                 assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
-                assert.equal(result.schemaFilename, 'my.schema.json');
             });
         });
 
@@ -64,8 +63,6 @@ suite('FileScrambler Tests', () => {
                 activeFile: prevFile,
                 integrationFilePath: path.normalize('some/path/my.integration.json'),
                 integrationFilename: 'my.integration.json',
-                schemaFilename: undefined,
-                schemaFilePath: undefined,
                 activeScenario: { name: 'sample', path: 'scenarios/sample' },
             };
             const result = FileScrambler.determineContext(activeFile, currentContext) as Context;
@@ -101,8 +98,6 @@ suite('FileScrambler Tests', () => {
                 activeFile: prevFile,
                 integrationFilePath: path.normalize('here/track/track.integration.json'),
                 integrationFilename: 'track.integration.json',
-                schemaFilename: undefined,
-                schemaFilePath: undefined,
                 activeScenario: { name: 'sample', path: 'here/track/scenarios/sample' },
             };
             const result = FileScrambler.determineContext(activeFile, currentContext) as Context;
@@ -131,9 +126,7 @@ suite('FileScrambler Tests', () => {
             activeFile: { filecontent: '', filepath: ''},
             activeScenario: { name: '', path: '' },
             integrationFilename: 'my.integration.json',
-            integrationFilePath: 'some/path/my.integration.json',
-            schemaFilename: undefined,
-            schemaFilePath: undefined
+            integrationFilePath: 'some/path/my.integration.json'
         };
 
         test('Multiple steps finds types correctle', () => {

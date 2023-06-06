@@ -9,8 +9,6 @@ export interface Context {
     activeFile: ActiveFile;
     integrationFilePath: string;
     integrationFilename: string;
-    schemaFilePath: string | undefined;
-    schemaFilename: string | undefined;
     activeScenario: ScenarioSource;
 }
 
