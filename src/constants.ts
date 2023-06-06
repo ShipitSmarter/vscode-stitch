@@ -4,6 +4,8 @@ export const CONSTANTS = {
     importsDirectoryName: 'imports',
     httpFileExtension: '.http',
 
+    locationInstructionsFilename: 'configs.locationInstructions.yaml',
+
     panelTitlePrefix: 'Preview: ',
     statusbarTitlePrefix: 'Scenario: ',
     

@@ -28,7 +28,8 @@ export class IngrationRequestBuilder {
         const integration = FileScrambler.readIntegrationFile(this._context);
         this._filesToSend[this._context.integrationFilePath] = integration.content;
         if(this._context.schemaFilePath !== undefined){
-            this._filesToSend[this._context.schemaFilePath] = integration.content;
+            const schema = FileScrambler.readFile(this._context, this._context.schemaFilePath);
+            this._filesToSend[this._context.schemaFilePath] = schema;
         }
 
         this._loadPreParserConfig(integration.integration.Request);
@@ -79,7 +80,9 @@ export class IngrationRequestBuilder {
 
         imports.forEach((importItem: string) => {
             if (importItem === "[configs]/@locationInstructions") {
-                // we skip this because the file will be provided as a scenario include
+                // Here we load the location instructions file
+                const instructionFile = FileScrambler.readFile(this._context, path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
+                this._filesToSend[path.resolve(this._integrationFolder, CONSTANTS.locationInstructionsFilename)] = instructionFile;
             } else if (importItem.indexOf('{{') === -1) {
                 this._addToFilesToSend(path.resolve(this._integrationFolder, importItem));
             } else {
@@ -89,6 +92,7 @@ export class IngrationRequestBuilder {
             }
         });
     }
+
 
     private _loadRenderTemplateAdditionalFiles(steps: IntegrationStep[] | undefined) {
         if (!steps || steps.length === 0)
