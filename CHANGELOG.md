@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.5.4
+- The contents of imported files will now show up in the model tree
+
 # 1.5.3
 - Added support for configs
   - via '[configs]/@locationInstructions' placeholder in Imports
