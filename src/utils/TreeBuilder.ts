@@ -26,6 +26,17 @@ export class TreeBuilder {
         return tree;
     }
 
+    public static generateTreeItemImports(): TreeItem {
+        return { name: 'Imports', path: '', children: [] };
+    }
+
+    public static addImportFileToTree(importRoot: TreeItem, fileName: string, fileContent: any){
+        const subTree: TreeItem = {name: fileName, path: ''};
+        this._addNodes(subTree, fileContent, "Imports.");
+        importRoot.children?.push(subTree);
+    }
+
+
     public static generateTreeItemStep(stepId: string, stepType: string, responseData?: DetectedModel | ErrorData): TreeItem {
 
         const path = `Steps.${stepId}`;
@@ -84,7 +95,7 @@ export class TreeBuilder {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     /* eslint-disable @typescript-eslint/no-unsafe-call */
     /* eslint-disable @typescript-eslint/no-unsafe-argument */
-    private static _addNodes(parent: TreeItem, obj: any) {
+    private static _addNodes(parent: TreeItem, obj: any, pathPrefix = "") {
 
         Object.keys(obj).forEach(key => {
 
@@ -92,7 +103,7 @@ export class TreeBuilder {
 
             const child: TreeItem = {
                 name: key,
-                path: TreeBuilder._determinePath(parent, key)
+                path: `${pathPrefix}${TreeBuilder._determinePath(parent, key)}`
             };
 
             if (!parent.children) {
