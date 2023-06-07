@@ -186,7 +186,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
                     TreeBuilder.addImportFileToTree(treeItem, path.basename(importFile.filename), content);
                 }
                 catch (e) {
-                    throw new Error(`Cannot deserialize import file ${importFile.filename}`);     
+                    ContextHandler.log(`Cannot deserialize import file ${importFile.filename}`);
                 }
             }
             requests.push(Promise.resolve(treeItem));

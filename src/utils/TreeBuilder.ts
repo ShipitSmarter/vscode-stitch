@@ -145,7 +145,7 @@ export class TreeBuilder {
     private static _determinePath(parent: TreeItem, key: string): string {
 
         if (parent.isCollection) {
-            return this._isNumber(key) ? `${parent.path}[${key}]` : `x.${key}`;
+            return this._isNumber(key) ? `${parent.path}[${key}]` : `${parent.path}[x].${key}`;
         }
 
         if (parent.path === '') {
