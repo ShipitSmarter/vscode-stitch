@@ -171,6 +171,20 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             }
         }
 
+        for (const stepId of Object.keys(steps)) {
+            const file = files.find(f => f.filename.startsWith(`step.${stepId}`));
+            if (file) {
+                requests.push(axios.post(this._endpointUrl, { file })
+                    .then((res: AxiosResponse<DetectedModel>) => { 
+                        return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); 
+                    })
+                );
+            }
+            else {
+                requests.push(Promise.resolve(TreeBuilder.generateTreeItemStep(stepId, steps[stepId])));
+            }
+        }
+
         if(imports.length > 0){
             const treeItem = TreeBuilder.generateTreeItemImports();
             for(const importFile of imports){
@@ -190,20 +204,6 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
                 }
             }
             requests.push(Promise.resolve(treeItem));
-        }
-
-        for (const stepId of Object.keys(steps)) {
-            const file = files.find(f => f.filename.startsWith(`step.${stepId}`));
-            if (file) {
-                requests.push(axios.post(this._endpointUrl, { file })
-                    .then((res: AxiosResponse<DetectedModel>) => { 
-                        return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); 
-                    })
-                );
-            }
-            else {
-                requests.push(Promise.resolve(TreeBuilder.generateTreeItemStep(stepId, steps[stepId])));
-            }
         }
 
         return Promise.all(requests);
