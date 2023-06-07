@@ -4,7 +4,6 @@ import { CONSTANTS } from "../constants";
 import { FileScrambler } from "./FileScrambler";
 import { Context, ScenarioResult, ScenarioSource } from "../types";
 import { FileInput } from "../types/apiTypes";
-import { FilePermission } from "vscode";
 
 export class ScenarioHelper {
 
@@ -83,7 +82,7 @@ export class ScenarioHelper {
                 // because the import contains scriban we load the file with a glob pattern
                 const globImport = path.resolve(integrationFolder, importItem.replace(/{{.*?}}/g, '*'));
                 glob.sync(globImport).forEach(x => {
-                    const globPath = path.normalize(path.resolve(integrationFolder, globImport));
+                    const globPath = path.normalize(path.resolve(integrationFolder, x));
                     importFiles.push(<FileInput>{
                         filename: globPath,
                         filecontent: FileScrambler.readFile(context, globPath)

@@ -1,5 +1,4 @@
 import * as path from 'path';
-import * as glob from 'glob';
 import { FileScrambler, IntegrationRequest, IntegrationStep } from "./FileScrambler";
 import { Context } from "../types";
 import { ContextHandler } from '../ContextHandler';
