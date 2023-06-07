@@ -8,6 +8,8 @@ import axios, { AxiosResponse } from 'axios';
 import { delay } from './utils/helpers';
 import { ScenarioHelper } from './utils/ScenarioHelper';
 import { DetectedModel } from './types/apiTypes';
+import { isJson } from './utils/helpers';
+import * as YAML from 'yaml';
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
 const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
@@ -132,6 +134,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         }
 
         const files = ScenarioHelper.getScenarioFiles(context);
+        const imports = ScenarioHelper.getImportFiles(context);
         const steps = FileScrambler.getStepTypes(context);
 
         if (files.length === 0) {
@@ -164,8 +167,25 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
                         })
                     );
             }
+        }
 
-            
+        if(imports.length > 0){
+            for(const importFile of imports){
+                let content: any | undefined;
+                try{
+                    if(isJson(importFile.filecontent)){
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        content = JSON.parse(importFile.filecontent);
+                    }
+                    else{
+                        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                        content = YAML.parse(importFile.filecontent);
+                    }
+                }
+                catch (e) {
+                    throw new Error(`Cannot deserialize import file ${importFile.filename}`);     
+                }
+            }
         }
 
         for (const stepId of Object.keys(steps)) {
