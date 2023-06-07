@@ -4,6 +4,7 @@ import { CONSTANTS } from "../constants";
 import { FileScrambler } from "./FileScrambler";
 import { Context, ScenarioResult, ScenarioSource } from "../types";
 import { FileInput } from "../types/apiTypes";
+import { FilePermission } from "vscode";
 
 export class ScenarioHelper {
 
@@ -50,7 +51,49 @@ export class ScenarioHelper {
         });
 
         return scenarioFiles;
-    }    
+    }
+
+    public static getImportFiles(context: Context): FileInput[]{
+        const integration = FileScrambler.readIntegrationFile(context);
+        const integrationFolder = path.dirname(context.integrationFilePath) + path.sep;
+        const imports = integration.integration.Imports;
+
+        if (!imports || imports.length === 0)
+        {
+            return [];
+        }
+
+        const importFiles: FileInput[] = [];
+
+        imports.forEach((importItem: string) => {
+            if (importItem === "[configs]/@locationInstructions") {
+                // Here we load the location instructions file
+                const configsPath = path.normalize(path.resolve(context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
+                importFiles.push(<FileInput>{
+                    filename: configsPath,
+                    filecontent: FileScrambler.readFile(context, configsPath)
+                });
+            } else if (importItem.indexOf('{{') === -1) {
+                const itemPath = path.normalize(path.resolve(integrationFolder, importItem));
+                importFiles.push(<FileInput>{
+                    filename: itemPath,
+                    filecontent: FileScrambler.readFile(context, itemPath)
+                });
+            } else {
+                // because the import contains scriban we load the file with a glob pattern
+                const globImport = path.resolve(integrationFolder, importItem.replace(/{{.*?}}/g, '*'));
+                glob.sync(globImport).forEach(x => {
+                    const globPath = path.normalize(path.resolve(integrationFolder, globImport));
+                    importFiles.push(<FileInput>{
+                        filename: globPath,
+                        filecontent: FileScrambler.readFile(context, globPath)
+                    });
+                });
+            }
+        });
+
+        return importFiles;
+    }
 
     public static getScenarioInputFilepath(scenario: ScenarioSource) : string {
         const files = glob.sync(`${scenario.path}/input.*`);
