@@ -34,7 +34,7 @@ export class IngrationRequestBuilder {
 
         this._loadPreParserConfig(integration.integration.Request);
         this._loadTranslations(integration.integration.Translations);
-        this._loadImports(integration.integration.Imports);
+        this._loadImports();
         this._loadRenderTemplateAdditionalFiles(integration.integration.Steps);
         this._loadIncludes(integration.content);
         
@@ -73,26 +73,19 @@ export class IngrationRequestBuilder {
         });
     }
 
-    private _loadImports(imports: string[] | undefined) {
-        if (!imports || imports.length === 0)
+    private _loadImports() {
+        const importFiles = ScenarioHelper.getImportFiles(this._context);
+        if (!importFiles || importFiles.length === 0)
         {
             return;
         }
-
-        imports.forEach((importItem: string) => {
-            if (importItem === "[configs]/@locationInstructions") {
-                // Here we load the location instructions file
-                this._addToFilesToSend(path.resolve(this._context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
-            } else if (importItem.indexOf('{{') === -1) {
-                this._addToFilesToSend(path.resolve(this._integrationFolder, importItem));
-            } else {
-                // because the import contains scriban we load the file with a glob pattern
-                const globImport = path.resolve(this._integrationFolder, importItem.replace(/{{.*?}}/g, '*'));
-                glob.sync(globImport).forEach(x => this._addToFilesToSend(x));
-            }
+        importFiles.forEach((importItem: FileInput) => {
+            if (!this._filesToSend[importItem.filename]) {
+                ContextHandler.log(`\tLoading file: ${importItem.filename}`);
+                this._filesToSend[importItem.filename] = importItem.filecontent;
+            }            
         });
     }
-
 
     private _loadRenderTemplateAdditionalFiles(steps: IntegrationStep[] | undefined) {
         if (!steps || steps.length === 0)
