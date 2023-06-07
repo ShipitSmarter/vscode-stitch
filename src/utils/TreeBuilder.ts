@@ -31,8 +31,8 @@ export class TreeBuilder {
     }
 
     public static addImportFileToTree(importRoot: TreeItem, fileName: string, fileContent: any){
-        const subTree: TreeItem = {name: fileName, path: ''};
-        this._addNodes(subTree, fileContent, "Imports.");
+        const subTree: TreeItem = {name: fileName, path: 'Imports'};
+        this._addNodes(subTree, fileContent);
         importRoot.children?.push(subTree);
     }
 
@@ -95,7 +95,7 @@ export class TreeBuilder {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     /* eslint-disable @typescript-eslint/no-unsafe-call */
     /* eslint-disable @typescript-eslint/no-unsafe-argument */
-    private static _addNodes(parent: TreeItem, obj: any, pathPrefix = "") {
+    private static _addNodes(parent: TreeItem, obj: any) {
 
         Object.keys(obj).forEach(key => {
 
@@ -103,7 +103,7 @@ export class TreeBuilder {
 
             const child: TreeItem = {
                 name: key,
-                path: `${pathPrefix}${TreeBuilder._determinePath(parent, key)}`
+                path: TreeBuilder._determinePath(parent, key)
             };
 
             if (!parent.children) {
