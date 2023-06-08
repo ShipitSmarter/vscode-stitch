@@ -10,7 +10,6 @@ import { ScenarioHelper } from './utils/ScenarioHelper';
 import { DetectedModel } from './types/apiTypes';
 import { isJson } from './utils/helpers';
 import * as YAML from 'yaml';
-import path = require("path");
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
 const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
