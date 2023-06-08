@@ -8,6 +8,8 @@ import axios, { AxiosResponse } from 'axios';
 import { delay } from './utils/helpers';
 import { ScenarioHelper } from './utils/ScenarioHelper';
 import { DetectedModel } from './types/apiTypes';
+import { isJson } from './utils/helpers';
+import * as YAML from 'yaml';
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
 const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
@@ -125,6 +127,8 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         this.refresh();
     }
 
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     private _fetchTreeItems(): Promise<TreeItem[]> {
         const context = ContextHandler.getContext();
         if (!context) {
@@ -132,6 +136,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         }
 
         const files = ScenarioHelper.getScenarioFiles(context);
+        const imports = ScenarioHelper.getImportFiles(context);
         const steps = FileScrambler.getStepTypes(context);
 
         if (files.length === 0) {
@@ -164,8 +169,6 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
                         })
                     );
             }
-
-            
         }
 
         for (const stepId of Object.keys(steps)) {
@@ -180,6 +183,27 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             else {
                 requests.push(Promise.resolve(TreeBuilder.generateTreeItemStep(stepId, steps[stepId])));
             }
+        }
+
+        if(imports.length > 0){
+            const treeItem = TreeBuilder.generateTreeItemImports();
+            for(const importFile of imports){
+                let content: any | undefined;
+                try{
+                    if(isJson(importFile.filecontent)){
+                        content = JSON.parse(importFile.filecontent);
+                    }
+                    else{
+                        content = YAML.parse(importFile.filecontent);
+                    }
+                    
+                    TreeBuilder.addImportFileToTree(treeItem, content);
+                }
+                catch (e) {
+                    ContextHandler.log(`Cannot deserialize import file ${importFile.filename}`);
+                }
+            }
+            requests.push(Promise.resolve(treeItem));
         }
 
         return Promise.all(requests);
