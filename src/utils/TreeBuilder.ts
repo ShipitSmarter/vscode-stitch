@@ -30,6 +30,7 @@ export class TreeBuilder {
         return { name: 'Imports', path: 'Imports', children: [] };
     }
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     public static addImportFileToTree(importRoot: TreeItem, fileContent: any){
         this._addNodes(importRoot, fileContent, true);
     }

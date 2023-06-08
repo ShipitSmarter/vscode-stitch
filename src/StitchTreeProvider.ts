@@ -128,6 +128,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
     }
 
     /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     private _fetchTreeItems(): Promise<TreeItem[]> {
         const context = ContextHandler.getContext();
         if (!context) {
