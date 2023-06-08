@@ -197,7 +197,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
                         content = YAML.parse(importFile.filecontent);
                     }
                     
-                    TreeBuilder.addImportFileToTree(treeItem, path.basename(importFile.filename), content);
+                    TreeBuilder.addImportFileToTree(treeItem, content);
                 }
                 catch (e) {
                     ContextHandler.log(`Cannot deserialize import file ${importFile.filename}`);

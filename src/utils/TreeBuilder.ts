@@ -27,13 +27,11 @@ export class TreeBuilder {
     }
 
     public static generateTreeItemImports(): TreeItem {
-        return { name: 'Imports', path: '', children: [] };
+        return { name: 'Imports', path: 'Imports', children: [] };
     }
 
-    public static addImportFileToTree(importRoot: TreeItem, fileName: string, fileContent: any){
-        const subTree: TreeItem = {name: fileName, path: 'Imports'};
-        this._addNodes(subTree, fileContent);
-        importRoot.children?.push(subTree);
+    public static addImportFileToTree(importRoot: TreeItem, fileContent: any){
+        this._addNodes(importRoot, fileContent, true);
     }
 
 
@@ -95,7 +93,7 @@ export class TreeBuilder {
     /* eslint-disable @typescript-eslint/no-unsafe-member-access */
     /* eslint-disable @typescript-eslint/no-unsafe-call */
     /* eslint-disable @typescript-eslint/no-unsafe-argument */
-    private static _addNodes(parent: TreeItem, obj: any) {
+    private static _addNodes(parent: TreeItem, obj: any, overwriteExisting = false) {
 
         Object.keys(obj).forEach(key => {
 
@@ -109,7 +107,16 @@ export class TreeBuilder {
             if (!parent.children) {
                 parent.children = [];
             }
-            parent.children.push(child);
+
+            if(overwriteExisting && parent.children.find(c => c.name === child.name) !== undefined)
+            {
+                const existing = parent.children.find(c => c.name === child.name) as TreeItem;
+                const index = parent.children.indexOf(existing);
+                parent.children[index] = child;
+            }
+            else {
+                parent.children.push(child);
+            }
 
             if (childObj === undefined || childObj === null) {
                 child.exampleValue = 'null';
