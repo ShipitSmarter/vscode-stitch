@@ -1,5 +1,6 @@
 import glob = require("glob");
 import path = require("path");
+import fs = require("fs");
 import { CONSTANTS } from "../constants";
 import { FileScrambler } from "./FileScrambler";
 import { Context, ScenarioResult, ScenarioSource } from "../types";
@@ -68,10 +69,12 @@ export class ScenarioHelper {
             if (importItem === "[configs]/@locationInstructions") {
                 // Here we load the location instructions file
                 const configsPath = path.normalize(path.resolve(context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
-                importFiles.push(<FileInput>{
-                    filename: configsPath,
-                    filecontent: FileScrambler.readFile(context, configsPath)
-                });
+                if(fs.existsSync(configsPath)){
+                    importFiles.push(<FileInput>{
+                        filename: configsPath,
+                        filecontent: FileScrambler.readFile(context, configsPath)
+                    });
+                }
             } else if (importItem.indexOf('{{') === -1) {
                 const itemPath = path.normalize(path.resolve(integrationFolder, importItem));
                 importFiles.push(<FileInput>{
