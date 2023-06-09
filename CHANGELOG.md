@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.5.5
+- Fixes an issue with the extension failing silently if no instruction file is present in scenario folder
+
 # 1.5.4
 - The contents of imported files will now show up in the model tree
 
