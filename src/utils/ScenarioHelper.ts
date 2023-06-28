@@ -68,7 +68,7 @@ export class ScenarioHelper {
         imports.forEach((importItem: string) => {
             if (importItem.startsWith("{{Env.ConfigsRootDir}}")) {
                 // Here we load the location instructions file
-                const configsPath = path.normalize(path.resolve(context.activeScenario.path, CONSTANTS.locationInstructionsFilename));
+                const configsPath = path.normalize(path.resolve(context.activeScenario.path, CONSTANTS.importConfigsFilename));
                 if(fs.existsSync(configsPath)){
                     importFiles.push(<FileInput>{
                         filename: configsPath,

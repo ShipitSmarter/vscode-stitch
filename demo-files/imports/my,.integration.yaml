@@ -1,0 +1,6 @@
+Imports:
+  - "{{Env.ConfigsRootDir}}/jeff/playground.yaml"
+Response:
+  Body: "hoi"
+  OutputType: PlainText
+  StatusCode: 0

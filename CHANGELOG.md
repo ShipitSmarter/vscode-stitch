@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.5.7
+- Fix issue with {{Env.ConfigsRootDir}}
+
 # 1.5.6
 - Removed support for [configs]/@locationInstructionsm in favour of {{Env.ConfigsRootDir}}
 
