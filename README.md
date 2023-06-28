@@ -14,7 +14,7 @@ Once the command is executed the Preview window appears to the right of your cur
 
 ![Command Start](docs/screenshots/command-start-preview.gif)
 
-Another way to start the preview is opening a `*.integration.json` file and clicking the icon in the titlebar.
+Another way to start the preview is opening a `*.integration.json|yaml` file and clicking the icon in the titlebar.
 
 ![Title bar icon](docs/screenshots/title-bar-icon.png)
 
