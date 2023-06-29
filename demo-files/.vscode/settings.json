@@ -1,5 +1,6 @@
 {
     "stitch.endpointUrl": "http://localhost:52421",
     "stitch.rootFolderName": "demo-files",
-    "workbench.colorTheme": "Abyss"
+    "workbench.colorTheme": "Abyss",
+    "karateRunner.karateJar.commandLineArgs": "java -cp \"karate.jar:karate-stitch.jar\" com.intuit.karate.Main --hook=com.shipitsmarter.StitchHooks"
 }

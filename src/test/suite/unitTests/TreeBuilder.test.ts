@@ -60,7 +60,9 @@ suite('TreeBuilder Tests', () => {
                     query: {
                         'property-with-dash': ['5'],
                         'propertyWithoutDash': ['4']
-                    }
+                    },
+                    queryString: { 'a': 'b' },
+                    route: { 'a': 'b' },
                 }
             };
             /* eslint-enable @typescript-eslint/naming-convention */

@@ -17,6 +17,8 @@ export class TreeBuilder {
                     Method: treeData.httpRequest?.method,
                     Headers: treeData.httpRequest?.headers,
                     Query: treeData.httpRequest?.query,
+                    QueryString: treeData.httpRequest?.queryString,
+                    Route: treeData.httpRequest?.route
                 }
             };
             this._addNodes(tree, obj);
@@ -180,6 +182,8 @@ interface InputRequest {
         Method?: string;
         Headers?: Record<string, string>;
         Query?: Record<string, string[]>;
+        QueryString?: Record<string, string>;
+        Route?: Record<string, string>;
     }
 }
 

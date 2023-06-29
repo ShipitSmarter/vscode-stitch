@@ -163,7 +163,10 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
                     );
             } else {
                 requests
-                    .push(axios.post(this._endpointUrl, { file: inputFiles[0] })
+                    .push(axios.post(this._endpointUrl, { 
+                            integrationFilePath: FileScrambler.makeBlobStorageLikePath(context, context.integrationFilePath), 
+                            file: inputFiles[0]
+                        })
                         .then((res: AxiosResponse<DetectedModel>) => { 
                             return TreeBuilder.generateTreeItemInput(res.data); 
                         })

@@ -64,6 +64,7 @@ suite('FileScrambler Tests', () => {
                 integrationFilePath: path.normalize('some/path/my.integration.json'),
                 integrationFilename: 'my.integration.json',
                 activeScenario: { name: 'sample', path: 'scenarios/sample' },
+                rootPath: 'some/path/'
             };
             const result = FileScrambler.determineContext(activeFile, currentContext) as Context;
 
@@ -99,6 +100,7 @@ suite('FileScrambler Tests', () => {
                 integrationFilePath: path.normalize('here/track/track.integration.json'),
                 integrationFilename: 'track.integration.json',
                 activeScenario: { name: 'sample', path: 'here/track/scenarios/sample' },
+                rootPath: 'here/track/'
             };
             const result = FileScrambler.determineContext(activeFile, currentContext) as Context;
 
@@ -126,7 +128,8 @@ suite('FileScrambler Tests', () => {
             activeFile: { filecontent: '', filepath: ''},
             activeScenario: { name: '', path: '' },
             integrationFilename: 'my.integration.json',
-            integrationFilePath: 'some/path/my.integration.json'
+            integrationFilePath: 'some/path/my.integration.json',
+            rootPath: ''
         };
 
         test('Multiple steps finds types correctle', () => {

@@ -5,7 +5,6 @@ import { ContextHandler } from '../ContextHandler';
 import { findDirectoryWithinParent } from './helpers';
 import { ScenarioHelper } from './ScenarioHelper';
 import { FileInput, IntegrationRequestModel } from '../types/apiTypes';
-import { CONSTANTS } from '../constants';
 
 export class IngrationRequestBuilder {
 
@@ -13,12 +12,10 @@ export class IngrationRequestBuilder {
     private _filesToSend: Record<string, string>;
     private _context: Context;
     private _integrationFolder: string;
-    private _rootPath: string;
 
-    public constructor(context: Context, rootFolderName: string) {
+    public constructor(context: Context) {
         this._context = context;
         this._integrationFolder = path.dirname(context.integrationFilePath) + path.sep;
-        this._rootPath = this._locateRootFolder(this._integrationFolder, rootFolderName);
         this._filesToSend = {};
     }
 
@@ -41,7 +38,7 @@ export class IngrationRequestBuilder {
         const scenarioFiles = ScenarioHelper.getScenarioFiles(this._context);
 
         return {
-            integrationFilePath: this._makeBlobStorageLikePath(this._context.integrationFilePath),
+            integrationFilePath: FileScrambler.makeBlobStorageLikePath(this._context, this._context.integrationFilePath),
             files,
             scenarioFiles,
             scenarioName: this._context.activeScenario.name,
@@ -63,9 +60,9 @@ export class IngrationRequestBuilder {
             return;
         }
 
-        const translationsRoot = findDirectoryWithinParent(this._rootPath, 'translations', 1);
+        const translationsRoot = findDirectoryWithinParent(this._context.rootPath, 'translations', 1);
         if (translationsRoot === undefined) {
-            throw new Error(`Unable to locate 'translations' folder under ${this._rootPath}!`);
+            throw new Error(`Unable to locate 'translations' folder under ${this._context.rootPath}!`);
         }
         translations.forEach((translation: string) => {
             this._addToFilesToSend(path.join(translationsRoot, `${translation}.csv`));
@@ -115,17 +112,11 @@ export class IngrationRequestBuilder {
         });
     }
 
-    private _locateRootFolder(integrationFolder: string, rootFolderName: string) : string {
-        const rootPath = findDirectoryWithinParent(integrationFolder, rootFolderName, CONSTANTS.maxUpForRootFolder);
-        if (!rootPath) {
-            throw new Error(`Unable to locate root folder named '${rootFolderName}' (max up: ${CONSTANTS.maxUpForRootFolder})`);
-        }
-        return rootPath;
-    }
+    
 
     private _resolvePath(file: string) : string {
         if (file[0] === '/') {
-            return path.normalize(path.resolve(this._rootPath, file.substring(1)));
+            return path.normalize(path.resolve(this._context.rootPath, file.substring(1)));
         }
         return path.normalize(path.resolve(this._integrationFolder, file));
          
@@ -133,18 +124,10 @@ export class IngrationRequestBuilder {
 
     private _createFileInputsFromFilesToSend(): FileInput[] {
         return Object.keys(this._filesToSend).map(filepath => <FileInput>{
-            filename: this._makeBlobStorageLikePath(filepath),
+            filename: FileScrambler.makeBlobStorageLikePath(this._context, filepath),
             filecontent: this._filesToSend[filepath]
         });
-    }
-    
-    private _makeBlobStorageLikePath(filepath: string): string {
-        // blob should not contain the starting path separator
-        const charsToSkip = this._rootPath.endsWith(path.sep) ? this._rootPath.length : this._rootPath.length + 1; 
-        return filepath
-            .substring(charsToSkip)
-            .replace(/\\/g, '/');
-    }
+    }    
 
     private _getScribanIncludes(content: string) : string[] | undefined {
         const includeRegex = /include '(.*?)'/gm;

@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.6.0
+- QueryString and Route are now available in TreeView
+
 # 1.5.7
 - Fix issue with {{Env.ConfigsRootDir}}
 
