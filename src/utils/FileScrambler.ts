@@ -7,7 +7,7 @@ import { ActiveFile, Context, ReadWorkspaceFileFunc } from '../types';
 import { CONSTANTS } from '../constants';
 import { ContextHandler } from '../ContextHandler';
 import { ScenarioHelper } from './ScenarioHelper';
-import { isJson } from "./helpers";
+import { findDirectoryWithinParent, isJson } from "./helpers";
 
 export class FileScrambler {
     
@@ -133,7 +133,16 @@ export class FileScrambler {
             integrationFilePath,
             integrationFilename,
             activeScenario: scenario,
+            rootPath: this._locateRootFolder(path.dirname(integrationFilePath) + path.sep, ContextHandler.getRootFolderName())
         };
+    }
+
+    public static makeBlobStorageLikePath(context: Context, filepath: string): string {
+        // blob should not contain the starting path separator
+        const charsToSkip = context.rootPath.endsWith(path.sep) ? context.rootPath.length : context.rootPath.length + 1; 
+        return filepath
+            .substring(charsToSkip)
+            .replace(/\\/g, '/');
     }
 
     private static _stripExtension(filename: string) : string {
@@ -143,6 +152,14 @@ export class FileScrambler {
         }
 
         return filename.substring(0, lastDot);
+    }
+
+    private static _locateRootFolder(integrationFolder: string, rootFolderName: string) : string {
+        const rootPath = findDirectoryWithinParent(integrationFolder, rootFolderName, CONSTANTS.maxUpForRootFolder);
+        if (!rootPath) {
+            throw new Error(`Unable to locate root folder named '${rootFolderName}' (max up: ${CONSTANTS.maxUpForRootFolder})`);
+        }
+        return rootPath;
     }
 
     public static findSchemaFile(path: string): string | undefined{

@@ -7,7 +7,7 @@ import { ActiveFile, Context } from '../../../types';
 import * as path from 'path';
 
 const fileSystemStructure = {
-    'some/path': {
+    'files/some/path': {
         'scenarios': {
             'sample1': {
                 'input.txt': 'contents of input.txt',
@@ -36,10 +36,10 @@ suite('FileScrambler Tests', () => {
     suite('determineContext()', () => {
 
         const okTests = [
-            { file: 'some/path/my.integration.json' },
-            { file: 'some/path/template.sbn' },
-            { file: 'some/path/scenarios/sample1/input.txt' },
-            { file: 'some/path/scenarios/sample1/step.x.txt' },
+            { file: 'files/some/path/my.integration.json' },
+            { file: 'files/some/path/template.sbn' },
+            { file: 'files/some/path/scenarios/sample1/input.txt' },
+            { file: 'files/some/path/scenarios/sample1/step.x.txt' },
         ];
 
         okTests.forEach(({ file }) => {
@@ -51,31 +51,32 @@ suite('FileScrambler Tests', () => {
                 assert.isDefined(result);
                 assert.equal(result.activeFile, activeFile);
                 assert.equal(result.integrationFilename, 'my.integration.json');
-                assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
+                assert.equal(result.integrationFilePath, path.normalize('files/some/path/my.integration.json'));
             });
         });
 
         test('OK with currentContext', () => {
             mockFs(fileSystemStructure);
-            const activeFile: ActiveFile = { filepath: 'some/path/scenarios/my.feature', filecontent: '' };
-            const prevFile: ActiveFile = { filepath: 'some/path/template.sbn', filecontent: '' };
+            const activeFile: ActiveFile = { filepath: 'files/some/path/scenarios/my.feature', filecontent: '' };
+            const prevFile: ActiveFile = { filepath: 'files/some/path/template.sbn', filecontent: '' };
             const currentContext: Context = {
                 activeFile: prevFile,
-                integrationFilePath: path.normalize('some/path/my.integration.json'),
+                integrationFilePath: path.normalize('files/some/path/my.integration.json'),
                 integrationFilename: 'my.integration.json',
                 activeScenario: { name: 'sample', path: 'scenarios/sample' },
+                rootPath: 'some/path/'
             };
             const result = FileScrambler.determineContext(activeFile, currentContext) as Context;
 
             assert.isDefined(result);
             assert.equal(result.activeFile, activeFile);
             assert.equal(result.integrationFilename, 'my.integration.json');
-            assert.equal(result.integrationFilePath, path.normalize('some/path/my.integration.json'));
+            assert.equal(result.integrationFilePath, path.normalize('files/some/path/my.integration.json'));
         });
 
         test('OK /imports/ with currentContext', () => {
             mockFs({
-                'here': {
+                'files/here': {
                     'imports': {
                         'env.json': ''
                     },
@@ -92,20 +93,21 @@ suite('FileScrambler Tests', () => {
                 }
             });
 
-            const activeFile: ActiveFile = { filepath: 'here/imports/env.json', filecontent: '' };
-            const prevFile: ActiveFile = { filepath: 'here/track/template.sbn', filecontent: '' };
+            const activeFile: ActiveFile = { filepath: 'files/here/imports/env.json', filecontent: '' };
+            const prevFile: ActiveFile = { filepath: 'files/here/track/template.sbn', filecontent: '' };
             const currentContext: Context = {
                 activeFile: prevFile,
-                integrationFilePath: path.normalize('here/track/track.integration.json'),
+                integrationFilePath: path.normalize('files/here/track/track.integration.json'),
                 integrationFilename: 'track.integration.json',
-                activeScenario: { name: 'sample', path: 'here/track/scenarios/sample' },
+                activeScenario: { name: 'sample', path: 'files/here/track/scenarios/sample' },
+                rootPath: 'files/here/track/'
             };
             const result = FileScrambler.determineContext(activeFile, currentContext) as Context;
 
             assert.isDefined(result);
             assert.equal(result.activeFile, activeFile);
             assert.equal(result.integrationFilename, 'track.integration.json');
-            assert.equal(result.integrationFilePath, path.normalize('here/track/track.integration.json'));
+            assert.equal(result.integrationFilePath, path.normalize('files/here/track/track.integration.json'));
         });
 
         test('No integration available', () => {
@@ -126,7 +128,8 @@ suite('FileScrambler Tests', () => {
             activeFile: { filecontent: '', filepath: ''},
             activeScenario: { name: '', path: '' },
             integrationFilename: 'my.integration.json',
-            integrationFilePath: 'some/path/my.integration.json'
+            integrationFilePath: 'some/path/my.integration.json',
+            rootPath: ''
         };
 
         test('Multiple steps finds types correctle', () => {

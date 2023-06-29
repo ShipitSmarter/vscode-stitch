@@ -40,7 +40,7 @@ suite('TreeBuilder Tests', () => {
                 fail('Request should have children');
             }
             
-            chai.expect(reqChildren.length).equal(3);
+            chai.expect(reqChildren.length).equal(5);
             chai.expect(reqChildren[0]).deep.equal({ name: 'Method', path: 'Request.Method', exampleValue: 'null'});
             chai.expect(reqChildren[1]).deep.equal({ name: 'Headers', path: 'Request.Headers', exampleValue: 'null'});
             chai.expect(reqChildren[2]).deep.equal({ name: 'Query', path: 'Request.Query', exampleValue: 'null'});
@@ -60,7 +60,9 @@ suite('TreeBuilder Tests', () => {
                     query: {
                         'property-with-dash': ['5'],
                         'propertyWithoutDash': ['4']
-                    }
+                    },
+                    queryString: { 'a': 'b' },
+                    route: { 'a': 'b' },
                 }
             };
             /* eslint-enable @typescript-eslint/naming-convention */
@@ -81,7 +83,7 @@ suite('TreeBuilder Tests', () => {
             }
             
             // Reuqest.Method
-            chai.expect(reqChildren.length).equal(3);
+            chai.expect(reqChildren.length).equal(5);
             chai.expect(reqChildren[0]).deep.equal({ name: 'Method', path: 'Request.Method', exampleValue: 'POST'});
 
             // Request.Headers

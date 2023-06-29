@@ -10,6 +10,7 @@ export interface Context {
     integrationFilePath: string;
     integrationFilename: string;
     activeScenario: ScenarioSource;
+    rootPath: string;
 }
 
 export interface ScenarioResult {

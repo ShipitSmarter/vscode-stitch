@@ -1,0 +1,8 @@
+Response:
+  Body: |
+    {
+      "route": {{ Request.Route | json.serialize }},
+      "model": {{ Model | json.serialize }}
+    }
+  OutputType: Json
+  StatusCode: 200

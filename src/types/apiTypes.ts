@@ -65,6 +65,8 @@ export interface HttpRequestModel {
     method: string;
     headers: Record<string, string>;
     query: Record<string, string[]>;
+    queryString: Record<string, string>;
+    route: Record<string, string>;
 }
 
 export interface HttpResponseModel {
