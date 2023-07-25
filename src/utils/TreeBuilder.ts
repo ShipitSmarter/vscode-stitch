@@ -1,90 +1,13 @@
-import { CONSTANTS } from "../constants";
 import { TreeItem } from "../types";
-import { DetectedModel, ErrorData } from "../types/apiTypes";
 
 export class TreeBuilder {
 
-    public static generateTreeItemInput(treeData: DetectedModel): TreeItem {
-
-        const tree: TreeItem = { name: 'Input', path: '' };
-
-        /* eslint-disable @typescript-eslint/naming-convention */
-        if (treeData) {
-            
-            const obj: InputRequest = {
-                Model: _determineModelFromTreeData(treeData),
-                Request: {
-                    Method: treeData.httpRequest?.method,
-                    Headers: treeData.httpRequest?.headers,
-                    Query: treeData.httpRequest?.query,
-                    QueryString: treeData.httpRequest?.queryString,
-                    Route: treeData.httpRequest?.route
-                }
-            };
-            this._addNodes(tree, obj);
-        }
-        /* eslint-enable @typescript-eslint/naming-convention */
-
-        return tree;
-    }
-
-    public static generateTreeItemImports(): TreeItem {
-        return { name: 'Imports', path: 'Imports', children: [] };
-    }
-
     /* eslint-disable @typescript-eslint/no-explicit-any */
-    public static addImportFileToTree(importRoot: TreeItem, fileContent: any){
-        this._addNodes(importRoot, fileContent, true);
-    }
+    public static generateTree(treeData: any): TreeItem[] {
 
-
-    public static generateTreeItemStep(stepId: string, stepType: string, responseData?: DetectedModel | ErrorData): TreeItem {
-
-        const path = `Steps.${stepId}`;
-        const tree: TreeItem = { name: path, path };
-
-        /* eslint-disable @typescript-eslint/naming-convention */
-        const obj: StepResultAggregate = {
-            HasStartCondition: false,
-            HasSuccessCondition: false,
-            Success: true,
-            Started: null,
-        };
-
-        switch (stepType) {
-            case CONSTANTS.httpStepConfigurationType:
-                {
-                    obj.Response = {
-                        BodyFormat: 'json',
-                        StatusCode: 0,
-                        IsSuccessStatusCode: true
-                    };
-                    if (responseData && 'model' in responseData) {
-                        obj.Model = _determineModelFromTreeData(responseData);
-                    }
-                    else if (responseData && 'StackTraceString' in responseData) {
-                        obj.Model = <Record<string, unknown>>JSON.parse('"ERROR"');
-                    }
-                    break;
-                }
-            case CONSTANTS.renderTemplateStepConfigurationType:
-                {
-                    obj.Response = {
-                        Content: 'base64',
-                        ContentType: 'application/pdf',
-                        StatusCode: 200,
-                        IsSuccessStatusCode: true,
-                        ErrorMessage: ''
-                    };
-                    break;
-                }
-            default:
-                break;
-        }
-        /* eslint-enable @typescript-eslint/naming-convention */
-
-        this._addNodes(tree, obj);
-        return tree;
+        const tree: TreeItem = { name: 'dummy', path: '' };
+        this._addNodes(tree, treeData);
+        return tree.children ?? [];
     }
 
     private static _isNumber(n: string | number): boolean {
@@ -174,47 +97,3 @@ export class TreeBuilder {
             key.indexOf('#') !== -1;
     }
 }
-
-/* eslint-disable @typescript-eslint/naming-convention */
-interface InputRequest {
-    Model: Record<string, unknown>;
-    Request: {
-        Method?: string;
-        Headers?: Record<string, string>;
-        Query?: Record<string, string[]>;
-        QueryString?: Record<string, string>;
-        Route?: Record<string, string>;
-    }
-}
-
-interface StepResultAggregate {
-    HasStartCondition: boolean;
-    HasSuccessCondition: boolean;
-    Success: boolean;
-    Started: boolean | null;
-
-    Response?: StepResultHttpResponse | StepResultRenderResponse;
-    Model?: Record<string, unknown>;
-}
-
-interface StepResultHttpResponse {
-    BodyFormat: string;
-    StatusCode: number;
-    IsSuccessStatusCode: boolean;
-}
-
-interface StepResultRenderResponse {
-    Content: string;
-    ContentType: string;
-    StatusCode: number;
-    IsSuccessStatusCode: boolean;
-    ErrorMessage: string;
-}
-
-function _determineModelFromTreeData(treeData: DetectedModel): Record<string, unknown> {
-    const json = !treeData.model
-        ? '"ERROR"'
-        : (typeof treeData.model === 'string') ? treeData.model : treeData.model.formattedJson;
-    return <Record<string, unknown>>JSON.parse(json);
-}
-/* eslint-enable @typescript-eslint/naming-convention */

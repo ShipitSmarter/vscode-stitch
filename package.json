@@ -58,11 +58,6 @@
 				"category": "Stitch"
 			},
 			{
-				"command": "stitch.createSecret",
-				"title": "Create Secret (use for passwords)",
-				"category": "Stitch"
-			},
-			{
 				"command": "stitch.selectScenario",
 				"title": "Select Scenario",
 				"category": "Stitch"

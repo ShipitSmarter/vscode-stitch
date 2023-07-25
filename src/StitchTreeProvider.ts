@@ -1,31 +1,20 @@
 import * as vscode from 'vscode';
-import { COMMANDS, CONSTANTS } from './constants';
+import { COMMANDS } from './constants';
 import { ContextHandler } from './ContextHandler';
-import { TreeBuilder } from './utils/TreeBuilder';
 import { TreeItem } from './types';
-import { FileScrambler } from './utils/FileScrambler';
-import axios, { AxiosResponse } from 'axios';
 import { delay } from './utils/helpers';
 import { ScenarioHelper } from './utils/ScenarioHelper';
-import { DetectedModel } from './types/apiTypes';
-import { isJson } from './utils/helpers';
-import * as YAML from 'yaml';
 
 const rootPathRegex = /^(Model|Steps.([a-zA-Z0-9_-]+).Model)$/;
 const stepPathRegex = /Steps.([a-zA-Z0-9_-]+).Model/;
 
 export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
+    
 
     private _onDidChangeTreeData: vscode.EventEmitter<TreeItem | null> = new vscode.EventEmitter<TreeItem | null>();
     public readonly onDidChangeTreeData: vscode.Event<TreeItem | null> = this._onDidChangeTreeData.event;
 
-    private _endpointUrl: string; 
     private _tree: TreeItem[] = [];
-
-    public constructor() {
-        const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
-        this._endpointUrl = `${endpoint}/editor/model`;
-    }
 
     public static async openScenarioFile(treeItem: TreeItem): Promise<void> {
         const scenario = ContextHandler.getContext()?.activeScenario;
@@ -69,8 +58,19 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         } else if (this._tree.length) {
             return Promise.resolve(this._tree);
         } else {
-            return this._fetchTreeItems();
+            ContextHandler.requestSimulationResult(); // this will call setTree one the request comes back
+            return Promise.resolve([]);
         }
+    }
+
+    public clear() {
+        this._tree = [];
+        this._onDidChangeTreeData.fire(null);
+    }
+    
+    public setTree(items: TreeItem[]): void{ 
+        this._tree = items;
+        this._onDidChangeTreeData.fire(null);
     }
 
     public async getFirstRoot(): Promise<TreeItem> {
@@ -108,109 +108,6 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         }
         return false;
     }
-
-    public refresh(): void {
-        this._fetchTreeItems()
-            ?.then(treeItems => {
-                this._tree = treeItems;
-                this._onDidChangeTreeData.fire(null);
-            })
-            .catch(err => {
-                if (err instanceof Error) { 
-                    void vscode.window.showErrorMessage(`Could not update tree: ${err.message}`); 
-                }
-            });
-    }
-
-    public setEndpoint(endpoint: string): void {
-        this._endpointUrl = `${endpoint}/editor/model`;
-        this.refresh();
-    }
-
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment */
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    private _fetchTreeItems(): Promise<TreeItem[]> {
-        const context = ContextHandler.getContext();
-        if (!context) {
-            return Promise.resolve([]);
-        }
-
-        const files = ScenarioHelper.getScenarioFiles(context);
-        const imports = ScenarioHelper.getImportFiles(context);
-        const steps = FileScrambler.getStepTypes(context);
-
-        if (files.length === 0) {
-            return Promise.resolve([]);
-        }
-
-        const requests = [];
-        const inputFiles = files.filter(f => f.filename.startsWith('input'));
-
-        if (inputFiles.length > 0) {
-
-            const integrationFile = FileScrambler.readIntegrationFile(context);
-            const preParser = integrationFile.integration.Request?.PreParser;
-            if (preParser && preParser.ConfigurationFilePath) {
-                requests
-                    .push(axios.post(this._endpointUrl + "/with-preparser", { 
-                            inputFile: inputFiles[0],
-                            preParserConfigFile: ScenarioHelper.getFileInput(context, preParser.ConfigurationFilePath),
-                            preParser: integrationFile.integration.Request?.PreParser
-                        })
-                        .then((res: AxiosResponse<DetectedModel>) => { 
-                            return TreeBuilder.generateTreeItemInput(res.data); 
-                        })
-                    );
-            } else {
-                requests
-                    .push(axios.post(this._endpointUrl, { 
-                            integrationFilePath: FileScrambler.makeBlobStorageLikePath(context, context.integrationFilePath), 
-                            file: inputFiles[0]
-                        })
-                        .then((res: AxiosResponse<DetectedModel>) => { 
-                            return TreeBuilder.generateTreeItemInput(res.data); 
-                        })
-                    );
-            }
-        }
-
-        for (const stepId of Object.keys(steps)) {
-            const file = files.find(f => f.filename.startsWith(`step.${stepId}`));
-            if (file) {
-                requests.push(axios.post(this._endpointUrl, { file })
-                    .then((res: AxiosResponse<DetectedModel>) => { 
-                        return TreeBuilder.generateTreeItemStep(stepId, steps[stepId], res.data); 
-                    })
-                );
-            }
-            else {
-                requests.push(Promise.resolve(TreeBuilder.generateTreeItemStep(stepId, steps[stepId])));
-            }
-        }
-
-        if(imports.length > 0){
-            const treeItem = TreeBuilder.generateTreeItemImports();
-            for(const importFile of imports){
-                let content: any | undefined;
-                try{
-                    if(isJson(importFile.filecontent)){
-                        content = JSON.parse(importFile.filecontent);
-                    }
-                    else{
-                        content = YAML.parse(importFile.filecontent);
-                    }
-                    
-                    TreeBuilder.addImportFileToTree(treeItem, content);
-                }
-                catch (e) {
-                    ContextHandler.log(`Cannot deserialize import file ${importFile.filename}`);
-                }
-            }
-            requests.push(Promise.resolve(treeItem));
-        }
-
-        return Promise.all(requests);
-    }    
 
     private _getInsertTextOutsideScribanBlock(item: TreeItem) : string {
         if (item.isCollection && item.children) {

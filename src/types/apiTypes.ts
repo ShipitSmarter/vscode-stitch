@@ -22,6 +22,7 @@ export interface EditorSimulateIntegrationResponse {
     result: IntegrationResult;
     stepConfigurations: Record<string, StepConfiguration>;
     integrationContext: IntegrationContext;
+    treeModel: Record<string, unknown>;
 }
 
 export interface IntegrationResult {
@@ -54,37 +55,3 @@ export interface IntegrationContext {
     model: unknown;
     steps: Record<string, StepResult>; //StepsDictionary
 }
-
-export interface DetectedModel {
-    httpRequest?: HttpRequestModel;
-    httpResponse?: HttpResponseModel;
-    model: string | FormatModel; // FormatModel is here for backwards compatibility
-}
-
-export interface HttpRequestModel {
-    method: string;
-    headers: Record<string, string>;
-    query: Record<string, string[]>;
-    queryString: Record<string, string>;
-    route: Record<string, string>;
-}
-
-export interface HttpResponseModel {
-    statusCode: number;
-    headers: Record<string, string>;
-}
-
-// Backwards compatibility
-// ----------------------------------------
-export interface FormatModel {
-    format: Format;
-    formattedInput: string;
-    formattedJson: string;
-}
-export enum Format {
-    unknown = 'Unknown',
-    json = 'Json',
-    xml = 'Xml',
-    binary = 'Binary',
-}
-// ----------------------------------------

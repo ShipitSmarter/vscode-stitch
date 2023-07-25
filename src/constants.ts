@@ -47,7 +47,6 @@ export const COMMANDS = {
     showScenarioSource: 'stitch.showScenarioSource',
 
     createHash: 'stitch.createHash',
-    createSecret: 'stitch.createSecret',
 
     openTreeView: 'stitch:openTreeView'
 };

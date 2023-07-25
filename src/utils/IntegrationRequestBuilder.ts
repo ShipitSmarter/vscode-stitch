@@ -112,8 +112,6 @@ export class IngrationRequestBuilder {
         });
     }
 
-    
-
     private _resolvePath(file: string) : string {
         if (file[0] === '/') {
             return path.normalize(path.resolve(this._context.rootPath, file.substring(1)));

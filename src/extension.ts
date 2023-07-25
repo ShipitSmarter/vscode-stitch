@@ -24,6 +24,5 @@ export function activate(context: vscode.ExtensionContext): void {
 
         // Encode
         vscode.commands.registerCommand(COMMANDS.createHash, async () => await encode.createHash()),
-        vscode.commands.registerCommand(COMMANDS.createSecret, async () => await encode.createSecret()),
     );
 }
