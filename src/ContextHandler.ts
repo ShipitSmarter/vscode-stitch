@@ -8,6 +8,10 @@ import { PdfPreview } from "./PdfPreview";
 import { debounce, delay } from "./utils/helpers";
 import { StitchTreeProvider } from "./StitchTreeProvider";
 import { ScenarioHelper } from "./utils/ScenarioHelper";
+import { EditorSimulateIntegrationResponse, ErrorData, IntegrationRequestModel } from "./types/apiTypes";
+import { IngrationRequestBuilder } from "./utils/IntegrationRequestBuilder";
+import axios from "axios";
+import { TreeBuilder } from "./utils/TreeBuilder";
 
 export class ContextHandler extends Disposable implements vscode.Disposable {
 
@@ -16,8 +20,10 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _context?: Context;
     private _preview?: StitchPreview;
+    private _simulationResult?: EditorSimulateIntegrationResponse;
     private _statusBar: vscode.StatusBarItem;
     private _channel: vscode.OutputChannel;
+    private _endPoint?: string;
     private _debouncedTextUpdate: () => void;
 
     private constructor() {
@@ -57,6 +63,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         });
 
+        
+        const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
+        if (!endpoint) {
+            void vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
+            return;
+        }
+        this._endPoint = endpoint;
+
         this._register(this._channel);
         this._register(this._statusBar);
         this._register(onDidChangeConfigurationListener);
@@ -69,7 +83,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     }
 
     public static create(): vscode.Disposable {
-        return this._ensureContext();
+        return this._ensureContextHandler();
     }
 
     public dispose(): void {
@@ -82,13 +96,13 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     }
 
     public static getTreeProvider(): StitchTreeProvider {
-        this._ensureContext();
+        this._ensureContextHandler();
         return this._treeProvider;
     }
 
     public static showPreview(extensionUri: vscode.Uri): void {
 
-        const context = this._ensureContext();
+        const context = this._ensureContextHandler();
 
         const currentPreview = context._preview;
 
@@ -96,16 +110,20 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             currentPreview.reveal();
             return;
         }
+        
+        context._preview = context._register(StitchPreview.create(extensionUri));
+        context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+        this._current?._updateContext();
+    }
 
-        const endpoint = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyEndpointUrl);
-        if (!endpoint) {
-            void vscode.window.showErrorMessage(MESSAGES.endpointUrlNotConfigured);
+    public static requestSimulationResult() {
+        if (!this._current?._context) {
+            this.log(`Unable to request simulation because Context is undefined`);
             return;
         }
 
-        context._preview = context._register(StitchPreview.create(extensionUri, endpoint));
-        context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
-        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+        this._current._updateContext();
     }
 
     public static selectScenario(): void {
@@ -124,11 +142,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         void vscode.window.showQuickPick(quickPickItems).then((name): void => {
             if (name && this._current?._context) {
                 this._current._context.activeScenario = scenarios[name];
-                this._treeProvider.refresh();
-                this._current._updateStatusBar();
-                if (this._current._preview) {
-                    this._current._preview.update();
-                }
+                this._current._updateContext();
             }
         });
     }
@@ -169,13 +183,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     private _clearContext() {
         void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
         this._context = undefined;
+        this._simulationResult = undefined;
         this._updateStatusBar();
         PdfPreview.disposeAll();
-        if (this._preview) { this._preview.dispose(); }
-        ContextHandler._treeProvider.refresh();
+        this._preview?.dispose();
+        ContextHandler._treeProvider.clear();
     }
 
-    private static _ensureContext(): ContextHandler {
+    private static _ensureContextHandler(): ContextHandler {
 
         if (!this._current){
             this._current = new ContextHandler();
@@ -217,12 +232,10 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             return;
         }
 
-        if (this._preview) {
-            this._preview.setEndpoint(endpoint);
-        }
-        ContextHandler._treeProvider.setEndpoint(endpoint);
-        
+        this._endPoint = endpoint;
         void vscode.window.showInformationMessage(`The Stitch editor endpoint has been updated to: ${endpoint}`);
+
+        this._updateContext();
     }
 
     private _onUpdateDebounceTimeout() {
@@ -280,26 +293,67 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         } else {
             this._context = previousContext;
-        }      
-        
-        this._updateStatusBar();
+        }
 
+        this._updateStatusBar();
+        this._preview?.updateContext(this._context);
+        if (this._context) {
+            this._simulateIntegration(this._context);
+        }
+    }
+
+    private _simulateIntegration(context: Context) {
+
+        ContextHandler.log(`Simulating integration for ${context.integrationFilename} (activeFile: ${context.activeFile.filepath})`);
+        let model: IntegrationRequestModel | undefined;
         try {
-            ContextHandler._treeProvider.refresh(); 
-        } catch (e) {
-            if (e instanceof Error) {
-                void vscode.window.showErrorMessage(e.message);
+            const builder = new IngrationRequestBuilder(context);
+            model = builder.build();
+        } catch (error) {
+            if (error instanceof Error) {
+                if (this._preview) {
+                    this._preview.handleError(error, 'Collecting files failed');
+                }
+                return; 
             }
         }
 
-        if (this._preview) {
+        const simulateIntegrationUrl = `${this._endPoint}/editor/simulate/integration`;
+        axios.post(simulateIntegrationUrl, model)
+            .then(res => this._handleResponse(<ResponseData>res.data))
+            .catch(err => {
+                if (err instanceof Error) {
+                    if (this._preview) {
+                        this._preview.handleError(err, 'Request failed');
+                    }
+                }
+            });
+    }
+
+    private _handleResponse(responseData: ResponseData) {
+        const okResult = responseData.result;
+        if (okResult) {
+            this._simulationResult = <EditorSimulateIntegrationResponse>responseData;
+            
+            this._preview?.showSimulationResult(this._simulationResult);
             try {
-                this._preview.update();
+                const treeItems = TreeBuilder.generateTree(this._simulationResult.treeModel);
+                ContextHandler._treeProvider.setTree(treeItems); 
             } catch (e) {
                 if (e instanceof Error) {
                     void vscode.window.showErrorMessage(e.message);
                 }
             }
         }
+        else {
+
+            this._preview?.showErrorResult(<ErrorData>responseData);
+            
+        }
     }
+}
+
+// Note: needed to be able to handle error
+interface ResponseData {
+    result?: unknown;
 }

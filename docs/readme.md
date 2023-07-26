@@ -119,16 +119,6 @@ You can create a hash using the *Command Palette* (`Ctrl`+`Shift`+`P`) and searc
 
 After you entered the value, the hash is inserted to you active document, or copied to your `clipboard`.
 
-## Secrets
-
-Passwords (or other sensitive data) should not be stored as plain text in the integration, that's where `Secrets` are used.
-
-> A secret is environment specific!
-
-You can create a secret using the *Command Palette* (`Ctrl`+`Shift`+`P`) and searching for `Stitch: Create Secret`.
-
-After you chose the environment and entered the value, the secret is inserted to you active document, or copied to your `clipboard`.
-
 ## Extension Settings
 
 This extension contributes the following settings:

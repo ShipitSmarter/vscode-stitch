@@ -1,0 +1,16 @@
+Steps:
+  - $type: Core.Entities.Configs.Steps.LoopConfiguration, Core
+    Id: loop 
+    IterationCount: "2"
+    Step: 
+      $type: Core.Entities.Configs.Steps.HttpConfiguration, Core
+      Id: http
+      Template: "data {{ Steps.loop.Index }}"
+      Method: POST
+      Url: http://www.google.com
+Response:
+  Body: "Hi there"
+  OutputType: PlainText
+  StatusCode: 200
+
+      
