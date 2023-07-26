@@ -1,4 +1,4 @@
-import path = require("path");
+import { posix as path } from 'path';
 import fs = require("fs");
 import { CONSTANTS } from "../constants";
 import { FileScrambler } from "./FileScrambler";

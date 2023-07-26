@@ -1,4 +1,4 @@
-import path = require("path");
+import { posix as path } from 'path';
 import fs = require("fs");
 import { IntegrationResult } from "../types/apiTypes";
 import glob = require("glob");
