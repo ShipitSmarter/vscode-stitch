@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.7.1
+- Revert update of `glob` package (sticking to 7.2.3), this caused issues on windows systems :(
+
 # 1.7.0
 - Stitch Model Tree complete overhoal, data is determined by the Simulation Endpoint instead of typescrypt.
 - Removed create Secret functionality
