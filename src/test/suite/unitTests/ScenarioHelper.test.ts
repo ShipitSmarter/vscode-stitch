@@ -95,7 +95,7 @@ suite('ScenarioHelper Tests', () => {
             assert.strictEqual(result.success, true);
             assert.strictEqual(Object.keys(result.scenarios).length, 1);
             assert.strictEqual(result.scenarios['sample1'].name, 'sample1');
-            assert.strictEqual(result.scenarios['sample1'].path, 'some/path/scenarios/sample1');
+            assert.strictEqual(result.scenarios['sample1'].path, 'some/path/scenarios/sample1/');
         });
 
         test('multiple scenarios directory', () => {
@@ -113,9 +113,9 @@ suite('ScenarioHelper Tests', () => {
             assert.strictEqual(result.success, true);
             assert.strictEqual(Object.keys(result.scenarios).length, 2);
             assert.strictEqual(result.scenarios['sample1'].name, 'sample1');
-            assert.strictEqual(result.scenarios['sample1'].path, 'some/path/scenarios/sample1');
+            assert.strictEqual(result.scenarios['sample1'].path, 'some/path/scenarios/sample1/');
             assert.strictEqual(result.scenarios['sample2'].name, 'sample2');
-            assert.strictEqual(result.scenarios['sample2'].path, 'some/path/scenarios/sample2');
+            assert.strictEqual(result.scenarios['sample2'].path, 'some/path/scenarios/sample2/');
         });
 
     });
