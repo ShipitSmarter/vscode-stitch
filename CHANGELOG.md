@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.7.0
+- Stitch Model Tree complete overhoal, data is determined by the Simulation Endpoint instead of typescrypt.
+- Removed create Secret functionality
+
 # 1.6.0
 - QueryString and Route are now available in TreeView
 
