@@ -1,12 +1,13 @@
 import * as vscode from 'vscode';
-import { posix as path } from 'path';
+import * as path from 'path';
 import * as fs from 'fs';
+import * as glob from 'glob';
 import * as YAML from 'yaml';
 import { ActiveFile, Context, ReadWorkspaceFileFunc } from '../types';
 import { CONSTANTS } from '../constants';
 import { ContextHandler } from '../ContextHandler';
 import { ScenarioHelper } from './ScenarioHelper';
-import { findDirectoryWithinParent, globSync, isJson } from "./helpers";
+import { findDirectoryWithinParent, isJson } from "./helpers";
 
 export class FileScrambler {
     
@@ -72,7 +73,7 @@ export class FileScrambler {
         let integrations: string[] = [];
         for(let i =0; i < CONSTANTS.integrationExtensions.length; i++)
         {
-            integrations = integrations.concat(globSync(`${folderToCheck}/*${CONSTANTS.integrationExtensions[i]}`));
+            integrations = integrations.concat(glob.sync(`${folderToCheck}/*${CONSTANTS.integrationExtensions[i]}`, undefined));
         }
         
         if (integrations && integrations.length > 0) {

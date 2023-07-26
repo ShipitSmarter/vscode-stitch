@@ -1,7 +1,6 @@
-import { posix as path } from 'path';
+import path = require("path");
 import fs = require("fs");
 import { IntegrationResult } from "../types/apiTypes";
-import glob = require("glob");
 
 export function debounce<Params extends unknown[]>(func: (...args: Params) => unknown, timeout: number): (...args: Params) => void {
     let timer: NodeJS.Timeout;
@@ -36,12 +35,4 @@ export function findDirectoryWithinParent(currentFolder: string, folderNameToLoo
     else {
         return findDirectoryWithinParent(path.dirname(currentFolder), folderNameToLookFor, --maxUp);
     }
-}
-
-/**
- * Wrapper around glob.sync that always returns paths delimited with `/`. 
- * @param pattern 
- */
-export function globSync(pattern: string) : string[] {
-    return glob.sync(pattern, { posix: true});
 }
