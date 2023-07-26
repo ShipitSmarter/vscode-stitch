@@ -45,13 +45,13 @@ suite('FileScrambler Tests', () => {
         okTests.forEach(({ file }) => {
             test(`OK with ${path.basename(file)} file`, () => {
                 mockFs(fileSystemStructure);
-                const activeFile: ActiveFile = { filepath: path.normalize(file), filecontent: '' };
+                const activeFile: ActiveFile = { filepath: file, filecontent: '' };
                 const result = FileScrambler.determineContext(activeFile, undefined) as Context;
 
                 assert.isDefined(result);
                 assert.equal(result.activeFile, activeFile);
                 assert.equal(result.integrationFilename, 'my.integration.json');
-                assert.equal(result.integrationFilePath, path.normalize('files/some/path/my.integration.json'));
+                assert.equal(result.integrationFilePath, 'files/some/path/my.integration.json');
             });
         });
 
@@ -71,7 +71,7 @@ suite('FileScrambler Tests', () => {
             assert.isDefined(result);
             assert.equal(result.activeFile, activeFile);
             assert.equal(result.integrationFilename, 'my.integration.json');
-            assert.equal(result.integrationFilePath, path.normalize('files/some/path/my.integration.json'));
+            assert.equal(result.integrationFilePath, 'files/some/path/my.integration.json');
         });
 
         test('OK /imports/ with currentContext', () => {
@@ -107,7 +107,7 @@ suite('FileScrambler Tests', () => {
             assert.isDefined(result);
             assert.equal(result.activeFile, activeFile);
             assert.equal(result.integrationFilename, 'track.integration.json');
-            assert.equal(result.integrationFilePath, path.normalize('files/here/track/track.integration.json'));
+            assert.equal(result.integrationFilePath, 'files/here/track/track.integration.json');
         });
 
         test('No integration available', () => {
