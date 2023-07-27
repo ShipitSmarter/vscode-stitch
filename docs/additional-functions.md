@@ -55,6 +55,8 @@ Custom functions available through the object 'custom' in scriban.
 - [`custom.base64_encode`](#custombase64_encode)
 - [`custom.base64_decode`](#custombase64_decode)
 - [`custom.make_array`](#custommake_array)
+- [`custom.throw_problem_details`](#customthrow_problem_details)
+- [`custom.throw_v1_error_response`](#customthrow_v1_error_response)
 
 [:top:](#additional-functions)
 ### `custom.date_parse_exact`
@@ -183,6 +185,148 @@ A ScriptArray from the input
 ["123"]
 [123,1213]
 ```
+[:top:](#additional-functions)
+
+### `custom.throw_problem_details`
+
+```
+custom.throw_problem_details <input>
+```
+
+#### Description
+
+Stop the integration flow, and return directly with a response message formatted according to [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807).
+
+#### Arguments
+
+- `input`: 
+  - native `Scriban` object that looks as follows:
+
+```scriban-html
+{{
+    $input = {
+        type: "type",
+        title: "title",
+        status: 400,
+        detail : "detail",
+        errors: [ 
+            {
+                errorCode: "code",
+                errorMessage: "message",
+                explanationMessage: "joop"
+            }
+        ]
+    }
+}}
+```
+
+No fields in `input` are mandatory.
+
+#### Returns
+
+The function does not strictly return anything, but has as an effect that it stops the integration flow and returns a response in almost the same format:
+
+```json
+{
+    "type": "type",
+    "title": "title",
+    "status": 400,
+    "detail" : "detail",
+    "instance": "/examples/dummy/throwing-v2",
+    "errors": [ 
+        {
+            "errorCode": "code",
+            "errorMessage": "message",
+            "explanationMessage": "joop"
+        }
+    ]
+}
+```
+
+The `instance` field is non-settable and automatically added. It contains the `Stitch` integration path of the throwing integration.
+
+Note, that the http status code of the `stitch` api call response will be equal to the `status` code returned in the `input` Scriban object. 
+
+#### Examples
+
+After defining the input object as mentioned above, you can call the method as follows:
+
+```scriban-html
+{{
+    custom.throw_problem_details($input)
+}}
+```
+
+[:top:](#additional-functions)
+
+### `custom.throw_v1_error_response`
+
+```
+custom.throw_v1_error_response <input>
+```
+
+#### Description
+
+Stop the integration flow, and return directly with a response message formatted according to the 'classic' `v1` error message as described below.
+
+#### Arguments
+
+- `input`: 
+  - native `Scriban` object that looks as follows:
+
+```scriban-html
+{{
+    $input = {
+        resultMessages : [
+            "integration failed"
+        ],
+        errors: [ 
+            {
+                errorCode: "code",
+                errorMessage: "message",
+                explanationMessage: "explanation"
+            }
+        ]
+    }
+}}
+```
+
+No fields in `input` are mandatory.
+
+#### Returns
+
+The function does not strictly return anything, but has as an effect that it stops the integration flow and returns a response in almost the same format:
+
+```json
+{
+    "AWB": "",
+    "ShipmentStatus": "",
+    "ResultMessages": [
+        "integration failed"
+    ],
+    "Errors": [
+        {
+            "ErrorCode": "code",
+            "ErrorMessage": "message",
+            "ExplanationMessage": "explanation"
+        }
+    ]
+}
+```
+
+The `AWB` and `ShipmentStatus` fields are auto-added and always empty strings.
+Note, that using this throw function, will always return the original `stitch` api call with a `200` http status code.
+
+#### Examples
+
+After defining the input object as mentioned above, you can call the method as follows:
+
+```scriban-html
+{{
+    custom.throw_v1_error_response($input)
+}}
+```
+
 [:top:](#additional-functions)
 
 ## `json` functions
