@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.0
+- Move `Model Tree` into `Explorer` view
+- Fix issue where `Create HTTP Request` button was no longer working
+
 # 1.7.1
 - Revert update of `glob` package (sticking to 7.2.3), this caused issues on windows systems :(
 
