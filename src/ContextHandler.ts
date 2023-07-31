@@ -20,7 +20,8 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _context?: Context;
     private _preview?: StitchPreview;
-    private _simulationResult?: EditorSimulateIntegrationResponse;
+    private _simulationInputHash?: string;
+    private _simulationResponse?: ResponseData;
     private _statusBar: vscode.StatusBarItem;
     private _channel: vscode.OutputChannel;
     private _endPoint?: string;
@@ -88,6 +89,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     public dispose(): void {
         void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
         super.dispose();
     }
 
@@ -114,7 +116,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         context._preview = context._register(StitchPreview.create(extensionUri));
         context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
-        this._current?._updateContext();
+        this.requestSimulationResult();
     }
 
     public static requestSimulationResult() {
@@ -183,7 +185,8 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     private _clearContext() {
         void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
         this._context = undefined;
-        this._simulationResult = undefined;
+        this._simulationInputHash = undefined;        
+        this._simulationResponse = undefined;
         this._updateStatusBar();
         PdfPreview.disposeAll();
         this._preview?.dispose();
@@ -251,12 +254,10 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     }
 
     private static _onPreviewDidDspose() {
-        if (!this._current) {
-            return;
-        }
-
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
-        this._current._preview = undefined;
+        if (this._current) {
+            this._current._preview = undefined;
+        }
     }
 
     private _getConfigDebounceTimeout() : number {
@@ -285,26 +286,25 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             return;
         }
 
+        if (!this._context) {
+            this._context = previousContext;
+        }
+
+        this._updateStatusBar();
         if (this._context) {
             void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, true);
 
             if (this._context.integrationFilePath !== previousContext?.integrationFilePath) {
                 PdfPreview.disposeAll();
             }
-        } else {
-            this._context = previousContext;
-        }
 
-        this._updateStatusBar();
-        this._preview?.updateContext(this._context);
-        if (this._context) {
+            this._preview?.updateTitle(`${CONSTANTS.panelTitlePrefix}${this._context.integrationFilename}`);
             this._simulateIntegration(this._context);
         }
     }
 
     private _simulateIntegration(context: Context) {
 
-        ContextHandler.log(`Simulating integration for ${context.integrationFilename} (activeFile: ${context.activeFile.filepath})`);
         let model: IntegrationRequestModel | undefined;
         try {
             const builder = new IngrationRequestBuilder(context);
@@ -318,14 +318,26 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         }
 
+        const hash = JSON.stringify(model);
+
+        if (hash === this._simulationInputHash) {
+            if (this._simulationResponse) {
+                this._handleResponse(this._simulationResponse);
+            }
+            return;
+        }
+
+        this._simulationInputHash = hash;
+        ContextHandler.log(`Simulating integration for ${context.integrationFilename} (activeFile: ${context.activeFile.filepath})`);
         const simulateIntegrationUrl = `${this._endPoint}/editor/simulate/integration`;
         axios.post(simulateIntegrationUrl, model)
-            .then(res => this._handleResponse(<ResponseData>res.data))
+            .then(res => {
+                this._simulationResponse = <ResponseData>res.data;
+                this._handleResponse(this._simulationResponse);
+            })
             .catch(err => {
                 if (err instanceof Error) {
-                    if (this._preview) {
-                        this._preview.handleError(err, 'Request failed');
-                    }
+                    this._preview?.handleError(err, 'Request failed');
                 }
             });
     }
@@ -333,11 +345,11 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     private _handleResponse(responseData: ResponseData) {
         const okResult = responseData.result;
         if (okResult) {
-            this._simulationResult = <EditorSimulateIntegrationResponse>responseData;
+            const simulationResult = <EditorSimulateIntegrationResponse>responseData;
             
-            this._preview?.showSimulationResult(this._simulationResult);
+            this._preview?.showSimulationResult(simulationResult);
             try {
-                const treeItems = TreeBuilder.generateTree(this._simulationResult.treeModel);
+                const treeItems = TreeBuilder.generateTree(simulationResult.treeModel);
                 ContextHandler._treeProvider.setTree(treeItems); 
             } catch (e) {
                 if (e instanceof Error) {
@@ -346,9 +358,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         }
         else {
-
             this._preview?.showErrorResult(<ErrorData>responseData);
-            
         }
     }
 }

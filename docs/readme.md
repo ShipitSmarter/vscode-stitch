@@ -20,7 +20,9 @@ Another way to start the preview is opening a `*.integration.json` file and clic
 
 ## Model Tree
 
-When an integration file is active or Stitch Preview is activated, the **Stitch Model Tree** view can be opened. Use this to gain access to the model properties in your [Scriban](https://github.com/scriban/scriban) templates.
+When an integration file is active or Stitch Preview is activated, the **Stitch Model Tree** view can be viewed. The `Stitch Model Tree` is available from within the `Explorer view`.
+
+Use this to gain access to the model properties in your [Scriban](https://github.com/scriban/scriban) templates.
 
 ![Model tree](screenshots/model-tree-view.png)
 

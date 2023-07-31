@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { Disposable } from './utils/dispose';
 import { CONSTANTS } from './constants';
-import { CommandAction, Context, ICommand } from './types';
+import { CommandAction, ICommand } from './types';
 import { PdfPreview } from './PdfPreview';
 import { ContextHandler } from './ContextHandler';
 import { StitchPreviewHelper } from './StitchPreviewHelper';
@@ -64,17 +64,8 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         this._panel.reveal(vscode.ViewColumn.Two);
     }
 
-    public updateContext(context: Context | undefined): void {
-
-        if (!context) {
-            this._handleStitchError({
-                title: `No matching file found, supported files: ${CONSTANTS.integrationExtensions.join(', ')}`,
-                description: `Please open a valid file or directory to enable the preview! Valid files include: ${CONSTANTS.integrationExtensions.join(', ')}`
-            });
-            return;
-        }
-
-        this._panel.title = `${CONSTANTS.panelTitlePrefix}${context.integrationFilename}`;
+    public updateTitle(title: string): void {
+        this._panel.title = title;
     }
 
     public handleCommand(command: ICommand, extensionUri: vscode.Uri): void {
@@ -136,6 +127,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 
     public showSimulationResult(simulationResult: EditorSimulateIntegrationResponse) {
+        this._result = simulationResult;
         this._panel.webview.html = this._htmlHelper.createHtml(simulationResult);
         if (this._scrollPosition) {
             void this._panel.webview.postMessage({ command: 'setScrollPosition', scrollY: this._scrollPosition });
@@ -146,6 +138,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 
     public showErrorResult(errorData: ErrorData) {
+        this._result = undefined;
         if (!this._scrollPosition) {
             void this._panel.webview.postMessage({ command: 'requestScrollPosition' });
         }
@@ -166,6 +159,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
 
 
     public handleError(error: Error, title: string) {
+        this._result = undefined;
         this._panel.webview.html = this._htmlHelper.createErrorHtml({
             title,
             description: error.message,
