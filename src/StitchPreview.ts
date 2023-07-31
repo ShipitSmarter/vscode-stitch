@@ -136,6 +136,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 
     public showSimulationResult(simulationResult: EditorSimulateIntegrationResponse) {
+        this._result = simulationResult;
         this._panel.webview.html = this._htmlHelper.createHtml(simulationResult);
         if (this._scrollPosition) {
             void this._panel.webview.postMessage({ command: 'setScrollPosition', scrollY: this._scrollPosition });
@@ -146,6 +147,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 
     public showErrorResult(errorData: ErrorData) {
+        this._result = undefined;
         if (!this._scrollPosition) {
             void this._panel.webview.postMessage({ command: 'requestScrollPosition' });
         }
@@ -166,6 +168,7 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
 
 
     public handleError(error: Error, title: string) {
+        this._result = undefined;
         this._panel.webview.html = this._htmlHelper.createErrorHtml({
             title,
             description: error.message,
