@@ -318,9 +318,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         }
 
-        const hash = JSON.stringify(model)
+        const hash = JSON.stringify(model);
 
-        if (hash == this._simulationInputHash) {
+        if (hash === this._simulationInputHash) {
             if (this._simulationResponse) {
                 this._handleResponse(this._simulationResponse);
             }
