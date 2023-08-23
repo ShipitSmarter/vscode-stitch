@@ -25,7 +25,7 @@
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.8.0",
+	"version": "1.8.1",
 	"engines": {
 		"vscode": "^1.80.0"
 	},
@@ -121,6 +121,13 @@
 					"default": "files",
 					"description": "The name of the root folder where the *.integration.json/yaml files are stored",
 					"pattern": "^[a-zA-Z0-9-]+$"
+				},
+				"stitch.maxDirsUpToFindRootFolder": {
+					"type": "number",
+					"default": 7,
+					"description": "The amount of directories to go up when trying to find the root folder",
+					"minimum": 3,
+					"maximum": 15
 				}
 			}
 		},

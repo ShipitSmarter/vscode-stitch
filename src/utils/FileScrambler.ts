@@ -133,7 +133,7 @@ export class FileScrambler {
             integrationFilePath,
             integrationFilename,
             activeScenario: scenario,
-            rootPath: this._locateRootFolder(path.dirname(integrationFilePath) + path.sep, ContextHandler.getRootFolderName())
+            rootPath: this._locateRootFolder(path.dirname(integrationFilePath) + path.sep, ContextHandler.getRootFolderName(), ContextHandler.getMaxDirsUp())
         };
     }
 
@@ -154,10 +154,10 @@ export class FileScrambler {
         return filename.substring(0, lastDot);
     }
 
-    private static _locateRootFolder(integrationFolder: string, rootFolderName: string) : string {
-        const rootPath = findDirectoryWithinParent(integrationFolder, rootFolderName, CONSTANTS.maxUpForRootFolder);
+    private static _locateRootFolder(integrationFolder: string, rootFolderName: string, maxDirsUp: number) : string {
+        const rootPath = findDirectoryWithinParent(integrationFolder, rootFolderName, maxDirsUp);
         if (!rootPath) {
-            throw new Error(`Unable to locate root folder named '${rootFolderName}' (max up: ${CONSTANTS.maxUpForRootFolder})`);
+            throw new Error(`Unable to locate root folder named '${rootFolderName}' (max up: ${maxDirsUp})`);
         }
         return rootPath;
     }

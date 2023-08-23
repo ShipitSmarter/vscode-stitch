@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.1
+- Max dirs up to find `RootFolder` is now configurable through a setting `stitch.maxDirsUpToFindRootFolder`
+
 # 1.8.0
 - Move `Model Tree` into `Explorer` view
 - Fix issue where `Create HTTP Request` button was no longer working

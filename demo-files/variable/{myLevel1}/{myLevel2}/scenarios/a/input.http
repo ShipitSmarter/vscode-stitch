@@ -1,7 +1,0 @@
-POST /variable/nivo1/level2a/one?environmentId=playground HTTP/1.0
-Content-Type: application/json
-Custom: test
-
-{
-    "Message": "Hi there"
-}
