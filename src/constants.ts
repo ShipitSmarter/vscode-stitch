@@ -12,6 +12,7 @@ export const CONSTANTS = {
     configKeyEndpointUrl: 'stitch.endpointUrl',
     configKeyDebounceTimeout: 'stitch.debounceTimeout',
     configKeyRootFolderName: 'stitch.rootFolderName',
+    configKeyMaxDirsUpToFindRootFolder: 'stitch.maxDirsUpToFindRootFolder',
 
     contextAvailableContextKey: 'stitch:contextAvailable',
     previewActiveContextKey: 'stitch:previewActive',
@@ -29,8 +30,7 @@ export const CONSTANTS = {
 
     defaultDebounceTimeout: 500,
     defaultRootFolderName: 'files',
-
-    maxUpForRootFolder: 7,
+    defaultDirsToFindRootFolder: 7,
 };
 
 export const MESSAGES = {

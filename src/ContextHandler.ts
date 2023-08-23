@@ -157,6 +157,14 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return rootFolderName;
     }
 
+    public static getMaxDirsUp(): number {
+        const maxDirsUp = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyMaxDirsUpToFindRootFolder);
+        if (!maxDirsUp) {
+            return CONSTANTS.defaultDirsToFindRootFolder;
+        }
+        return maxDirsUp;
+    }
+
     public static handlePreviewCommand(command: ICommand, extensionUri: vscode.Uri): void {
         if (!this._current?._preview) {
             return;
@@ -225,6 +233,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         if (e.affectsConfiguration(CONSTANTS.configKeyRootFolderName)) {
             this._onUpdateRootFolderName();
         }
+        if (e.affectsConfiguration(CONSTANTS.configKeyMaxDirsUpToFindRootFolder)) {
+            this._onUpdateMaxDirsUp();
+        }
     }
 
     private _onUpdateEndpoint() {
@@ -251,6 +262,12 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         const rootFolderName = vscode.workspace.getConfiguration().get<string>(CONSTANTS.configKeyRootFolderName);
 
         void vscode.window.showInformationMessage(`The Stitch root folder name has been updated to: ${rootFolderName}`);
+    }
+
+    private _onUpdateMaxDirsUp() {
+        const maxDirsUp = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyMaxDirsUpToFindRootFolder);
+
+        void vscode.window.showInformationMessage(`The Stitch max dirs up to find the root folder has been updated to: ${maxDirsUp}`);
     }
 
     private static _onPreviewDidDspose() {
