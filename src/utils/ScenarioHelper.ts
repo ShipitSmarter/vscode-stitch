@@ -40,7 +40,8 @@ export class ScenarioHelper {
     public static getScenarioFiles(context: Context): FileInput[] {
         const scenarioFilesToInclude = [
             ...glob.sync(`${context.activeScenario.path}/input.*`, undefined),
-            ...glob.sync(`${context.activeScenario.path}/step.*.*`, undefined)
+            ...glob.sync(`${context.activeScenario.path}/step.*.*`, undefined),
+            ...glob.sync(`${context.activeScenario.path}/configs.yaml`, undefined)
         ];
         const scenarioFiles: FileInput[] = [];
         scenarioFilesToInclude.forEach(includePath => {
