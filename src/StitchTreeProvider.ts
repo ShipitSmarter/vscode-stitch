@@ -27,6 +27,13 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
             return;
         }
 
+        if (treeItem.path === 'Configuration') {
+            const inputPath = ScenarioHelper.getScenarioConfigFilepath(scenario);
+            const uri = vscode.Uri.file(inputPath);
+            await vscode.window.showTextDocument(uri);
+            return;
+        }
+
         const match = stepPathRegex.exec(treeItem.path);
         const stepName = match && match[1];
         if (stepName) {

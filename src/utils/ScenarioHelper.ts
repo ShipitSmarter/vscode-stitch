@@ -103,6 +103,11 @@ export class ScenarioHelper {
         return files && files[0];
     }
 
+    public static getScenarioConfigFilepath(scenario: ScenarioSource) : string {
+        const files = glob.sync(`${scenario.path}/configs.yaml`);
+        return files && files[0];
+    }
+
     public static getScenarioStepFilepath(scenario: ScenarioSource, stepName: string) : string {
         const files = glob.sync(`${scenario.path}/step.${stepName}.*`);
         return files && files[0];
