@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.2 
+- Allow `configs.yaml` instead of `imports.configs.yaml` in scenario folder
+- Correctly render `Configuration` tree in `Tree view` for integrations containing `configs.yaml` scenarios
+
 # 1.8.1
 - Max dirs up to find `RootFolder` is now configurable through a setting `stitch.maxDirsUpToFindRootFolder`
 
