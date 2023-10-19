@@ -487,4 +487,196 @@ The XML escaped value
 #### Examples
 
 
+## `datetimelocal` functions
+Local date time functions are available through the object `datetimelocal` in Scriban. 
 
+-[ `datetimelocal.parse`](#datetimelocalparse)
+-[ `datetimelocal.parse_exact`](#datetimelocalparseexact)
+-[ `datetimelocal.to_string_default`](#datetimelocaltostringdefault)
+-[ `datetimelocal.to_string`](#datetimelocaltostring)
+
+[:top:](#additional-functions)
+
+### `datetimelocal.parse`
+
+```
+datetimelocal.parse <text>
+```
+
+#### Description
+Parse a local date time string to a local date time object
+
+#### Arguments
+- `text`: 
+  - The date time string to parse
+  - **Note:** will throw an `ArgumentException` if the given `text` contains time zone information.
+
+#### Returns
+The parsed local date time object
+
+#### Examples
+
+**1. Valid local date time string**
+> **input**
+```scriban-html
+{{
+    dt = datetimelocal.parse("2021-01-01T00:00:00")
+    dt
+}}
+```
+
+> **output**
+```html
+01 Jan 2021 00:00:00
+```
+
+**2. Invalid date time string containing time zone offset**
+> **input**
+```scriban-html
+{{
+    dt = datetimelocal.parse("2021-01-01T00:00:00Z")
+    dt
+}}
+```
+
+> **output**
+
+throws `ArgumentException` : `Time zone specification is not allowed for local DateTime`
+
+[:top:](#additional-functions)
+
+
+### `datetimelocal.parse_exact`
+
+```
+datetimelocal.parse_exact <text> <format>
+```
+
+#### Description
+Parse a local date time string to a local date time object using the specified format
+
+#### Arguments
+- `text`: 
+  - The date time string to parse
+- `format`:
+  - A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
+  - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
+
+#### Returns
+The parsed local date time object
+
+#### Examples
+
+**1. date time string in valid local date time format**
+> **input**
+```scriban-html
+{{
+    dt = datetimelocal.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
+    dt
+}}
+```
+
+> **output**
+```html
+01 Jan 2021 00:00:00
+```
+
+**2. date time string in invalid format containing time zone offset**
+> **input**
+```scriban-html
+{{
+    dt = datetimelocal.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
+    dt
+}}
+```
+
+> **output**
+
+throws `ArgumentException` : `Time zone specification in custom format is not allowed for local DateTime`
+
+[:top:](#additional-functions)
+
+### `datetimelocal.to_string_default`
+
+```
+datetimelocal.to_string_default <datetime>
+```
+
+#### Description
+Convert a local date time object to an ISO 8601 compliant string using a default format
+
+#### Arguments
+- `datetime`: 
+  - The local date time object to convert
+
+#### Returns
+The ISO 8601 compliant string representation of the local date time object
+
+#### Examples
+> **input**
+```scriban-html
+{{
+    dt = datetimelocal.parse("2021-01-01T00:00:00")
+    str = datetimelocal.to_string_default(dt)
+    str
+}}
+```
+
+> **output**
+```html
+2021-01-01T00:00:00.000
+```
+
+[:top:](#additional-functions)
+
+### `datetimelocal.to_string`
+
+```
+datetimelocal.to_string <datetime> <format>
+```
+
+#### Description
+Convert a local date time object to a string using the specified format
+
+#### Arguments
+- `datetime`: 
+  - The local date time object to convert
+- `format`:
+    - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
+    - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
+
+#### Returns
+The string representation of the local date time object
+
+#### Examples
+
+**1. Valid format**
+> **input**
+```scriban-html
+{{
+    dt = datetimelocal.parse("2021-01-01T00:00:00")
+    str = datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
+    str
+}}
+```
+
+> **output**
+```html
+2021-01-01T00:00:00
+```
+
+**2. Invalid format containing time zone offset**
+> **input**
+```scriban-html
+{{
+    dt = datetimelocal.parse("2021-01-01T00:00:00")
+    str = datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
+    str
+}}
+```
+
+> **output**
+
+throws `ArgumentException` : `Time zone specification in custom format is not allowed for local DateTime`
+
+[:top:](#additional-functions)
