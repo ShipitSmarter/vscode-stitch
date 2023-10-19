@@ -805,6 +805,7 @@ Convert a date time offset object to an ISO 8601 compliant string using a defaul
 #### Arguments
 - `datetimeoffset`: 
   - The date time offset object to convert
+  - **Note:** will throw an `ArgumentException` : `Argument must be of type DateTimeOffset` if the given argument is a `DateTime` object (instead of a `DateTimeOffset` object)
 
 #### Returns
 The ISO 8601 compliant string representation of the date time offset object
@@ -840,6 +841,7 @@ Convert a date time offset object to a string using the specified format
 #### Arguments
 - `datetimeoffset`: 
   - The date time offset object to convert
+  - **Note:** will throw an `ArgumentException` : `Argument must be of type DateTimeOffset` if the given argument is a `DateTime` object (instead of a `DateTimeOffset` object)
   - `format`:
     - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
     - **Note:** it is NOT mandatory to specify a time zone offset in the given `format`.
