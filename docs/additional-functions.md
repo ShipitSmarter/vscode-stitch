@@ -680,3 +680,192 @@ The string representation of the local date time object
 throws `ArgumentException` : `Time zone specification in custom format is not allowed for local DateTime`
 
 [:top:](#additional-functions)
+
+## `datetimeoffset` functions
+
+Date time offset functions are available through the object `datetimeoffset` in Scriban.
+
+-[ `datetimeoffset.parse`](#datetimeoffsetparse)
+-[ `datetimeoffset.parse_exact`](#datetimeoffsetparseexact)
+-[ `datetimeoffset.to_string_default`](#datetimeoffsettostringdefault)
+-[ `datetimeoffset.to_string`](#datetimeoffsettostring)
+
+[:top:](#additional-functions)
+
+### `datetimeoffset.parse`
+
+```
+datetimeoffset.parse <text>
+```
+
+#### Description
+Parse a date time string to a date time offset object
+
+#### Arguments
+- `text`: 
+  - The date time string to parse
+  - **Note:** will throw an `ArgumentException` if the given `text` does not contain time zone information.
+
+#### Returns
+The parsed date time offset object
+
+#### Examples
+
+**1. Valid date time string**
+> **input**
+```scriban-html
+{{
+    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
+    dt
+}}
+```
+
+> **output**
+```html
+01 Jan 2021 00:00:00 +00:00
+```
+
+**2. Invalid date time string without time zone offset**
+> **input**
+```scriban-html
+{{
+    dt = datetimeoffset.parse("2021-01-01T00:00:00")
+    dt
+}}
+```
+
+> **output**
+
+throws `ArgumentException` : `Time zone specification is mandatory for DateTimeOffset`
+
+[:top:](#additional-functions)
+
+
+### `datetimeoffset.parse_exact`
+
+```
+datetimeoffset.parse_exact <text> <format>
+```
+
+#### Description
+Parse a date time string to a date time offset object using the specified format
+
+#### Arguments
+- `text`: 
+  - The date time string to parse
+- `format`:
+  - A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
+  - **Note:** will throw an `ArgumentException` if the given `format` does not contain time zone information (i.e., `z` or `K` characters).
+
+#### Returns
+The parsed date time offset object
+
+#### Examples
+
+**1. date time string in valid format**
+
+> **input**
+```scriban-html
+{{
+    dt = datetimeoffset.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
+    dt
+}}
+```
+
+> **output**
+```html
+01 Jan 2021 00:00:00 +00:00
+```
+
+**2. date time string in invalid format without time zone offset**
+> **input**
+```scriban-html
+{{
+    dt = datetimeoffset.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
+    dt
+}}
+```
+
+> **output**
+
+throws `ArgumentException` : `Time zone specification in custom format is mandatory for DateTimeOffset`
+
+[:top:](#additional-functions)
+
+
+### `datetimeoffset.to_string_default`
+
+```
+datetimeoffset.to_string_default <datetimeoffset>
+```
+
+#### Description
+Convert a date time offset object to an ISO 8601 compliant string using a default format
+
+#### Arguments
+- `datetimeoffset`: 
+  - The date time offset object to convert
+
+#### Returns
+The ISO 8601 compliant string representation of the date time offset object
+
+#### Examples
+
+> **input**
+```scriban-html
+{{
+    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
+    str = datetimeoffset.to_string_default(dt)
+    str
+}}
+```
+
+> **output**
+```html
+2021-01-01T00:00:00.000+00:00
+```
+
+[:top:](#additional-functions)
+
+
+### `datetimeoffset.to_string`
+
+```
+datetimeoffset.to_string <datetimeoffset> <format>
+```
+
+#### Description
+Convert a date time offset object to a string using the specified format
+
+#### Arguments
+- `datetimeoffset`: 
+  - The date time offset object to convert
+  - `format`:
+    - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
+    - **Note:** it is NOT mandatory to specify a time zone offset in the given `format`.
+
+#### Returns
+The string representation of the date time offset object in the specified format
+
+#### Examples
+
+> **input**
+```scriban-html
+{{
+    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
+    str1 = datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
+    str2 = datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
+    str1
+    str2
+}}
+```
+
+> **output**
+```html
+2021-01-01T00:00:00
+2021-01-01T00:00:00+00:00
+```
+
+[:top:](#additional-functions)
+
+
