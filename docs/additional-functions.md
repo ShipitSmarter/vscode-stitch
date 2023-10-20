@@ -7,6 +7,8 @@ This document describes the various additional function available in scriban.
 - [`custom` functions](#custom-functions)
 - [`json` functions](#json-functions)
 - [`xml` functions](#xml-functions)
+- [`datetimelocal` functions](#datetimelocal-functions)
+- [`datetimeoffset` functions](#datetimeoffset-functions)
 
 [:top:](#additional-functions)
 
@@ -490,10 +492,9 @@ The XML escaped value
 ## `datetimelocal` functions
 Local date time functions are available through the object `datetimelocal` in Scriban. 
 
--[ `datetimelocal.parse`](#datetimelocalparse)
--[ `datetimelocal.parse_exact`](#datetimelocalparseexact)
--[ `datetimelocal.to_string_default`](#datetimelocaltostringdefault)
--[ `datetimelocal.to_string`](#datetimelocaltostring)
+- [ `datetimelocal.parse`](#datetimelocalparse)
+- [ `datetimelocal.parse_exact`](#datetimelocalparse_exact)
+- [ `datetimelocal.to_string`](#datetimelocalto_string)
 
 [:top:](#additional-functions)
 
@@ -520,8 +521,7 @@ The parsed local date time object
 > **input**
 ```scriban-html
 {{
-    dt = datetimelocal.parse("2021-01-01T00:00:00")
-    dt
+    datetimelocal.parse("2021-01-01T00:00:00")
 }}
 ```
 
@@ -534,8 +534,7 @@ The parsed local date time object
 > **input**
 ```scriban-html
 {{
-    dt = datetimelocal.parse("2021-01-01T00:00:00Z")
-    dt
+    datetimelocal.parse("2021-01-01T00:00:00Z")
 }}
 ```
 
@@ -571,8 +570,7 @@ The parsed local date time object
 > **input**
 ```scriban-html
 {{
-    dt = datetimelocal.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
-    dt
+    datetimelocal.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
 }}
 ```
 
@@ -585,8 +583,7 @@ The parsed local date time object
 > **input**
 ```scriban-html
 {{
-    dt = datetimelocal.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
-    dt
+    datetimelocal.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
@@ -596,47 +593,17 @@ throws `ArgumentException` : `Time zone specification in custom format is not al
 
 [:top:](#additional-functions)
 
-### `datetimelocal.to_string_default`
-
-```
-datetimelocal.to_string_default <datetime>
-```
-
-#### Description
-Convert a local date time object to an ISO 8601 compliant string using a default format
-
-#### Arguments
-- `datetime`: 
-  - The local date time object to convert
-
-#### Returns
-The ISO 8601 compliant string representation of the local date time object
-
-#### Examples
-> **input**
-```scriban-html
-{{
-    dt = datetimelocal.parse("2021-01-01T00:00:00")
-    str = datetimelocal.to_string_default(dt)
-    str
-}}
-```
-
-> **output**
-```html
-2021-01-01T00:00:00.000
-```
-
-[:top:](#additional-functions)
 
 ### `datetimelocal.to_string`
 
 ```
+datetimelocal.to_string <datetime>
 datetimelocal.to_string <datetime> <format>
 ```
 
 #### Description
-Convert a local date time object to a string using the specified format
+Convert a local date time object to a string, optionally using a specified format.
+If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:ss.fff` is used.
 
 #### Arguments
 - `datetime`: 
@@ -655,13 +622,15 @@ The string representation of the local date time object
 ```scriban-html
 {{
     dt = datetimelocal.parse("2021-01-01T00:00:00")
-    str = datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
-    str
+
+    datetimelocal.to_string(dt)
+    datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
 }}
 ```
 
 > **output**
 ```html
+2021-01-01T00:00:00.000
 2021-01-01T00:00:00
 ```
 
@@ -670,8 +639,7 @@ The string representation of the local date time object
 ```scriban-html
 {{
     dt = datetimelocal.parse("2021-01-01T00:00:00")
-    str = datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
-    str
+    datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
@@ -685,10 +653,9 @@ throws `ArgumentException` : `Time zone specification in custom format is not al
 
 Date time offset functions are available through the object `datetimeoffset` in Scriban.
 
--[ `datetimeoffset.parse`](#datetimeoffsetparse)
--[ `datetimeoffset.parse_exact`](#datetimeoffsetparseexact)
--[ `datetimeoffset.to_string_default`](#datetimeoffsettostringdefault)
--[ `datetimeoffset.to_string`](#datetimeoffsettostring)
+- [ `datetimeoffset.parse`](#datetimeoffsetparse)
+- [ `datetimeoffset.parse_exact`](#datetimeoffsetparse_exact)
+- [ `datetimeoffset.to_string`](#datetimeoffsetto_string)
 
 [:top:](#additional-functions)
 
@@ -715,8 +682,7 @@ The parsed date time offset object
 > **input**
 ```scriban-html
 {{
-    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
-    dt
+    datetimeoffset.parse("2021-01-01T00:00:00Z")
 }}
 ```
 
@@ -729,8 +695,7 @@ The parsed date time offset object
 > **input**
 ```scriban-html
 {{
-    dt = datetimeoffset.parse("2021-01-01T00:00:00")
-    dt
+    datetimeoffset.parse("2021-01-01T00:00:00")
 }}
 ```
 
@@ -767,8 +732,7 @@ The parsed date time offset object
 > **input**
 ```scriban-html
 {{
-    dt = datetimeoffset.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
-    dt
+    datetimeoffset.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
@@ -781,50 +745,13 @@ The parsed date time offset object
 > **input**
 ```scriban-html
 {{
-    dt = datetimeoffset.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
-    dt
+    datetimeoffset.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
 }}
 ```
 
 > **output**
 
 throws `ArgumentException` : `Time zone specification in custom format is mandatory for DateTimeOffset`
-
-[:top:](#additional-functions)
-
-
-### `datetimeoffset.to_string_default`
-
-```
-datetimeoffset.to_string_default <datetimeoffset>
-```
-
-#### Description
-Convert a date time offset object to an ISO 8601 compliant string using a default format
-
-#### Arguments
-- `datetimeoffset`: 
-  - The date time offset object to convert
-  - **Note:** will throw an `ArgumentException` : `Argument must be of type DateTimeOffset` if the given argument is a `DateTime` object (instead of a `DateTimeOffset` object)
-
-#### Returns
-The ISO 8601 compliant string representation of the date time offset object
-
-#### Examples
-
-> **input**
-```scriban-html
-{{
-    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
-    str = datetimeoffset.to_string_default(dt)
-    str
-}}
-```
-
-> **output**
-```html
-2021-01-01T00:00:00.000+00:00
-```
 
 [:top:](#additional-functions)
 
@@ -836,7 +763,8 @@ datetimeoffset.to_string <datetimeoffset> <format>
 ```
 
 #### Description
-Convert a date time offset object to a string using the specified format
+Convert a date time offset object to a string, optionally using a specified format.
+If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:ss.fffK` is used.
 
 #### Arguments
 - `datetimeoffset`: 
@@ -851,22 +779,38 @@ The string representation of the date time offset object in the specified format
 
 #### Examples
 
+**1. Valid date time offset**
 > **input**
 ```scriban-html
 {{
     dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
-    str1 = datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
-    str2 = datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
-    str1
-    str2
+
+    datetimeoffset.to_string(dt)
+    datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
+    datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
 > **output**
 ```html
+2021-01-01T00:00:00+00:00
 2021-01-01T00:00:00
 2021-01-01T00:00:00+00:00
 ```
+
+**2. Invalid date time**
+> **input**
+```scriban-html
+{{
+    dt = date.parse("2021-01-01T00:00:00")
+
+    datetimeoffset.to_string(dt)
+}}
+```
+
+> **output**
+
+throws `ArgumentException` : `Argument must be of type DateTimeOffset`
 
 [:top:](#additional-functions)
 
