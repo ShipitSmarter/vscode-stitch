@@ -778,7 +778,7 @@ The string representation of the absolute date time object in the specified form
 > **input**
 ```scriban-html
 {{
-    dt = date.parse("2021-01-01T00:00:00")
+    dt = datecalendar.parse("2021-01-01T00:00:00")
 
     dateabsolute.to_string(dt)
 }}
