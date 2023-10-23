@@ -746,9 +746,9 @@ If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:
 - `datetimeoffset`: 
   - The date time offset object to convert
   - **Note:** will throw an `ArgumentException` if the given argument is a `DateTime` object (instead of a `DateTimeOffset` object)
-  - `format`:
-    - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
-    - **Note:** it is NOT mandatory to specify a time zone offset in the given `format`.
+- `format`:
+  - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
+  - **Note:** it is NOT mandatory to specify a time zone offset in the given `format`.
 
 #### Returns
 The string representation of the date time offset object in the specified format
