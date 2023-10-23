@@ -628,7 +628,7 @@ The string representation of the local date time object
 
 throws `ArgumentException` : `Time zone specification in custom format is not allowed for local DateTime`
 
-**3. Invalid date time**
+**3. Invalid date time offset**
 > **input**
 ```scriban-html
 {{
