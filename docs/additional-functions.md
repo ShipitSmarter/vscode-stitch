@@ -7,8 +7,8 @@ This document describes the various additional function available in scriban.
 - [`custom` functions](#custom-functions)
 - [`json` functions](#json-functions)
 - [`xml` functions](#xml-functions)
-- [`datetimelocal` functions](#datetimelocal-functions)
-- [`datetimeoffset` functions](#datetimeoffset-functions)
+- [`datecalendar` functions](#datecalendar-functions)
+- [`dateabsolute` functions](#dateabsolute-functions)
 
 [:top:](#additional-functions)
 
@@ -489,23 +489,23 @@ The XML escaped value
 #### Examples
 
 
-## `datetimelocal` functions
-Local date time functions are available through the object `datetimelocal` in Scriban. 
+## `datecalendar` functions
+Calendar date time functions are available through the object `datecalendar` in Scriban. 
 
-- [ `datetimelocal.parse`](#datetimelocalparse)
-- [ `datetimelocal.to_string`](#datetimelocalto_string)
+- [ `datecalendar.parse`](#datecalendarparse)
+- [ `datecalendar.to_string`](#datecalendarto_string)
 
 [:top:](#additional-functions)
 
-### `datetimelocal.parse`
+### `datecalendar.parse`
 
 ```
-datetimelocal.parse <text>
-datetimelocal.parse <text> <format>
+datecalendar.parse <text>
+datecalendar.parse <text> <format>
 ```
 
 #### Description
-Parse a local date time string to a local date time object, optionally with a specified format
+Parse a calendar date time string to a date time object without time zone offset, optionally with a specified format
 
 #### Arguments
 - `text`: 
@@ -516,15 +516,15 @@ Parse a local date time string to a local date time object, optionally with a sp
   - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
 
 #### Returns
-The parsed local date time object
+The parsed date time object
 
 #### Examples
 
-**1. Valid local date time string**
+**1. Valid calendar date time string**
 > **input**
 ```scriban-html
 {{
-    datetimelocal.parse("2021-01-01T00:00:00")
+    datecalendar.parse("2021-01-01T00:00:00")
 }}
 ```
 
@@ -537,20 +537,20 @@ The parsed local date time object
 > **input**
 ```scriban-html
 {{
-    datetimelocal.parse("2021-01-01T00:00:00Z")
+    datecalendar.parse("2021-01-01T00:00:00Z")
 }}
 ```
 
 > **output**
 
-throws `ArgumentException` : `Time zone specification is not allowed for local DateTime`
+throws `ArgumentException` : `Time zone specification is not allowed for calendar DateTime`
 
 
 **3. date time string with valid local date time format**
 > **input**
 ```scriban-html
 {{
-    datetimelocal.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
+    datecalendar.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
 }}
 ```
 
@@ -563,38 +563,38 @@ throws `ArgumentException` : `Time zone specification is not allowed for local D
 > **input**
 ```scriban-html
 {{
-    datetimelocal.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
+    datecalendar.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
 > **output**
 
-throws `ArgumentException` : `Time zone specification in custom format is not allowed for local DateTime`
+throws `ArgumentException` : `Time zone specification in custom format is not allowed for calendar DateTime`
 
 [:top:](#additional-functions)
 
 
-### `datetimelocal.to_string`
+### `datecalendar.to_string`
 
 ```
-datetimelocal.to_string <datetime>
-datetimelocal.to_string <datetime> <format>
+datecalendar.to_string <datetime>
+datecalendar.to_string <datetime> <format>
 ```
 
 #### Description
-Convert a local date time object to a string, optionally using a specified format.
+Convert a calendar date time object to a string, optionally using a specified format.
 If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:ss.fff` is used.
 
 #### Arguments
 - `datetime`: 
-  - The local date time object to convert
-  - **Note:** will throw an `ArgumentException` if a `DateTimeOffset` object is given (instead of a `DateTime` object)
+  - The calendar date time object to convert
+  - **Note:** will throw an `ArgumentException` if a `DateTimeOffset` object (i.e., an absolute date time) is given  instead of a `DateTime` object
 - `format`:
     - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
     - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
 
 #### Returns
-The string representation of the local date time object
+The string representation of the calendar DateTime object
 
 #### Examples
 
@@ -602,10 +602,10 @@ The string representation of the local date time object
 > **input**
 ```scriban-html
 {{
-    dt = datetimelocal.parse("2021-01-01T00:00:00")
+    dt = datecalendar.parse("2021-01-01T00:00:00")
 
-    datetimelocal.to_string(dt)
-    datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
+    datecalendar.to_string(dt)
+    datecalendar.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
 }}
 ```
 
@@ -619,22 +619,22 @@ The string representation of the local date time object
 > **input**
 ```scriban-html
 {{
-    dt = datetimelocal.parse("2021-01-01T00:00:00")
-    datetimelocal.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
+    dt = datecalendar.parse("2021-01-01T00:00:00")
+    datecalendar.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
 > **output**
 
-throws `ArgumentException` : `Time zone specification in custom format is not allowed for local DateTime`
+throws `ArgumentException` : `Time zone specification in custom format is not allowed for calendar DateTime`
 
-**3. Invalid date time offset**
+**3. Invalid absolute date time**
 > **input**
 ```scriban-html
 {{
-    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
+    dt = dateabsolute.parse("2021-01-01T00:00:00Z")
 
-    datetimelocal.to_string(dt)
+    datecalendar.to_string(dt)
 }}
 ```
 
@@ -644,43 +644,43 @@ throws `ArgumentException` : `Unable to convert type 'DateTimeOffset' to 'DateTi
 
 [:top:](#additional-functions)
 
-## `datetimeoffset` functions
+## `dateabsolute` functions
 
-Date time offset functions are available through the object `datetimeoffset` in Scriban.
+Absolute date time functions are available through the object `dateabsolute` in Scriban.
 
-- [ `datetimeoffset.parse`](#datetimeoffsetparse)
-- [ `datetimeoffset.to_string`](#datetimeoffsetto_string)
+- [ `dateabsolute.parse`](#dateabsoluteparse)
+- [ `dateabsolute.to_string`](#dateabsoluteto_string)
 
 [:top:](#additional-functions)
 
-### `datetimeoffset.parse`
+### `dateabsolute.parse`
 
 ```
-datetimeoffset.parse <text>
-datetimeoffset.parse <text> <format>
+dateabsolute.parse <text>
+dateabsolute.parse <text> <format>
 ```
 
 #### Description
-Parse a date time string to a date time offset object, optionally with a specified format
+Parse a date time string to an absolute date time object with time zone information, optionally with a specified format
 
 #### Arguments
 - `text`: 
-  - The date time string to parse
+  - The absolute date time string to parse
   - **Note:** will throw an `ArgumentException` if the given `text` does not contain time zone information.
 - `format`:
   - (Optional) A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
   - **Note:** will throw an `ArgumentException` if the given `format` does not contain time zone information (i.e., `z` or `K` characters).
 
 #### Returns
-The parsed date time offset object
+The parsed absolute date time object
 
 #### Examples
 
-**1. Valid date time string**
+**1. Valid absolute date time string**
 > **input**
 ```scriban-html
 {{
-    datetimeoffset.parse("2021-01-01T00:00:00Z")
+    dateabsolute.parse("2021-01-01T00:00:00Z")
 }}
 ```
 
@@ -689,25 +689,25 @@ The parsed date time offset object
 01 Jan 2021 00:00:00 +00:00
 ```
 
-**2. Invalid date time string without time zone offset**
+**2. Invalid calendar date time string without time zone offset**
 > **input**
 ```scriban-html
 {{
-    datetimeoffset.parse("2021-01-01T00:00:00")
+    dateabsolute.parse("2021-01-01T00:00:00")
 }}
 ```
 
 > **output**
 
-throws `ArgumentException` : `Time zone specification is mandatory for DateTimeOffset`
+throws `ArgumentException` : `Time zone specification is mandatory for absolute DateTime`
 
 
-**3. date time string with valid format**
+**3. Date time string with valid custom format**
 
 > **input**
 ```scriban-html
 {{
-    datetimeoffset.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
+    dateabsolute.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
@@ -716,54 +716,54 @@ throws `ArgumentException` : `Time zone specification is mandatory for DateTimeO
 01 Jan 2021 00:00:00 +00:00
 ```
 
-**4. date time string with invalid format without time zone offset**
+**4. Date time string with invalid format without time zone offset**
 > **input**
 ```scriban-html
 {{
-    datetimeoffset.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
+    dateabsolute.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
 }}
 ```
 
 > **output**
 
-throws `ArgumentException` : `Time zone specification in custom format is mandatory for DateTimeOffset`
+throws `ArgumentException` : `Time zone specification in custom format is mandatory for absolute DateTime`
 
 [:top:](#additional-functions)
 
 
-### `datetimeoffset.to_string`
+### `dateabsolute.to_string`
 
 ```
-datetimeoffset.to_string <datetimeoffset>
-datetimeoffset.to_string <datetimeoffset> <format>
+dateabsolute.to_string <datetime>
+dateabsolute.to_string <datetime> <format>
 ```
 
 #### Description
-Convert a date time offset object to a string, optionally using a specified format.
+Convert an absolute date time object to a string, optionally using a specified format.
 If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:ss.fffK` is used.
 
 #### Arguments
-- `datetimeoffset`: 
-  - The date time offset object to convert
-  - **Note:** will throw an `ArgumentException` if the given argument is a `DateTime` object (instead of a `DateTimeOffset` object)
+- `datetime`: 
+  - The absolute date time object to convert
+  - **Note:** will throw an `ArgumentException` if the given argument is a calendar date time object (instead of an absolute date time object)
 - `format`:
   - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
   - **Note:** it is NOT mandatory to specify a time zone offset in the given `format`.
 
 #### Returns
-The string representation of the date time offset object in the specified format
+The string representation of the absolute date time object in the specified format
 
 #### Examples
 
-**1. Valid date time offset**
+**1. Valid absolute date time**
 > **input**
 ```scriban-html
 {{
-    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
+    dt = dateabsolute.parse("2021-01-01T00:00:00Z")
 
-    datetimeoffset.to_string(dt)
-    datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
-    datetimeoffset.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
+    dateabsolute.to_string(dt)
+    dateabsolute.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
+    dateabsolute.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
 }}
 ```
 
@@ -774,19 +774,19 @@ The string representation of the date time offset object in the specified format
 2021-01-01T00:00:00+00:00
 ```
 
-**2. Invalid date time**
+**2. Invalid calendar date time**
 > **input**
 ```scriban-html
 {{
     dt = date.parse("2021-01-01T00:00:00")
 
-    datetimeoffset.to_string(dt)
+    dateabsolute.to_string(dt)
 }}
 ```
 
 > **output**
 
-throws `ArgumentException` : `Argument must be of type DateTimeOffset`
+throws `ArgumentException` : `Argument must be of type DateTimeOffset, but was DateTime`
 
 [:top:](#additional-functions)
 
