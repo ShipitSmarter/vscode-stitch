@@ -493,7 +493,6 @@ The XML escaped value
 Local date time functions are available through the object `datetimelocal` in Scriban. 
 
 - [ `datetimelocal.parse`](#datetimelocalparse)
-- [ `datetimelocal.parse_exact`](#datetimelocalparse_exact)
 - [ `datetimelocal.to_string`](#datetimelocalto_string)
 
 [:top:](#additional-functions)
@@ -502,15 +501,19 @@ Local date time functions are available through the object `datetimelocal` in Sc
 
 ```
 datetimelocal.parse <text>
+datetimelocal.parse <text> <format>
 ```
 
 #### Description
-Parse a local date time string to a local date time object
+Parse a local date time string to a local date time object, optionally with a specified format
 
 #### Arguments
 - `text`: 
   - The date time string to parse
   - **Note:** will throw an `ArgumentException` if the given `text` contains time zone information.
+- `format`:
+  - (Optional) A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
+  - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
 
 #### Returns
 The parsed local date time object
@@ -542,31 +545,8 @@ The parsed local date time object
 
 throws `ArgumentException` : `Time zone specification is not allowed for local DateTime`
 
-[:top:](#additional-functions)
 
-
-### `datetimelocal.parse_exact`
-
-```
-datetimelocal.parse_exact <text> <format>
-```
-
-#### Description
-Parse a local date time string to a local date time object using the specified format
-
-#### Arguments
-- `text`: 
-  - The date time string to parse
-- `format`:
-  - A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
-  - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
-
-#### Returns
-The parsed local date time object
-
-#### Examples
-
-**1. date time string in valid local date time format**
+**3. date time string with valid local date time format**
 > **input**
 ```scriban-html
 {{
@@ -579,7 +559,7 @@ The parsed local date time object
 01 Jan 2021 00:00:00
 ```
 
-**2. date time string in invalid format containing time zone offset**
+**4. date time string with invalid format containing time zone offset**
 > **input**
 ```scriban-html
 {{
@@ -608,6 +588,7 @@ If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:
 #### Arguments
 - `datetime`: 
   - The local date time object to convert
+  - **Note:** will throw an `ArgumentException` if a `DateTimeOffset` object is given (instead of a `DateTime` object)
 - `format`:
     - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
     - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
@@ -647,6 +628,20 @@ The string representation of the local date time object
 
 throws `ArgumentException` : `Time zone specification in custom format is not allowed for local DateTime`
 
+**3. Invalid date time**
+> **input**
+```scriban-html
+{{
+    dt = datetimeoffset.parse("2021-01-01T00:00:00Z")
+
+    datetimelocal.to_string(dt)
+}}
+```
+
+> **output**
+
+throws `ArgumentException` : `Unable to convert type 'DateTimeOffset' to 'DateTime'`
+
 [:top:](#additional-functions)
 
 ## `datetimeoffset` functions
@@ -654,7 +649,6 @@ throws `ArgumentException` : `Time zone specification in custom format is not al
 Date time offset functions are available through the object `datetimeoffset` in Scriban.
 
 - [ `datetimeoffset.parse`](#datetimeoffsetparse)
-- [ `datetimeoffset.parse_exact`](#datetimeoffsetparse_exact)
 - [ `datetimeoffset.to_string`](#datetimeoffsetto_string)
 
 [:top:](#additional-functions)
@@ -663,15 +657,19 @@ Date time offset functions are available through the object `datetimeoffset` in 
 
 ```
 datetimeoffset.parse <text>
+datetimeoffset.parse <text> <format>
 ```
 
 #### Description
-Parse a date time string to a date time offset object
+Parse a date time string to a date time offset object, optionally with a specified format
 
 #### Arguments
 - `text`: 
   - The date time string to parse
   - **Note:** will throw an `ArgumentException` if the given `text` does not contain time zone information.
+- `format`:
+  - (Optional) A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
+  - **Note:** will throw an `ArgumentException` if the given `format` does not contain time zone information (i.e., `z` or `K` characters).
 
 #### Returns
 The parsed date time offset object
@@ -703,31 +701,8 @@ The parsed date time offset object
 
 throws `ArgumentException` : `Time zone specification is mandatory for DateTimeOffset`
 
-[:top:](#additional-functions)
 
-
-### `datetimeoffset.parse_exact`
-
-```
-datetimeoffset.parse_exact <text> <format>
-```
-
-#### Description
-Parse a date time string to a date time offset object using the specified format
-
-#### Arguments
-- `text`: 
-  - The date time string to parse
-- `format`:
-  - A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
-  - **Note:** will throw an `ArgumentException` if the given `format` does not contain time zone information (i.e., `z` or `K` characters).
-
-#### Returns
-The parsed date time offset object
-
-#### Examples
-
-**1. date time string in valid format**
+**3. date time string with valid format**
 
 > **input**
 ```scriban-html
@@ -741,7 +716,7 @@ The parsed date time offset object
 01 Jan 2021 00:00:00 +00:00
 ```
 
-**2. date time string in invalid format without time zone offset**
+**4. date time string with invalid format without time zone offset**
 > **input**
 ```scriban-html
 {{
@@ -759,6 +734,7 @@ throws `ArgumentException` : `Time zone specification in custom format is mandat
 ### `datetimeoffset.to_string`
 
 ```
+datetimeoffset.to_string <datetimeoffset>
 datetimeoffset.to_string <datetimeoffset> <format>
 ```
 
@@ -769,7 +745,7 @@ If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:
 #### Arguments
 - `datetimeoffset`: 
   - The date time offset object to convert
-  - **Note:** will throw an `ArgumentException` : `Argument must be of type DateTimeOffset` if the given argument is a `DateTime` object (instead of a `DateTimeOffset` object)
+  - **Note:** will throw an `ArgumentException` if the given argument is a `DateTime` object (instead of a `DateTimeOffset` object)
   - `format`:
     - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
     - **Note:** it is NOT mandatory to specify a time zone offset in the given `format`.
