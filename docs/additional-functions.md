@@ -279,6 +279,8 @@ Stop the integration flow, and return directly with a response message formatted
 ```scriban-html
 {{
     $input = {
+        AWB: "",
+        shipmentStatus: "",
         resultMessages : [
             "integration failed"
         ],
@@ -315,9 +317,8 @@ The function does not strictly return anything, but has as an effect that it sto
     ]
 }
 ```
-
-The `AWB` and `ShipmentStatus` fields are auto-added and always empty strings.
-Note, that using this throw function, will always return the original `stitch` api call with a `200` http status code.
+Note 1: the `Errors` list is always added, even if no error is given in the input (but will in that case be an empty list).
+Note 2: using this throw function will always return the original `stitch` api call with a `200` http status code.
 
 #### Examples
 
