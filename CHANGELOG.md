@@ -2,6 +2,12 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.3
+- Add Base64Encode step
+- Fix CacheStore step rendering
+- Fix CacheLoad step rendering
+- Bump `@vscode/test-electron` to 2.3.8 to fix test issues
+
 # 1.8.2 
 - Allow `configs.yaml` instead of `imports.configs.yaml` in scenario folder
 - Correctly render `Configuration` tree in `Tree view` for integrations containing `configs.yaml` scenarios
