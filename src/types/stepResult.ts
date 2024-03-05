@@ -1,5 +1,5 @@
 
-export type StepResult = BaseStepResult | HttpStepResult | RenderTemplateStepResult | LoopStepResult | MailStepResult | CacheLoadResult | CacheStoreResult;
+export type StepResult = BaseStepResult | HttpStepResult | RenderTemplateStepResult | LoopStepResult | MailStepResult | CacheLoadResult | CacheStoreResult | Base64EncodeStepResult;
 
 export interface BaseStepResult {
     $type: string;
@@ -45,4 +45,8 @@ export interface CacheLoadResult extends BaseStepResult {
 
 export interface CacheStoreResult extends BaseStepResult {
     storedSuccessfull: boolean;
+}
+
+export interface Base64EncodeStepResult extends BaseStepResult {
+    model: string;
 }
