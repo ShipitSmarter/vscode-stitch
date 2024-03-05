@@ -4,7 +4,7 @@ import { CONSTANTS } from "./constants";
 import { unescapeResponseBody } from './utils/helpers';
 import { CommandAction } from "./types";
 import { EditorSimulateIntegrationResponse, IntegrationResult, StitchError } from './types/apiTypes';
-import { BaseStepConfiguration, HttpMulipartStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration, StepConfiguration } from './types/stepConfiguration';
+import { BaseStepConfiguration, HttpMulipartStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration,  StepConfiguration, Base64EncodeStepConfiguration, CacheLoadStepConfiguration, CacheStoreStepConfiguration} from './types/stepConfiguration';
 import { BaseStepResult, LoopStepResult, RenderTemplateStepResult, StepResult } from './types/stepResult';
 
 export class StitchPreviewHtmlBuilder {
@@ -118,6 +118,12 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
             return _createActionStepHtml('Skipped', configuration, '');
         case CONSTANTS.loopStepResultType:
             return _createActionStepHtml('Loop', configuration, _getLoopStepHtml(<LoopStepResult>step));
+        case CONSTANTS.base64EncodeStepResultType:
+            return _createActionStepHtml('Base64Encode', configuration, _getBase64EncodeStepHtml(<Base64EncodeStepConfiguration>configuration));
+        case CONSTANTS.cacheLoadStepResultType:
+            return _createActionStepHtml('CacheLoad', configuration, _getCacheLoadStepHtml(<CacheLoadStepConfiguration>configuration));
+        case CONSTANTS.cacheStoreStepResultType:
+            return _createActionStepHtml('CacheStore', configuration, _getCacheStoreStepHtml(<CacheStoreStepConfiguration>configuration));
         default:
             return _createActionStepHtml('Unknown', configuration, _getDefaultStepHtml(step, configuration));
     }
@@ -146,9 +152,14 @@ function _createActionStepHtml(title: string, step: StepConfiguration, body: str
         templateCode = "Please use the 'Create HTTP request' button to view entire content";
     }
 
-    return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`,
-        `${body}
-                <pre><code>${templateCode}</code></pre>`);
+    let actionHtmlBody = body;
+    if (step.$type !== CONSTANTS.cacheLoadStepConfigurationType) {
+        actionHtmlBody += `
+        <pre><code>${templateCode}</code></pre>
+        `;
+    }
+
+    return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`, actionHtmlBody);
 }
 
 function _getDefaultStepHtml(step: BaseStepResult, configuration: StepConfiguration) {
@@ -214,6 +225,25 @@ function _getMailStepHtml(configuration: MailStepConfiguration) {
                 From:&nbsp;&nbsp;&nbsp;&nbsp;${configuration.from}<br />
                 To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.to.join(', ')}
             </p>`;
+}
+
+function _getBase64EncodeStepHtml(configuration: Base64EncodeStepConfiguration) {
+    return `<p>
+                Encoding name:&nbsp;${configuration.encodingName}<br />
+            <p>`;
+}
+
+function _getCacheLoadStepHtml(configuration: CacheLoadStepConfiguration) {
+    return `<p>
+                Key:&nbsp;${configuration.key}<br />
+            <p>`;
+}
+
+function _getCacheStoreStepHtml(configuration: CacheStoreStepConfiguration) {
+    return `<p>
+                Key:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.key}<br />
+                Allow overwrite:&nbsp;${configuration.allowOverwrite}<br />
+            <p>`;
 }
 
 function _getSftpStepHtml(configuration: SftpStepConfiguration) {
