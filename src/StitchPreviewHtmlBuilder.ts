@@ -180,7 +180,6 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
         html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
     }
     html += `<p>
-                Pretty print:&nbsp;&nbsp;${configuration.prettyPrint}<br/>
                 Valid format:&nbsp;&nbsp;${configuration.validFormat}<br/>
                 Encoding name:&nbsp;${configuration.encodingName}
             </p>`;

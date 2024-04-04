@@ -13,7 +13,6 @@ export interface HttpStepConfiguration extends BaseStepConfiguration {
     encodingName: string;
     url: string;
     headers?: Record<string, string>;
-    prettyPrint: boolean;
     validFormat: boolean | undefined;
 }
 

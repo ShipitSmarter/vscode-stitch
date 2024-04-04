@@ -1,10 +1,12 @@
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { FileScrambler, IntegrationRequest, IntegrationStep } from "./FileScrambler";
 import { Context } from "../types";
 import { ContextHandler } from '../ContextHandler';
 import { findDirectoryWithinParent } from './helpers';
 import { ScenarioHelper } from './ScenarioHelper';
 import { FileInput, IntegrationRequestModel } from '../types/apiTypes';
+import { CONSTANTS } from '../constants';
 
 export class IngrationRequestBuilder {
 
@@ -42,6 +44,7 @@ export class IngrationRequestBuilder {
             files,
             scenarioFiles,
             scenarioName: this._context.activeScenario.name,
+            prettyPrint: vscode.workspace.getConfiguration().get<boolean>(CONSTANTS.configKeyPrettyPrint) ?? false
         };
     }
     private _loadPreParserConfig(integrationRequest: IntegrationRequest | undefined) {
