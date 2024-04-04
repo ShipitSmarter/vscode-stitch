@@ -127,3 +127,6 @@ This extension contributes the following settings:
 
 * `stitch.endpointUrl`: set to the desired endpoint to test stitch integrations
 * `stitch.debounceTimeout`: set to the desired amount (ms) to wait with updating the context after file changes (prevents updating on every character insert)
+* `stitch.rootFolderName`: The name of the root folder where the *.integration.json/yaml files are stored
+* `stitch.maxDirsUpToFindRootFolder`: The amount of directories to go up when trying to find the root folder
+* `stitch.prettyPrint`: Pretty print the HTTP step request body in the editor. NOTE: Header 'Content-Type' must be set and contain either 'json' or 'xml', and Request body must be valid JSON or XML.
