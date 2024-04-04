@@ -29,7 +29,7 @@
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.8.3",
+	"version": "1.8.4",
 	"engines": {
 		"vscode": "^1.80.0"
 	},
@@ -132,6 +132,11 @@
 					"description": "The amount of directories to go up when trying to find the root folder",
 					"minimum": 3,
 					"maximum": 15
+				},
+				"stitch.prettyPrint": {
+					"type": "boolean",
+					"default": false,
+					"description": "Pretty print the HTTP step request body in the editor. \nNOTE: \n- Header 'Content-Type' must be set and contain either 'json' or 'xml' \n- Request body must be valid JSON or XML"
 				}
 			}
 		},

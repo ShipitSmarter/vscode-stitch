@@ -13,6 +13,7 @@ export const CONSTANTS = {
     configKeyDebounceTimeout: 'stitch.debounceTimeout',
     configKeyRootFolderName: 'stitch.rootFolderName',
     configKeyMaxDirsUpToFindRootFolder: 'stitch.maxDirsUpToFindRootFolder',
+    configKeyPrettyPrint: 'stitch.prettyPrint',
 
     contextAvailableContextKey: 'stitch:contextAvailable',
     previewActiveContextKey: 'stitch:previewActive',

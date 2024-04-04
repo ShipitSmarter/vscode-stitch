@@ -13,6 +13,7 @@ export interface HttpStepConfiguration extends BaseStepConfiguration {
     encodingName: string;
     url: string;
     headers?: Record<string, string>;
+    validFormat: boolean | undefined;
 }
 
 export interface MailStepConfiguration extends BaseStepConfiguration {

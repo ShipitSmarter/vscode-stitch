@@ -179,9 +179,10 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
     if (configuration.headers) {
         html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
     }
-    if (configuration.encodingName) {
-        html += `<p>Encoding name:&nbsp;${configuration.encodingName}</p>`;
-    }
+    html += `<p>
+                Valid format:&nbsp;&nbsp;${configuration.validFormat}<br/>
+                Encoding name:&nbsp;${configuration.encodingName}
+            </p>`;
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 
     return html;

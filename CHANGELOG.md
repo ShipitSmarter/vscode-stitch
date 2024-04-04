@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.4
+- Allow `PrettyPrint` through settings
+
 # 1.8.3
 - Add Base64Encode step
 - Fix CacheStore step rendering
