@@ -107,7 +107,7 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
             return _createActionStepHtml('HTTP', configuration, 
                 configuration.$type === CONSTANTS.httpMultipartStepConfigurationType
                 ? _getHttpMultipartStepHtml(<HttpMulipartStepConfiguration>configuration) 
-                : _getHttpStepHtml(<HttpStepConfiguration>configuration), (<HttpStepConfiguration>configuration).validFormat ? 'action' : 'actionerror');
+                : _getHttpStepHtml(<HttpStepConfiguration>configuration), ((<HttpStepConfiguration>configuration).validFormat ?? true) ? 'action' : 'actionerror');
         case CONSTANTS.renderTemplateStepResultType:
             return _createActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
         case CONSTANTS.mailStepResultType:
@@ -181,7 +181,7 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
     }
     html += `<p>
                 Valid format:&nbsp;&nbsp;${configuration.validFormat}<br/>`;
-    if (!configuration.validFormat) {
+    if (configuration.validFormat === false) {
         html += `Format error:&nbsp;&nbsp;<span class="errormessage">${configuration.formatErrorMessage}</span><br />`;
     }
     html +=`Encoding name:&nbsp;${configuration.encodingName}
