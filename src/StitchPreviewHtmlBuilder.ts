@@ -107,7 +107,7 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
             return _createActionStepHtml('HTTP', configuration, 
                 configuration.$type === CONSTANTS.httpMultipartStepConfigurationType
                 ? _getHttpMultipartStepHtml(<HttpMulipartStepConfiguration>configuration) 
-                : _getHttpStepHtml(<HttpStepConfiguration>configuration));
+                : _getHttpStepHtml(<HttpStepConfiguration>configuration), (<HttpStepConfiguration>configuration).validFormat ? 'action' : 'actionerror');
         case CONSTANTS.renderTemplateStepResultType:
             return _createActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
         case CONSTANTS.mailStepResultType:
@@ -129,8 +129,8 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
     }
 }
 
-function _createActionHtml(title: string, type: string, anchor: string, postMessageAction: string, body: string) {
-    return `<div class="action" id="${anchor}">
+function _createActionHtml(title: string, type: string, anchor: string, postMessageAction: string, body: string, cssClass: string = 'action') {
+    return `<div class="${cssClass}" id="${anchor}">
                 <span class="title">${title}</span>
                 <span class="type">${type}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" 
@@ -146,7 +146,7 @@ function _createActionHtml(title: string, type: string, anchor: string, postMess
 }
 
 
-function _createActionStepHtml(title: string, step: StepConfiguration, body: string) {
+function _createActionStepHtml(title: string, step: StepConfiguration, body: string, cssClass:string = 'action') {
     let templateCode = StitchPreviewHtmlBuilder.escapeHtml(step.template);
     if (step.$type === CONSTANTS.httpMultipartStepConfigurationType) {
         templateCode = "Please use the 'Create HTTP request' button to view entire content";
@@ -159,7 +159,7 @@ function _createActionStepHtml(title: string, step: StepConfiguration, body: str
         `;
     }
 
-    return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`, actionHtmlBody);
+    return _createActionHtml(step.id, title, step.id, `{action: ${CommandAction.viewStepRequest}, content: '${step.id}' }`, actionHtmlBody, cssClass);
 }
 
 function _getDefaultStepHtml(step: BaseStepResult, configuration: StepConfiguration) {
@@ -180,8 +180,11 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
         html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
     }
     html += `<p>
-                Valid format:&nbsp;&nbsp;${configuration.validFormat}<br/>
-                Encoding name:&nbsp;${configuration.encodingName}
+                Valid format:&nbsp;&nbsp;${configuration.validFormat}<br/>`;
+    if (!configuration.validFormat) {
+        html += `Format error:&nbsp;&nbsp;<span class="errormessage">${configuration.formatErrorMessage}</span><br />`;
+    }
+    html +=`Encoding name:&nbsp;${configuration.encodingName}
             </p>`;
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 

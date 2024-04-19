@@ -14,6 +14,7 @@ export interface HttpStepConfiguration extends BaseStepConfiguration {
     url: string;
     headers?: Record<string, string>;
     validFormat: boolean | undefined;
+    formatErrorMessage : string;
 }
 
 export interface MailStepConfiguration extends BaseStepConfiguration {
