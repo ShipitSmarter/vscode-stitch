@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.6
+- Fix broken layout of integration prevew
+
 # 1.8.5
 - Show functional error message when invalid `json` or `xml` in HTTP step
 
