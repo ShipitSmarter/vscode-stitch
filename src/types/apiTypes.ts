@@ -21,6 +21,8 @@ export interface StitchError {
 
 export interface EditorSimulateIntegrationResponse {
     result: IntegrationResult;
+    validFormat: boolean | undefined;
+    formatErrorMessage: string;
     stepConfigurations: Record<string, StepConfiguration>;
     integrationContext: IntegrationContext;
     treeModel: Record<string, unknown>;
