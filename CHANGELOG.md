@@ -2,6 +2,9 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.7
+- Add format validation for integration response
+
 # 1.8.6
 - Fix broken layout of integration prevew
 
