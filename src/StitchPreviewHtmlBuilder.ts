@@ -189,6 +189,20 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
         html += `Format error:&nbsp;&nbsp;<span class="errormessage">${configuration.formatErrorMessage}</span><br />`;
     }
 
+    if (configuration.retries) {
+        html += `Retries:<br/>
+            &nbsp;&nbsp;&nbsp;MaxRetries: ${configuration.retries.maxRetries}<br/>`;
+
+        if (configuration.retries.delayMs) {
+            html += `&nbsp;&nbsp;&nbsp;DelayMs:&nbsp;&nbsp;&nbsp;&nbsp;${configuration.retries.delayMs}ms<br/>`;
+        }
+
+        if (configuration.retries.delaysMs) {
+            html += `&nbsp;&nbsp;&nbsp;DelaysMs:&nbsp;&nbsp;&nbsp;[${configuration.retries.delaysMs.join(', ')}] ms<br/>`;
+        }
+        html += `<br />`;
+    }
+
     html +=`Encoding name:&nbsp;${configuration.encodingName}
             </p>`;
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
