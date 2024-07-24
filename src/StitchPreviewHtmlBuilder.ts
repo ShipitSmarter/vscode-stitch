@@ -192,18 +192,13 @@ function _getHttpStepHtml(step: HttpStepResult, configuration: HttpStepConfigura
     if (configuration.retries) {
         html += `Retries:<br/>
                      &nbsp;&nbsp;&nbsp;MaxRetries: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.retries.maxRetries}<br/>`;
-
-        if (configuration.retries.delayMs) {
-            html += `&nbsp;&nbsp;&nbsp;DelayMs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.retries.delayMs}ms<br/>`;
-        }
-
         if (configuration.retries.delaysMs) {
             html += `&nbsp;&nbsp;&nbsp;DelaysMs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[${configuration.retries.delaysMs.join(', ')}] ms<br/>`;
         }
         html +=     `&nbsp;&nbsp;&nbsp;Executed Retries: ${step.retries}<br />`;
     }
 
-    html +=`Encoding name:&nbsp;${configuration.encodingName}
+    html +=`Encoding name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.encodingName}
             </p>`;
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 

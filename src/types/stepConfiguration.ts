@@ -10,7 +10,6 @@ export interface BaseStepConfiguration {
 
 export interface RetryConfiguration {
     maxRetries: number;
-    delayMs: number | undefined;
     delaysMs: number[] | undefined;
 }
 
