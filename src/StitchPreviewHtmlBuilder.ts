@@ -195,7 +195,8 @@ function _getHttpStepHtml(step: HttpStepResult, configuration: HttpStepConfigura
         if (configuration.retries.delaysMs) {
             html += `&nbsp;&nbsp;&nbsp;DelaysMs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[${configuration.retries.delaysMs.join(', ')}] ms<br/>`;
         }
-        html +=     `&nbsp;&nbsp;&nbsp;Executed Retries: ${step.retries}<br />`;
+        html +=     `&nbsp;&nbsp;&nbsp;Executed Retries: ${step.retries}<br />
+                     &nbsp;&nbsp;&nbsp;Duration: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${step.durationMs} ms<br />`;
     }
 
     html +=`Encoding name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.encodingName}
