@@ -17,6 +17,7 @@ export interface HttpStepResult extends BaseStepResult {
     };
 
     model: unknown;
+    retries: number;
 }
 
 export interface RenderTemplateStepResult extends BaseStepResult {
