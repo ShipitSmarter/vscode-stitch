@@ -5,7 +5,7 @@ import { unescapeResponseBody } from './utils/helpers';
 import { CommandAction } from "./types";
 import { EditorSimulateIntegrationResponse, IntegrationResult, StitchError } from './types/apiTypes';
 import { BaseStepConfiguration, HttpMulipartStepConfiguration, HttpStepConfiguration, MailStepConfiguration, RenderTemplateStepConfiguration, SftpStepConfiguration,  StepConfiguration, Base64EncodeStepConfiguration, CacheLoadStepConfiguration, CacheStoreStepConfiguration} from './types/stepConfiguration';
-import { BaseStepResult, LoopStepResult, RenderTemplateStepResult, StepResult } from './types/stepResult';
+import { BaseStepResult, LoopStepResult, RenderTemplateStepResult, StepResult, HttpStepResult } from './types/stepResult';
 
 export class StitchPreviewHtmlBuilder {
 
@@ -111,7 +111,7 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
             return _createActionStepHtml('HTTP', configuration, 
                 configuration.$type === CONSTANTS.httpMultipartStepConfigurationType
                 ? _getHttpMultipartStepHtml(<HttpMulipartStepConfiguration>configuration) 
-                : _getHttpStepHtml(<HttpStepConfiguration>configuration), ((<HttpStepConfiguration>configuration).validFormat ?? true) ? 'action' : 'actionerror');
+                : _getHttpStepHtml(<HttpStepResult>step, <HttpStepConfiguration>configuration), ((<HttpStepConfiguration>configuration).validFormat ?? true) ? 'action' : 'actionerror');
         case CONSTANTS.renderTemplateStepResultType:
             return _createActionStepHtml('RenderTemplate', configuration, _getRenderTemplateStepHtml(<RenderTemplateStepResult>step, <RenderTemplateStepConfiguration>configuration));
         case CONSTANTS.mailStepResultType:
@@ -178,7 +178,7 @@ function _getDefaultStepHtml(step: BaseStepResult, configuration: StepConfigurat
             </p>`;
 }
 
-function _getHttpStepHtml(configuration: HttpStepConfiguration) {
+function _getHttpStepHtml(step: HttpStepResult, configuration: HttpStepConfiguration) {
     let html = `<p>${configuration.method} ${configuration.url}</p>`;
     if (configuration.headers) {
         html += `<p>${Object.keys(configuration.headers).map(key => `${key}:&nbsp;${configuration.headers?.[key]}<br />`).join('')}</p>`;
@@ -189,7 +189,17 @@ function _getHttpStepHtml(configuration: HttpStepConfiguration) {
         html += `Format error:&nbsp;&nbsp;<span class="errormessage">${configuration.formatErrorMessage}</span><br />`;
     }
 
-    html +=`Encoding name:&nbsp;${configuration.encodingName}
+    if (configuration.retries) {
+        html += `Retries:<br/>
+                     &nbsp;&nbsp;&nbsp;MaxRetries: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.retries.maxRetries}<br/>`;
+        if (configuration.retries.delaysMs) {
+            html += `&nbsp;&nbsp;&nbsp;DelaysMs:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[${configuration.retries.delaysMs.join(', ')}] ms<br/>`;
+        }
+        html +=     `&nbsp;&nbsp;&nbsp;Executed Retries: ${step.retries}<br />
+                     &nbsp;&nbsp;&nbsp;Duration: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${step.durationMs} ms<br />`;
+    }
+
+    html +=`Encoding name:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.encodingName}
             </p>`;
     html += `<button class="file-btn" onclick="vscode.postMessage({action: ${CommandAction.createHttpRequest}, content: '${configuration.id}' });">Create HTTP request</button>`;
 

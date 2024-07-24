@@ -2,6 +2,11 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.8.8
+- Add support for `Retries` configuration inside `HTTP` steps
+   - Show `Retries` config in preview
+   - Show actually executed number of retries and total duration in preview
+
 # 1.8.7
 - Add format validation for integration response
 

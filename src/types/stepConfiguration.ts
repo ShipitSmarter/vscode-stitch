@@ -8,6 +8,11 @@ export interface BaseStepConfiguration {
     startCondition?: string;
 }
 
+export interface RetryConfiguration {
+    maxRetries: number;
+    delaysMs: number[] | undefined;
+}
+
 export interface HttpStepConfiguration extends BaseStepConfiguration {
     method: string;
     encodingName: string;
@@ -15,6 +20,7 @@ export interface HttpStepConfiguration extends BaseStepConfiguration {
     headers?: Record<string, string>;
     validFormat: boolean | undefined;
     formatErrorMessage : string;
+    retries?: RetryConfiguration;
 }
 
 export interface MailStepConfiguration extends BaseStepConfiguration {
