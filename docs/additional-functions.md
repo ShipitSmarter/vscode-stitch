@@ -330,8 +330,51 @@ After defining the input object as mentioned above, you can call the method as f
 }}
 ```
 
-[:top:](#additional-functions)
+### `custom.get_route_record`
 
+```
+custom.get_route_record <csv-content> <postcode-min-index> <postcode-max-index> <countrycode-index> <postcode> <countrycode> <separator> <skiplines?>
+```
+
+#### Description
+
+Given a CSV file content with route information records, returns the record associated with the given postcode and country code (if any)
+
+#### Arguments
+
+- `csv-content`: string that contains the csv file content
+- `postcode-min-index`: the index of the column in each record that contains the minimum postcode value
+- `postcode-max-index`: the index of the column in each record that contains the maximum postcode value
+- `countrycode-index`: the index of the column in each record that contains the country code
+- `postcode`: the postcode to search for
+- `countrycode`: the country code to search for
+- `separator`: the separator used in the csv file
+- `skiplines`: the number of lines to skip at the beginning of the csv file (optional; default is 0)
+
+#### Returns
+
+The record associated with the given postcode and country code (if any)
+
+#### Examples
+
+> **input**
+```scriban-html
+{{ 
+    route_info = include 'route_info.sbn'
+    custom.get_route_record(route_info, 0, 1, 2, "1234", "NL", ",", 1)
+}}
+```
+> **output**
+```json
+[
+    "1000",
+    "2000",
+    "NL",
+    "route1"
+]
+```
+
+[:top:](#additional-functions)
 ## `json` functions
 
 Json functions available through the object 'json' in scriban.
