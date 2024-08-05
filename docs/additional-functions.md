@@ -59,6 +59,7 @@ Custom functions available through the object 'custom' in scriban.
 - [`custom.make_array`](#custommake_array)
 - [`custom.throw_problem_details`](#customthrow_problem_details)
 - [`custom.throw_v1_error_response`](#customthrow_v1_error_response)
+- [`custom.get_route_record`](#customget_route_record)
 
 [:top:](#additional-functions)
 ### `custom.date_parse_exact`
