@@ -359,6 +359,21 @@ The record associated with the given postcode and country code (if any)
 #### Examples
 
 > **input**
+
+_`route_info.sbn`_
+```txt
+PLZvon;PLZbis;LKZ;Relation
+2001;3000;NL;route2
+3001;4000;NL;route3
+1000;2000;NL;route1
+4001;5000;NL;route4
+01067;01067;DE;01
+00000;01066;DE;00
+35579;35580;DE;04
+35576;35578;DE;05
+01068;01068;DE;00
+```
+
 ```scriban-html
 {{ 
     route_info = include 'route_info.sbn'
