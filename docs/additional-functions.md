@@ -5,10 +5,10 @@ This document describes the various additional function available in scriban.
             
 - [`ascii` functions](#ascii-functions)
 - [`custom` functions](#custom-functions)
+- [`dateabsolute` functions](#dateabsolute-functions)
+- [`datecalendar` functions](#datecalendar-functions)
 - [`json` functions](#json-functions)
 - [`xml` functions](#xml-functions)
-- [`datecalendar` functions](#datecalendar-functions)
-- [`dateabsolute` functions](#dateabsolute-functions)
 
 [:top:](#additional-functions)
 
@@ -56,6 +56,8 @@ Custom functions available through the object 'custom' in scriban.
 - [`custom.date_parse_exact`](#customdate_parse_exact)
 - [`custom.base64_encode`](#custombase64_encode)
 - [`custom.base64_decode`](#custombase64_decode)
+- [`custom.string_to_int_array`](#customstring_to_int_array)
+- [`custom.string_from_int_array`](#customstring_from_int_array)
 - [`custom.make_array`](#custommake_array)
 - [`custom.throw_problem_details`](#customthrow_problem_details)
 - [`custom.throw_v1_error_response`](#customthrow_v1_error_response)
@@ -99,7 +101,7 @@ An object that is equivalent to the date and time contained in text
 ### `custom.base64_encode`
 
 ```
-custom.base64_encode <text> <encodingName: "UTF8">?
+custom.base64_encode <text> <encodingName: "utf-8">?
 ```
 
 #### Description
@@ -130,7 +132,7 @@ aGVsbG8=
 ### `custom.base64_decode`
 
 ```
-custom.base64_decode <text> <encodingName: "UTF8">?
+custom.base64_decode <text> <encodingName: "utf-8">?
 ```
 
 #### Description
@@ -158,6 +160,68 @@ hello
 ```
 
 [:top:](#additional-functions)
+### `custom.string_to_int_array`
+
+```
+custom.string_to_int_array <text> <encodingName: "utf-8">?
+```
+
+#### Description
+
+Convert a string to an int array
+
+#### Arguments
+
+- `text`: The text to convert
+- `encodingName`: The [code page name](https://docs.microsoft.com/en-us/dotnet/api/system.text.encodinginfo.getencoding) of the preferred encoding.
+
+#### Returns
+
+Int array of the input
+
+#### Examples
+
+> **input**
+```scriban-html
+{{ "hello" | custom.string_to_int_array | json.serialize }}
+```
+> **output**
+```html
+[104, 101, 108, 108, 111]
+```
+
+[:top:](#additional-functions)
+### `custom.string_from_int_array`
+
+```
+custom.string_from_int_array <data> <encodingName: "utf-8">?
+```
+
+#### Description
+
+Convert an int array to a string
+
+#### Arguments
+
+- `data`: The int array to convert
+- `encodingName`: The [code page name](https://docs.microsoft.com/en-us/dotnet/api/system.text.encodinginfo.getencoding) of the preferred encoding.
+
+#### Returns
+
+String from int array input
+
+#### Examples
+
+> **input**
+```scriban-html
+{{ [104, 101, 108, 108, 111] | custom.string_from_int_array }}
+```
+> **output**
+```html
+hello
+```
+
+[:top:](#additional-functions)
 ### `custom.make_array`
 
 ```
@@ -166,7 +230,7 @@ custom.make_array <input>
 
 #### Description
 
-Create a error for the input, can handle single objects and arrays
+Create an error for the input, can handle single objects and arrays
 
 #### Arguments
 
@@ -188,209 +252,198 @@ A ScriptArray from the input
 ["123"]
 [123,1213]
 ```
-[:top:](#additional-functions)
 
+[:top:](#additional-functions)
 ### `custom.throw_problem_details`
 
 ```
-custom.throw_problem_details <input>
+custom.throw_problem_details <problemObject>
 ```
 
 #### Description
 
-Stop the integration flow, and return directly with a response message formatted according to [RFC 7807](https://datatracker.ietf.org/doc/html/rfc7807).
+Throw an exception from Scriban flow, stops the entire integration and returns a ProblemDetails Json response
 
 #### Arguments
 
-- `input`: 
-  - native `Scriban` object that looks as follows:
-
-```scriban-html
-{{
-    $input = {
-        type: "type",
-        title: "title",
-        status: 400,
-        detail : "detail",
-        errors: [ 
-            {
-                errorCode: "code",
-                errorMessage: "message",
-                explanationMessage: "joop"
-            }
-        ]
-    }
-}}
-```
-
-No fields in `input` are mandatory.
+- `problemObject`: 
 
 #### Returns
 
-The function does not strictly return anything, but has as an effect that it stops the integration flow and returns a response in almost the same format:
 
-```json
-{
-    "type": "type",
-    "title": "title",
-    "status": 400,
-    "detail" : "detail",
-    "instance": "/examples/dummy/throwing-v2",
-    "errors": [ 
-        {
-            "errorCode": "code",
-            "errorMessage": "message",
-            "explanationMessage": "joop"
-        }
-    ]
-}
-```
-
-The `instance` field is non-settable and automatically added. It contains the `Stitch` integration path of the throwing integration.
-
-Note, that the http status code of the `stitch` api call response will be equal to the `status` code returned in the `input` Scriban object. 
 
 #### Examples
 
-After defining the input object as mentioned above, you can call the method as follows:
 
-```scriban-html
-{{
-    custom.throw_problem_details($input)
-}}
-```
 
 [:top:](#additional-functions)
-
 ### `custom.throw_v1_error_response`
 
 ```
-custom.throw_v1_error_response <input>
+custom.throw_v1_error_response <problemObject>
 ```
 
 #### Description
 
-Stop the integration flow, and return directly with a response message formatted according to the 'classic' `v1` error message as described below.
+Throw a an exception from Scriban flow, stops the entire integration and returns a Stitch V1 error Json response
 
 #### Arguments
 
-- `input`: 
-  - native `Scriban` object that looks as follows:
-
-```scriban-html
-{{
-    $input = {
-        AWB: "",
-        shipmentStatus: "",
-        resultMessages : [
-            "integration failed"
-        ],
-        errors: [ 
-            {
-                errorCode: "code",
-                errorMessage: "message",
-                explanationMessage: "explanation"
-            }
-        ]
-    }
-}}
-```
-
-No fields in `input` are mandatory.
+- `problemObject`: 
 
 #### Returns
 
-The function does not strictly return anything, but has as an effect that it stops the integration flow and returns a response in almost the same format:
 
-```json
-{
-    "AWB": "",
-    "ShipmentStatus": "",
-    "ResultMessages": [
-        "integration failed"
-    ],
-    "Errors": [
-        {
-            "ErrorCode": "code",
-            "ErrorMessage": "message",
-            "ExplanationMessage": "explanation"
-        }
-    ]
-}
-```
-Note 1: the `Errors` list is always added, even if no error is given in the input (but will in that case be an empty list).
-Note 2: using this throw function will always return the original `stitch` api call with a `200` http status code.
 
 #### Examples
 
-After defining the input object as mentioned above, you can call the method as follows:
 
-```scriban-html
-{{
-    custom.throw_v1_error_response($input)
-}}
-```
 
+[:top:](#additional-functions)
 ### `custom.get_route_record`
 
 ```
-custom.get_route_record <csv-content> <postcode-min-index> <postcode-max-index> <countrycode-index> <postcode> <countrycode> <separator> <skiplines?>
+custom.get_route_record <fileContent> <postCodeMinIndex> <postCodeMaxIndex> <countryCodeIndex> <postCode> <countryCode> <separator: ",">? <skipLines: 0>?
 ```
 
 #### Description
 
-Given a CSV file content with route information records, returns the record associated with the given postcode and country code (if any)
+Given CSV file content with records, post code min index, post code max index, country code index, post code and country code, returns the record that matches the post code and country code.
 
 #### Arguments
 
-- `csv-content`: string that contains the csv file content
-- `postcode-min-index`: the index of the column in each record that contains the minimum postcode value
-- `postcode-max-index`: the index of the column in each record that contains the maximum postcode value
-- `countrycode-index`: the index of the column in each record that contains the country code
-- `postcode`: the postcode to search for
-- `countrycode`: the country code to search for
-- `separator`: the separator used in the csv file
-- `skiplines`: the number of lines to skip at the beginning of the csv file (optional; default is 0)
 
 #### Returns
 
-The record associated with the given postcode and country code (if any)
+
 
 #### Examples
 
-> **input**
-
-_`route_info.sbn`_
-```txt
-PLZvon;PLZbis;LKZ;Relation
-2001;3000;NL;route2
-3001;4000;NL;route3
-1000;2000;NL;route1
-4001;5000;NL;route4
-01067;01067;DE;01
-00000;01066;DE;00
-35579;35580;DE;04
-35576;35578;DE;05
-01068;01068;DE;00
-```
-
-```scriban-html
-{{ 
-    route_info = include 'route_info.sbn'
-    custom.get_route_record(route_info, 0, 1, 2, "1234", "NL", ",", 1)
-}}
-```
-> **output**
-```json
-[
-    "1000",
-    "2000",
-    "NL",
-    "route1"
-]
-```
 
 [:top:](#additional-functions)
+
+## `dateabsolute` functions
+
+Custom functions for parsing and serializing absolute DateTimes with time zone offset
+
+- [`dateabsolute.parse`](#dateabsoluteparse)
+- [`dateabsolute.to_string`](#dateabsoluteto_string)
+
+[:top:](#additional-functions)
+### `dateabsolute.parse`
+
+```
+dateabsolute.parse <dateTimeString> <format>?
+```
+
+#### Description
+
+Parse a string to an absolute date time (with offset), optionally using a specified format.
+
+#### Arguments
+
+- `dateTimeString`: String containing the date time with offset
+/// - `format`: (Optional) The format in which the date time string should be interpreted (time zone mandatory).
+See https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings .
+
+#### Returns
+
+An object that is equivalent to the date and time contained in text/// Throws an exception if the date time string or the optionally specified format
+does not contain time zone information
+
+#### Examples
+
+
+
+[:top:](#additional-functions)
+### `dateabsolute.to_string`
+
+```
+dateabsolute.to_string <dateTimeOffset> <format: "yyyy-MM-ddTHH:mm:ss.fffK">?
+```
+
+#### Description
+
+Converts the value of an absolute date time (with offset) to its equivalent string representation, optionally using a specified format.
+If no format is given, it will return an ISO 8601 compliant string.
+
+#### Arguments
+
+- `dateTimeOffset`: The absolute date time object to be serialized
+- `format`: The custom format in which the date time offset string should be interpreted (time zone optional, but not mandatory).
+See https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings .
+
+#### Returns
+
+>A string representation of the given DateTimeOffset in the given format, or in the default ISO 8601 compliant format
+
+#### Examples
+
+
+[:top:](#additional-functions)
+
+## `datecalendar` functions
+
+Custom functions for parsing and serializing calendar DateTimes without time zone offset
+
+- [`datecalendar.parse`](#datecalendarparse)
+- [`datecalendar.to_string`](#datecalendarto_string)
+
+[:top:](#additional-functions)
+### `datecalendar.parse`
+
+```
+datecalendar.parse <dateTimeString> <format>?
+```
+
+#### Description
+
+Parse a string to a calendar date time (without time zone offset), optionally using a specified format.
+
+#### Arguments
+
+- `dateTimeString`: String containing the calendar date time
+- `format`: (Optional) The format in which the date time string should be interpreted (time zone not allowed).
+See https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings .
+
+#### Returns
+
+An object that is equivalent to the date and time contained in textThrows an exception if the date time string or the optionally specified format
+contains time zone information
+
+#### Examples
+
+
+
+[:top:](#additional-functions)
+### `datecalendar.to_string`
+
+```
+datecalendar.to_string <dateTime> <format: "yyyy-MM-ddTHH:mm:ss.fff">?
+```
+
+#### Description
+
+Converts the value of a calendar date time (without time zone offset) to its equivalent string representation, optionally using a specified format.
+If no format is given, it will return an ISO 8601 compliant string.
+
+#### Arguments
+
+- `dateTime`: The calendar date time object to be converted to string
+- `format`: (Optional) The format in which the date time string should be formatted (time zone not allowed).
+See https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings .
+
+#### Returns
+
+A string representation of the given calendar date time in the given format, or in the default ISO 8601 compliant format/// Throws an exception if:
+1. the given date time contains time zone information
+2. the custom format contains time zone information
+
+#### Examples
+
+
+[:top:](#additional-functions)
+
 ## `json` functions
 
 Json functions available through the object 'json' in scriban.
@@ -416,7 +469,7 @@ Escape a json string
 
 #### Returns
 
-The excaped string value
+The escaped string value
 
 #### Examples
 
@@ -446,7 +499,7 @@ Unescape a json string
 
 #### Returns
 
-The excaped string value
+The escaped string value
 
 #### Examples
 
@@ -484,8 +537,8 @@ The JSON presentation of the value
 > **input**
 ```scriban-html
 {{
-myobject = { member1: "yes", member2: 123 }
-myobject | json.serialize true
+myObject = { member1: "yes", member2: 123 }
+myObject | json.serialize true
 }}
 ```
 > **output**
@@ -547,307 +600,5 @@ Escape a string so it's safe to use in XML nodes
 The XML escaped value
 
 #### Examples
-
-
-## `datecalendar` functions
-Calendar date time functions are available through the object `datecalendar` in Scriban. 
-
-- [ `datecalendar.parse`](#datecalendarparse)
-- [ `datecalendar.to_string`](#datecalendarto_string)
-
-[:top:](#additional-functions)
-
-### `datecalendar.parse`
-
-```
-datecalendar.parse <text>
-datecalendar.parse <text> <format>
-```
-
-#### Description
-Parse a calendar date time string to a date time object without time zone offset, optionally with a specified format
-
-#### Arguments
-- `text`: 
-  - The date time string to parse
-  - **Note:** will throw an `ArgumentException` if the given `text` contains time zone information.
-- `format`:
-  - (Optional) A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
-  - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
-
-#### Returns
-The parsed date time object
-
-#### Examples
-
-**1. Valid calendar date time string**
-> **input**
-```scriban-html
-{{
-    datecalendar.parse("2021-01-01T00:00:00")
-}}
-```
-
-> **output**
-```html
-01 Jan 2021 00:00:00
-```
-
-**2. Invalid date time string containing time zone offset**
-> **input**
-```scriban-html
-{{
-    datecalendar.parse("2021-01-01T00:00:00Z")
-}}
-```
-
-> **output**
-
-throws `ArgumentException` : `Time zone specification is not allowed for calendar DateTime`
-
-
-**3. date time string with valid local date time format**
-> **input**
-```scriban-html
-{{
-    datecalendar.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
-}}
-```
-
-> **output**
-```html
-01 Jan 2021 00:00:00
-```
-
-**4. date time string with invalid format containing time zone offset**
-> **input**
-```scriban-html
-{{
-    datecalendar.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
-}}
-```
-
-> **output**
-
-throws `ArgumentException` : `Time zone specification in custom format is not allowed for calendar DateTime`
-
-[:top:](#additional-functions)
-
-
-### `datecalendar.to_string`
-
-```
-datecalendar.to_string <datetime>
-datecalendar.to_string <datetime> <format>
-```
-
-#### Description
-Convert a calendar date time object to a string, optionally using a specified format.
-If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:ss.fff` is used.
-
-#### Arguments
-- `datetime`: 
-  - The calendar date time object to convert
-  - **Note:** will throw an `ArgumentException` if a `DateTimeOffset` object (i.e., an absolute date time) is given  instead of a `DateTime` object
-- `format`:
-    - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
-    - **Note:** will throw an `ArgumentException` if the given `format` contains time zone information (i.e., `z` or `K` characters).
-
-#### Returns
-The string representation of the calendar DateTime object
-
-#### Examples
-
-**1. Valid format**
-> **input**
-```scriban-html
-{{
-    dt = datecalendar.parse("2021-01-01T00:00:00")
-
-    datecalendar.to_string(dt)
-    datecalendar.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
-}}
-```
-
-> **output**
-```html
-2021-01-01T00:00:00.000
-2021-01-01T00:00:00
-```
-
-**2. Invalid format containing time zone offset**
-> **input**
-```scriban-html
-{{
-    dt = datecalendar.parse("2021-01-01T00:00:00")
-    datecalendar.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
-}}
-```
-
-> **output**
-
-throws `ArgumentException` : `Time zone specification in custom format is not allowed for calendar DateTime`
-
-**3. Invalid absolute date time**
-> **input**
-```scriban-html
-{{
-    dt = dateabsolute.parse("2021-01-01T00:00:00Z")
-
-    datecalendar.to_string(dt)
-}}
-```
-
-> **output**
-
-throws `ArgumentException` : `Unable to convert type 'DateTimeOffset' to 'DateTime'`
-
-[:top:](#additional-functions)
-
-## `dateabsolute` functions
-
-Absolute date time functions are available through the object `dateabsolute` in Scriban.
-
-- [ `dateabsolute.parse`](#dateabsoluteparse)
-- [ `dateabsolute.to_string`](#dateabsoluteto_string)
-
-[:top:](#additional-functions)
-
-### `dateabsolute.parse`
-
-```
-dateabsolute.parse <text>
-dateabsolute.parse <text> <format>
-```
-
-#### Description
-Parse a date time string to an absolute date time object with time zone information, optionally with a specified format
-
-#### Arguments
-- `text`: 
-  - The absolute date time string to parse
-  - **Note:** will throw an `ArgumentException` if the given `text` does not contain time zone information.
-- `format`:
-  - (Optional) A format specifier that defines the required format of text (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
-  - **Note:** will throw an `ArgumentException` if the given `format` does not contain time zone information (i.e., `z` or `K` characters).
-
-#### Returns
-The parsed absolute date time object
-
-#### Examples
-
-**1. Valid absolute date time string**
-> **input**
-```scriban-html
-{{
-    dateabsolute.parse("2021-01-01T00:00:00Z")
-}}
-```
-
-> **output**
-```html
-01 Jan 2021 00:00:00 +00:00
-```
-
-**2. Invalid calendar date time string without time zone offset**
-> **input**
-```scriban-html
-{{
-    dateabsolute.parse("2021-01-01T00:00:00")
-}}
-```
-
-> **output**
-
-throws `ArgumentException` : `Time zone specification is mandatory for absolute DateTime`
-
-
-**3. Date time string with valid custom format**
-
-> **input**
-```scriban-html
-{{
-    dateabsolute.parse_exact("2021-01-01T00:00:00Z", "yyyy-MM-ddTHH:mm:ssK")
-}}
-```
-
-> **output**
-```html
-01 Jan 2021 00:00:00 +00:00
-```
-
-**4. Date time string with invalid format without time zone offset**
-> **input**
-```scriban-html
-{{
-    dateabsolute.parse_exact("2021-01-01T00:00:00", "yyyy-MM-ddTHH:mm:ss")
-}}
-```
-
-> **output**
-
-throws `ArgumentException` : `Time zone specification in custom format is mandatory for absolute DateTime`
-
-[:top:](#additional-functions)
-
-
-### `dateabsolute.to_string`
-
-```
-dateabsolute.to_string <datetime>
-dateabsolute.to_string <datetime> <format>
-```
-
-#### Description
-Convert an absolute date time object to a string, optionally using a specified format.
-If no format is given, the default, ISO 8601 compliant format `yyyy-MM-ddTHH:mm:ss.fffK` is used.
-
-#### Arguments
-- `datetime`: 
-  - The absolute date time object to convert
-  - **Note:** will throw an `ArgumentException` if the given argument is a calendar date time object (instead of an absolute date time object)
-- `format`:
-  - A format specifier that defines the required format of the string (see [Microsoft's date time format specifications](https://learn.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings))
-  - **Note:** it is NOT mandatory to specify a time zone offset in the given `format`.
-
-#### Returns
-The string representation of the absolute date time object in the specified format
-
-#### Examples
-
-**1. Valid absolute date time**
-> **input**
-```scriban-html
-{{
-    dt = dateabsolute.parse("2021-01-01T00:00:00Z")
-
-    dateabsolute.to_string(dt)
-    dateabsolute.to_string(dt, "yyyy-MM-ddTHH:mm:ss")
-    dateabsolute.to_string(dt, "yyyy-MM-ddTHH:mm:ssK")
-}}
-```
-
-> **output**
-```html
-2021-01-01T00:00:00+00:00
-2021-01-01T00:00:00
-2021-01-01T00:00:00+00:00
-```
-
-**2. Invalid calendar date time**
-> **input**
-```scriban-html
-{{
-    dt = datecalendar.parse("2021-01-01T00:00:00")
-
-    dateabsolute.to_string(dt)
-}}
-```
-
-> **output**
-
-throws `ArgumentException` : `Argument must be of type DateTimeOffset, but was DateTime`
-
-[:top:](#additional-functions)
 
 
