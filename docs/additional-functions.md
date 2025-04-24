@@ -57,6 +57,7 @@ Custom functions available through the object 'custom' in scriban.
 - [`custom.base64_encode`](#custombase64_encode)
 - [`custom.base64_decode`](#custombase64_decode)
 - [`custom.string_to_int_array`](#customstring_to_int_array)
+- [`custom.hex_string_to_int_array`](#customhex_string_to_int_array)
 - [`custom.string_from_int_array`](#customstring_from_int_array)
 - [`custom.make_array`](#custommake_array)
 - [`custom.throw_problem_details`](#customthrow_problem_details)
@@ -191,6 +192,36 @@ Int array of the input
 ```
 
 [:top:](#additional-functions)
+### `custom.hex_string_to_int_array`
+
+```
+custom.hex_string_to_int_array <hex>
+```
+
+#### Description
+
+Convert a hex string to an int array
+
+#### Arguments
+
+- `hex`: The hex string to convert
+
+#### Returns
+
+Int array of the input
+
+#### Examples
+
+> **input**
+```scriban-html
+{{ "test" | string.sha1 | custom.hex_string_to_int_array | json.serialize }}
+```
+> **output**
+```html
+[169, 74, 143, 229, 204, 177, 155, 166, 28, 76, 8, 115, 211, 145, 233, 135, 152, 47, 187, 211]
+```
+
+[:top:](#additional-functions)
 ### `custom.string_from_int_array`
 
 ```
@@ -285,7 +316,7 @@ custom.throw_v1_error_response <problemObject>
 
 #### Description
 
-Throw a an exception from Scriban flow, stops the entire integration and returns a Stitch V1 error Json response
+Throw an exception from Scriban flow, stops the entire integration and returns a Stitch V1 error Json response
 
 #### Arguments
 
