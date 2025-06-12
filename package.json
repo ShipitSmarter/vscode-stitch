@@ -29,7 +29,7 @@
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.8.8",
+	"version": "1.8.9",
 	"engines": {
 		"vscode": "^1.80.0"
 	},
@@ -150,12 +150,15 @@
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.metadata.schema.json"
 			}
 		],
-		"yamlValidation":[	
+		"yamlValidation": [
 			{
-				"fileMatch": ["*.integration.yaml", "*.integration.yml"],
+				"fileMatch": [
+					"*.integration.yaml",
+					"*.integration.yml"
+				],
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.schema.json"
 			}
-		],		
+		],
 		"views": {
 			"explorer": [
 				{
