@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.9.0
+
+- Adding Reply-To visualization in MailStep integration preview
+
 # 1.8.9
 
 - improve error message visualization in integration preview
