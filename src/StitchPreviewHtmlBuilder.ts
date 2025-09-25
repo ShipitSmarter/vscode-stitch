@@ -382,9 +382,8 @@ function _getMailStepHtml(configuration: MailStepConfiguration) {
   return `<p>
                 Subject:&nbsp;${configuration.subject}<br />
                 From:&nbsp;&nbsp;&nbsp;&nbsp;${configuration.from}<br />
-                To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.to.join(
-                  ", "
-                )}
+                Reply-To:&nbsp;&nbsp;&nbsp;&nbsp;${configuration.replyToList.join(", ")}<br />
+                To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.to.join(", ")}<br />   
             </p>`;
 }
 
