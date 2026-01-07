@@ -51,14 +51,16 @@
                 "prefix": ["is", "has", "can", "did", "will"]
             }
         ],
-        "@typescript-eslint/semi": ["error"],
+        "@typescript-eslint/no-unused-expressions": "error",
+        "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+        "@typescript-eslint/prefer-promise-reject-errors": "error",
+        "@typescript-eslint/no-require-imports": "error",
         "@typescript-eslint/explicit-member-accessibility": ["error"],
-        "@typescript-eslint/comma-spacing": ["error"],
         "@typescript-eslint/restrict-template-expressions": "off",
         "curly": ["error"],
         "eqeqeq": ["error", "smart"],
         "no-throw-literal": "error",
-        "semi": "off", // Disabled because we use @typescript-eslint/semi
-        "comma-spacing": "off" // Disabled because we use @typescript-eslint/comma-spacing
+        "semi": ["error"],
+        "comma-spacing": ["error"]
     }
 }

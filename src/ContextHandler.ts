@@ -46,7 +46,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         });
 
         const onDidChangeActiveTextEditorListener = vscode.window.onDidChangeActiveTextEditor((e): void => {
-            e && ['file'].includes(e.document.uri.scheme) && this._updateContextOnChangeActiveEditor();
+            if (e && ['file'].includes(e.document.uri.scheme)) {
+                this._updateContextOnChangeActiveEditor();
+            }
         });
 
         const onDidChangeTextEditorListener = vscode.workspace.onDidChangeTextDocument((e): void => {

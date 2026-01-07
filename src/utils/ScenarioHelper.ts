@@ -1,6 +1,6 @@
-import glob = require("glob");
-import path = require("path");
-import fs = require("fs");
+import { globSync } from "glob";
+import * as path from "path";
+import * as fs from "fs";
 import { CONSTANTS } from "../constants";
 import { FileScrambler } from "./FileScrambler";
 import { Context, ScenarioResult, ScenarioSource } from "../types";
@@ -15,7 +15,7 @@ export class ScenarioHelper {
             isInvalid = false;
 
         const integrationDir = path.dirname(integrationFilePath);
-        const dirs = glob.sync(`${integrationDir}/${CONSTANTS.scenariosDirectoryName}/*/`, undefined);
+        const dirs = globSync(`${integrationDir}/${CONSTANTS.scenariosDirectoryName}/*/`);
         if (!dirs || !dirs.length) { isInvalid = true; }
         for (i = 0; i < dirs.length; i++) {
             scenarioPath = dirs[i];
@@ -39,9 +39,9 @@ export class ScenarioHelper {
 
     public static getScenarioFiles(context: Context): FileInput[] {
         const scenarioFilesToInclude = [
-            ...glob.sync(`${context.activeScenario.path}/input.*`, undefined),
-            ...glob.sync(`${context.activeScenario.path}/step.*.*`, undefined),
-            ...glob.sync(`${context.activeScenario.path}/configs.yaml`, undefined)
+            ...globSync(`${context.activeScenario.path}/input.*`),
+            ...globSync(`${context.activeScenario.path}/step.*.*`),
+            ...globSync(`${context.activeScenario.path}/configs.yaml`)
         ];
         const scenarioFiles: FileInput[] = [];
         scenarioFilesToInclude.forEach(includePath => {
@@ -85,7 +85,7 @@ export class ScenarioHelper {
             } else {
                 // because the import contains scriban we load the file with a glob pattern
                 const globImport = path.resolve(integrationFolder, importItem.replace(/{{.*?}}/g, '*'));
-                glob.sync(globImport).forEach(x => {
+                globSync(globImport).forEach(x => {
                     const globPath = path.normalize(path.resolve(integrationFolder, x));
                     importFiles.push(<FileInput>{
                         filename: globPath,
@@ -99,22 +99,22 @@ export class ScenarioHelper {
     }
 
     public static getScenarioInputFilepath(scenario: ScenarioSource) : string {
-        const files = glob.sync(`${scenario.path}/input.*`);
+        const files = globSync(`${scenario.path}/input.*`);
         return files && files[0];
     }
 
     public static getScenarioConfigFilepath(scenario: ScenarioSource) : string {
-        const files = glob.sync(`${scenario.path}/configs.yaml`);
+        const files = globSync(`${scenario.path}/configs.yaml`);
         return files && files[0];
     }
 
     public static getScenarioStepFilepath(scenario: ScenarioSource, stepName: string) : string {
-        const files = glob.sync(`${scenario.path}/step.${stepName}.*`);
+        const files = globSync(`${scenario.path}/step.${stepName}.*`);
         return files && files[0];
     }
 
     public static isValidScenario(scenario: ScenarioSource): boolean {
-        return glob.sync(`${scenario.path}/input.*`, undefined).length >= 1;
+        return globSync(`${scenario.path}/input.*`).length >= 1;
     }
     
 }

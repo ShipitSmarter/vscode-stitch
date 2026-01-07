@@ -2,6 +2,31 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.10.0 (Unreleased)
+
+## Dependencies Update
+
+- **VS Code Engine**: Updated from ^1.80.0 to ^1.96.0
+- **Node.js Types**: Updated from ^18.14.2 to ^20.17.0 (aligned with VS Code 1.96+ Node 20.x runtime)
+- **TypeScript**: Updated from ^5.1.6 to ^5.7.2
+- **TypeScript ESLint**: Updated from ^6.2.0 to ^8.18.0
+- **ESLint**: Updated from ^8.45.0 to ^8.57.1
+- **Mocha**: Updated from ^10.2.0 to ^10.8.2
+- **Chai**: Updated from ^4.3.7 to ^4.5.0
+- **Axios**: Updated from ^1.4.0 to ^1.7.9
+- **Glob**: Updated from ^7.2.3 to ^11.0.0
+- **YAML**: Updated from 2.3.1 to ^2.6.1
+- **@vscode/test-electron**: Updated from ^2.3.8 to ^2.4.1
+- **@vscode/vsce**: Updated from ^2.19.0 to ^3.2.1
+
+## Code Changes
+
+- Removed `chai-subset` dependency (functionality now native in Chai v5)
+- Migrated from `glob.sync()` to `globSync()` for Glob v11 compatibility
+- Converted CommonJS `require()` imports to ES6 imports for better compatibility
+- Fixed ESLint rule configurations for TypeScript ESLint v8
+- Improved error handling and removed unused variables
+
 # 1.9.0
 
 - Adding Reply-To visualization in MailStep integration preview

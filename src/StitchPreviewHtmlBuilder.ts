@@ -84,14 +84,11 @@ export class StitchPreviewHtmlBuilder {
                   "assets",
                   "style.css"
                 )}" rel="stylesheet">
-                <script>
-                    window.acquireVsCodeApi = acquireVsCodeApi;
-                </script>
             </head>
             <body>
                 ${htmlBody}
                 <script>
-                    const vscode = window.acquireVsCodeApi();
+                    const vscode = acquireVsCodeApi();
                 </script>
                 <script src="${this._resolveAsUri(
                   "assets",

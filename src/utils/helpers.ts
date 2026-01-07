@@ -1,5 +1,5 @@
-import path = require("path");
-import fs = require("fs");
+import * as path from "path";
+import * as fs from "fs";
 import { IntegrationResult } from "../types/apiTypes";
 
 export function debounce<Params extends unknown[]>(func: (...args: Params) => unknown, timeout: number): (...args: Params) => void {
