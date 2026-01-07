@@ -3,6 +3,16 @@
 Library from Mozilla used to preview PDF files.<br>
 Used version: `2.9.359`.
 
+## Optimizations
+
+To reduce extension size, the following files have been removed:
+
+- **Locale files**: Removed 107 locale directories, keeping only `en-US`
+- **Source maps**: Removed all `*.map` files (not needed in production)
+- **Example HTML**: Removed `web/viewer.html` (extension generates its own)
+
+**Result**: Reduced from 339 files (15 MB) to 228 files (6.8 MB)
+
 ## Changes made for this extension.
 
 Some changes were needed to get the library to work the way we want.
@@ -59,4 +69,8 @@ We also added `pdf.css`, `pdf-main.js` and a Content Security Policy in the `hea
 - Extract zip here (replacing existing files).
 - Apply changes mentioned above again.
 - Remove demo PDF file.
+- Clean up unnecessary files:
+  - Remove all locale directories except `en-US`
+  - Remove all `*.map` files
+  - Remove `web/viewer.html`
 - Update `Used version` at top of this document.

@@ -7,11 +7,18 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 ## Build & Performance Improvements
 
 - **Bundled Extension**: Implemented esbuild bundling for significantly improved performance
-  - Reduced from 1,151 files → **352 files** (69% reduction)
-  - Reduced from 3.48 MB → **2.26 MB** (35% reduction)
+  - Reduced from 1,151 files → **245 files** (79% reduction)
+  - Reduced from 3.48 MB → **1.87 MB** (46% reduction)
   - All dependencies bundled into single 483 KB file
   - Faster extension activation and load times
   - Eliminated packaging warnings
+
+- **Optimized PDF.js Library**: Cleaned up unnecessary files
+  - Removed 107 unused locale directories (kept only en-US)
+  - Removed source maps (*.map files)
+  - Removed example HTML files
+  - Reduced PDF.js from 339 → 228 files (33% reduction)
+  - Reduced PDF.js from 15 MB → 6.8 MB (55% reduction)
 
 ## Dependencies Update
 
