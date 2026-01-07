@@ -1,15 +1,39 @@
+# Development directories
 .vscode/**
 .vscode-test/**
 .github/**
-out/test/**
+
+# Source files
 src/**
+**/*.ts
+
+# Test files
+out/**
+
+# Demo and documentation
 demo/**
+demo-files/**
+docs/**
+assets/screenshots/**
+
+# Build configuration
+tsconfig.json
+**/tsconfig.json
+.eslintrc.json
+**/.eslintrc.json
+.eslintignore
+esbuild.js
+
+# Development files
+readme-development.md
 .gitignore
 .yarnrc
-readme-development.md
-**/tsconfig.json
-**/.eslintrc.json
+
+# Source maps
 **/*.map
-**/*.ts
+
+# Package files
 *.vsix
-assets/screenshots/**
+
+# Node modules (everything bundled in dist/)
+node_modules/**

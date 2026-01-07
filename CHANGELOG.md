@@ -4,6 +4,15 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 
 # 1.10.0 (Unreleased)
 
+## Build & Performance Improvements
+
+- **Bundled Extension**: Implemented esbuild bundling for significantly improved performance
+  - Reduced from 1,151 files → **352 files** (69% reduction)
+  - Reduced from 3.48 MB → **2.26 MB** (35% reduction)
+  - All dependencies bundled into single 483 KB file
+  - Faster extension activation and load times
+  - Eliminated packaging warnings
+
 ## Dependencies Update
 
 - **VS Code Engine**: Updated from ^1.80.0 to ^1.96.0
@@ -18,6 +27,7 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 - **YAML**: Updated from 2.3.1 to ^2.6.1
 - **@vscode/test-electron**: Updated from ^2.3.8 to ^2.4.1
 - **@vscode/vsce**: Updated from ^2.19.0 to ^3.2.1
+- **esbuild**: Added ^0.24.2 for extension bundling
 
 ## Code Changes
 
