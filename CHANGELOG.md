@@ -4,6 +4,9 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 
 # 1.10.0 (Unreleased)
 
+- Stitch Preview now displays the current integration file path and scenario name at the top of the preview panel for better context.
+- The preview header is always visible, including in error states.
+
 ## Build & Performance Improvements
 
 - **Bundled Extension**: Implemented esbuild bundling for significantly improved performance

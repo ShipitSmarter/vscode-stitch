@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import { Disposable } from './utils/dispose';
 import { CONSTANTS } from './constants';
-import { CommandAction, ICommand } from './types';
+import { CommandAction, Context, ICommand } from './types';
 import { PdfPreview } from './PdfPreview';
 import { ContextHandler } from './ContextHandler';
 import { StitchPreviewHelper } from './StitchPreviewHelper';
@@ -126,9 +126,9 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         }
     }
 
-    public showSimulationResult(simulationResult: EditorSimulateIntegrationResponse) {
+    public showSimulationResult(simulationResult: EditorSimulateIntegrationResponse, context: Context) {
         this._result = simulationResult;
-        this._panel.webview.html = this._htmlHelper.createHtml(simulationResult);
+        this._panel.webview.html = this._htmlHelper.createHtml(context, simulationResult);
         if (this._scrollPosition) {
             void this._panel.webview.postMessage({ command: 'setScrollPosition', scrollY: this._scrollPosition });
             this._scrollPosition = undefined;
@@ -137,20 +137,20 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         StitchPreviewHelper.update(simulationResult);
     }
 
-    public showErrorResult(errorData: ErrorData) {
+    public showErrorResult(errorData: ErrorData, context: Context) {
         this._result = undefined;
         if (!this._scrollPosition) {
             void this._panel.webview.postMessage({ command: 'requestScrollPosition' });
         }
 
         if (errorData.ClassName === 'Core.Exceptions.StitchResponseSerializationException') {
-            this._handleStitchError({
+            this._handleStitchError(context, {
                 title: errorData.Message ?? 'Unexpected error',
                 description: `${errorData.ResultBody}`
             }, `Exception:<br />${errorData.InnerException?.Message}`);
         }
         else {
-            this._handleStitchError({
+            this._handleStitchError(context, {
                 title: 'Render error',
                 description: errorData.message || `${errorData.Message}`
             }, errorData.StackTraceString);
@@ -158,16 +158,16 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
     }
 
 
-    public handleError(error: Error, title: string) {
+    public handleError(error: Error, title: string, context: Context) {
         this._result = undefined;
-        this._panel.webview.html = this._htmlHelper.createErrorHtml({
+        this._panel.webview.html = this._htmlHelper.createErrorHtml(context, {
             title,
             description: error.message,
         }, JSON.stringify(error));
     }
 
-    private _handleStitchError(error: StitchError, extraBody?: string) {
-        this._panel.webview.html = this._htmlHelper.createErrorHtml(error, extraBody);
+    private _handleStitchError(context: Context, error: StitchError, extraBody?: string) {
+        this._panel.webview.html = this._htmlHelper.createErrorHtml(context, error, extraBody);
     }
 }
 

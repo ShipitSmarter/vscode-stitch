@@ -331,7 +331,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         } catch (error) {
             if (error instanceof Error) {
                 if (this._preview) {
-                    this._preview.handleError(error, 'Collecting files failed');
+                    this._preview.handleError(error, 'Collecting files failed', context);
                 }
                 return; 
             }
@@ -341,7 +341,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
         if (hash === this._simulationInputHash) {
             if (this._simulationResponse) {
-                this._handleResponse(this._simulationResponse);
+                this._handleResponse(this._simulationResponse, context);
             }
             return;
         }
@@ -352,21 +352,21 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         axios.post(simulateIntegrationUrl, model)
             .then(res => {
                 this._simulationResponse = <ResponseData>res.data;
-                this._handleResponse(this._simulationResponse);
+                this._handleResponse(this._simulationResponse, context);
             })
             .catch(err => {
                 if (err instanceof Error) {
-                    this._preview?.handleError(err, 'Request failed');
+                    this._preview?.handleError(err, 'Request failed', context);
                 }
             });
     }
 
-    private _handleResponse(responseData: ResponseData) {
+    private _handleResponse(responseData: ResponseData, context: Context) {
         const okResult = responseData.result;
         if (okResult) {
             const simulationResult = <EditorSimulateIntegrationResponse>responseData;
             
-            this._preview?.showSimulationResult(simulationResult);
+            this._preview?.showSimulationResult(simulationResult, context);
             try {
                 const treeItems = TreeBuilder.generateTree(simulationResult.treeModel);
                 ContextHandler._treeProvider.setTree(treeItems); 
@@ -377,7 +377,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         }
         else {
-            this._preview?.showErrorResult(<ErrorData>responseData);
+            this._preview?.showErrorResult(<ErrorData>responseData, context);
         }
     }
 }

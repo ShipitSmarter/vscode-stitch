@@ -2,7 +2,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { CONSTANTS } from "./constants";
 import { unescapeResponseBody } from "./utils/helpers";
-import { CommandAction } from "./types";
+import { CommandAction, Context } from "./types";
 import {
   EditorSimulateIntegrationResponse,
   IntegrationResult,
@@ -34,24 +34,24 @@ export class StitchPreviewHtmlBuilder {
     private _resolveAsUri: (...p: string[]) => vscode.Uri
   ) {}
 
-  public createHtml(response: EditorSimulateIntegrationResponse): string {
+  public createHtml(context: Context, response: EditorSimulateIntegrationResponse): string {
     return this._createHtmlWrapper(
       `<div class="container">
-                ${_createStepsHtml(response)}
-                ${_createResponseHtml(response)}
-            </div>
-            <div class="quicknav"><strong>&nbsp;Nav</strong> ${_createNavHtml(
-              response.integrationContext.steps
-            )}</div>`
+            ${_createHeaderHtml(context)}
+            ${_createStepsHtml(response)}
+            ${_createResponseHtml(response)}
+        </div>
+        <div class="quicknav"><strong>&nbsp;Nav</strong> ${_createNavHtml(response.integrationContext.steps)}</div>`
     );
   }
 
-  public createErrorHtml(error: StitchError, extraBody?: string): string {
+  public createErrorHtml(context: Context, error: StitchError, extraBody?: string): string {
     extraBody = StitchPreviewHtmlBuilder.escapeHtml(extraBody || "");
-    const htmlBody = `<h1 class="error">${error.title}</h1>
-                          <p>${StitchPreviewHtmlBuilder.escapeHtml(
-                            error.description
-                          )}</p><p>${extraBody}</p>`;
+    const htmlBody = `${_createHeaderHtml(context)}
+      <h3 class="error">${error.title}</h3>
+      <p>${StitchPreviewHtmlBuilder.escapeHtml(
+        error.description
+      )}</p><p>${extraBody}</p>`;
     return this._createHtmlWrapper(htmlBody);
   }
 
@@ -447,3 +447,10 @@ function _replaceNewlines(text: string): string {
   }
   return text.replace(/\n/g, "<br />  - ");
 }
+function _createHeaderHtml(context: Context) {
+  const integrationPath = context.integrationFilePath
+    ? context.integrationFilePath.replace(context.rootPath, "")
+    : "Untitled";
+  return `<h1>Stitch Preview</h1><p>Integration: ${integrationPath}<br/>Scenario: ${context.activeScenario ? context.activeScenario.name : 'None'}</p>`;
+}
+
