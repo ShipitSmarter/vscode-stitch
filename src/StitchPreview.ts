@@ -123,6 +123,15 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
                 });
                 return;
             }
+            case CommandAction.selectScenario: {
+                void vscode.commands.executeCommand('stitch.selectScenario');
+                return;
+            }
+            case CommandAction.openIntegration: {
+                const fileUri = vscode.Uri.file(command.content);
+                void vscode.window.showTextDocument(fileUri, { viewColumn: vscode.ViewColumn.One, preserveFocus: false });
+                return;
+            }
         }
     }
 

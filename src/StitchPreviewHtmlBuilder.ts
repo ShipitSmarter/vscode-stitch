@@ -448,9 +448,14 @@ function _replaceNewlines(text: string): string {
   return text.replace(/\n/g, "<br />  - ");
 }
 function _createHeaderHtml(context: Context) {
-  const integrationPath = context.integrationFilePath
+  let integrationPath = context.integrationFilePath
     ? context.integrationFilePath.replace(context.rootPath, "")
     : "Untitled";
-  return `<h1>Stitch Preview</h1><p>Integration: ${integrationPath}<br/>Scenario: ${context.activeScenario ? context.activeScenario.name : 'None'}</p>`;
+  if (integrationPath.startsWith(path.sep)) { integrationPath = integrationPath.substring(1); }
+  return `<h1>Stitch Preview</h1>
+    <p>
+      Integration: ${integrationPath} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.openIntegration}, content: '${context.integrationFilePath}' });">Open</button><br />
+      Scenario: ${context.activeScenario ? context.activeScenario.name : 'None'} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.selectScenario} });">Switch</button>
+    </p>`;
 }
 

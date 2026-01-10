@@ -43,5 +43,7 @@ export enum CommandAction {
     viewIntegrationResponse = 2,
     storeScrollPosition = 3,
     createHttpRequest = 4,
-    createHttpMultipartRequest = 5
+    createHttpMultipartRequest = 5,
+    selectScenario = 6,
+    openIntegration = 7
 }
