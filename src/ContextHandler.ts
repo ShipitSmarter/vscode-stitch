@@ -104,21 +104,22 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return this._treeProvider;
     }
 
-    public static showPreview(extensionUri: vscode.Uri): void {
+    public static showPreview(preview: StitchPreview): void {
 
         const context = this._ensureContextHandler();
 
-        const currentPreview = context._preview;
-
-        if (currentPreview) {
-            currentPreview.reveal();
-            return;
+        if (!context._preview) {
+            context._preview = preview;
         }
         
-        context._preview = context._register(StitchPreview.create(extensionUri));
-        context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
+        // Focus/reveal the preview in the secondary sidebar
+        void vscode.commands.executeCommand('stitch.preview.focus');
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
         this.requestSimulationResult();
+    }
+
+    public static hidePreview(): void {
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
     }
 
     public static requestSimulationResult() {
@@ -272,13 +273,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         void vscode.window.showInformationMessage(`The Stitch max dirs up to find the root folder has been updated to: ${maxDirsUp}`);
     }
 
-    private static _onPreviewDidDspose() {
-        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
-        if (this._current) {
-            this._current._preview = undefined;
-        }
-    }
-
     private _getConfigDebounceTimeout() : number {
         const debounceTimeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
         if (!debounceTimeout) {
@@ -317,7 +311,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
                 PdfPreview.disposeAll();
             }
 
-            this._preview?.updateTitle(`${CONSTANTS.panelTitlePrefix}${this._context.integrationFilename}`);
             this._simulateIntegration(this._context);
         }
     }

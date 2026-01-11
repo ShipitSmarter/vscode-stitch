@@ -159,12 +159,30 @@
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.schema.json"
 			}
 		],
+		"viewsContainers": {
+			"secondarySidebar": [
+				{
+					"id": "stitch-preview-panel",
+					"title": "Stitch Preview",
+					"icon": "assets/icon.png"
+				}
+			]
+		},
 		"views": {
 			"explorer": [
 				{
 					"id": "stitch.modelTree",
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
+					"icon": "assets/icon.png",
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
+				}
+			],
+			"stitch-preview-panel": [
+				{
+					"id": "stitch.preview",
+					"name": "Stitch Preview",
+					"type": "webview",
 					"icon": "assets/icon.png",
 					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
 				}

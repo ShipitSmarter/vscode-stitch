@@ -4,8 +4,11 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 
 # 1.10.0 (Unreleased)
 
-- Stitch Preview now displays the current integration file path and scenario name at the top of the preview panel for better context.
-- The preview header is always visible, including in error states.
+## Features
+
+- **Stitch Preview**: The preview is now displayed in the secondary sidebar instead of the editor area
+  - providing a better development experience and more screen real estate for code.
+  - now displays the current integration file path and scenario name at the top of the preview panel for better context.
 
 ## Build & Performance Improvements
 
@@ -41,6 +44,10 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 
 ## Code Changes
 
+- Converted `StitchPreview` from `WebviewPanel` to `WebviewViewProvider` for secondary sidebar integration
+- Refactored `StitchPreviewHtmlBuilder` and `StitchPreview` to accept the current context and display integration/scenario info
+- Updated `ContextHandler` and preview logic to propagate context to the preview HTML builder
+- Improved type safety for context propagation in preview rendering
 - Removed `chai-subset` dependency (functionality now native in Chai v5)
 - Migrated from `glob.sync()` to `globSync()` for Glob v11 compatibility
 - Converted CommonJS `require()` imports to ES6 imports for better compatibility
