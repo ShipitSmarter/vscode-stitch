@@ -7,8 +7,9 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 ## Features
 
 - **Stitch Preview**: The preview is now displayed in the secondary sidebar instead of the editor area
-  - providing a better development experience and more screen real estate for code.
-  - now displays the current integration file path and scenario name at the top of the preview panel for better context.
+  - Providing a better development experience and more screen real estate for code.
+  - Now displays the current integration file path and scenario name at the top of the preview panel for better context.
+  - Allows pinning the current integration to prevent automatic updates when switching files
 
 ## Build & Performance Improvements
 

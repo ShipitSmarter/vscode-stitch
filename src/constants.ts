@@ -6,7 +6,6 @@ export const CONSTANTS = {
 
     importConfigsFilename: 'imports.configs.yaml',
 
-    panelTitlePrefix: 'Preview: ',
     statusbarTitlePrefix: 'Scenario: ',
     
     configKeyEndpointUrl: 'stitch.endpointUrl',
@@ -17,6 +16,7 @@ export const CONSTANTS = {
 
     contextAvailableContextKey: 'stitch:contextAvailable',
     previewActiveContextKey: 'stitch:previewActive',
+    integrationPinnedContextKey: 'stitch:integrationPinned',
 
     httpStepResultTypeType: 'Core.Entities.StepResults.HttpStepResult, Core',
     renderTemplateStepResultType: 'Core.Entities.StepResults.RenderTemplateStepResult, Core',
@@ -52,6 +52,8 @@ export const COMMANDS = {
     showTree: 'stitch.showTree',
     selectScenario: 'stitch.selectScenario',
     showScenarioSource: 'stitch.showScenarioSource',
+    pinIntegration: 'stitch.pinIntegration',
+    unpinIntegration: 'stitch.unpinIntegration',
 
     createHash: 'stitch.createHash',
 

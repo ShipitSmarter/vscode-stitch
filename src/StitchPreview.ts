@@ -78,7 +78,7 @@ export class StitchPreview implements vscode.WebviewViewProvider, vscode.Disposa
                 disposable.dispose();
             }
         }
-    }
+    }    
 
     public handleCommand(command: ICommand, extensionUri: vscode.Uri): void {
         const response = this._result;

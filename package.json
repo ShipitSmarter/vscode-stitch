@@ -73,6 +73,18 @@
 					"dark": "assets/open-file-dark.svg",
 					"light": "assets/open-file-light.svg"
 				}
+			},
+			{
+				"command": "stitch.pinIntegration",
+				"title": "Pin Integration",
+				"category": "Stitch",
+				"icon": "$(pin)"
+			},
+			{
+				"command": "stitch.unpinIntegration",
+				"title": "Unpin Integration",
+				"category": "Stitch",
+				"icon": "$(pinned)"
 			}
 		],
 		"menus": {
@@ -102,6 +114,18 @@
 					"command": "stitch.showScenarioSource",
 					"group": "inline@1",
 					"when": "view == stitch.modelTree && viewItem == SCENARIO_FILE"
+				}
+			],
+			"view/title": [
+				{
+					"command": "stitch.pinIntegration",
+					"group": "navigation",
+					"when": "view == stitch.preview && stitch:previewActive && !stitch:integrationPinned"
+				},
+				{
+					"command": "stitch.unpinIntegration",
+					"group": "navigation",
+					"when": "view == stitch.preview && stitch:previewActive && stitch:integrationPinned"
 				}
 			]
 		},

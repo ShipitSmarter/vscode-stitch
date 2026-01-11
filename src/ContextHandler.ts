@@ -20,6 +20,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _context?: Context;
     private _preview?: StitchPreview;
+    private _isPinned: boolean = false;
     private _simulationInputHash?: string;
     private _simulationResponse?: ResponseData;
     private _statusBar: vscode.StatusBarItem;
@@ -29,6 +30,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private constructor() {
         super();
+        // Initialize pinned context to false
+        void vscode.commands.executeCommand('setContext', CONSTANTS.integrationPinnedContextKey, false);
+
         this._debouncedTextUpdate = debounce(() => this._updateContext(), this._getConfigDebounceTimeout());
         this._context = this._createContext();
         if (this._context) {
@@ -122,6 +126,19 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
     }
 
+    public static togglePinned(): void {
+        if (!this._current) {
+            return;
+        }
+
+        this._current._isPinned = !this._current._isPinned;
+        void vscode.commands.executeCommand('setContext', CONSTANTS.integrationPinnedContextKey, this._current._isPinned);
+        ContextHandler.log(`Preview pinned: ${this._current._isPinned}`);
+        if (!this._current._isPinned) {
+            this._current._updateContext();
+        }
+    }
+
     public static requestSimulationResult() {
         if (!this._current?._context) {
             this.log(`Unable to request simulation because Context is undefined`);
@@ -146,6 +163,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         const quickPickItems = Object.keys(scenarios).sort();
         void vscode.window.showQuickPick(quickPickItems).then((name): void => {
             if (name && this._current?._context) {
+                ContextHandler.log(`Scenario selected: ${name} for integration file: ${this._current._context.integrationFilename}`);
                 this._current._context.activeScenario = scenarios[name];
                 this._current._updateContext();
             }
@@ -283,6 +301,11 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     }
 
     private _updateContextOnChangeActiveEditor(): void {
+        // Don't update if preview is pinned
+        if (this._isPinned) {
+            return;
+        }
+        
         const previousContext = this._context;
         const newContext = this._createContext();
         if (previousContext?.integrationFilePath !== newContext?.integrationFilePath){
@@ -292,7 +315,10 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _updateContext(): void {
         const previousContext = this._context;
-        this._context = this._createContext();
+        const newContext = this._createContext();
+
+        // Don't update if preview is pinned
+        this._context = this._isPinned ? previousContext : newContext;
 
         if (!previousContext && !this._context) {
             this._clearContext();

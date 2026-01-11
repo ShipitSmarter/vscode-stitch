@@ -24,6 +24,8 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.commands.registerCommand(COMMANDS.startPreview, () => ContextHandler.showPreview(previewProvider)),
         vscode.commands.registerCommand(COMMANDS.selectScenario, () => ContextHandler.selectScenario()),
         vscode.commands.registerCommand(COMMANDS.showScenarioSource, (treeItem: TreeItem) => StitchTreeProvider.openScenarioFile(treeItem)),
+        vscode.commands.registerCommand(COMMANDS.pinIntegration, () => ContextHandler.togglePinned()),
+        vscode.commands.registerCommand(COMMANDS.unpinIntegration, () => ContextHandler.togglePinned()),
 
         // Encode
         vscode.commands.registerCommand(COMMANDS.createHash, async () => await encode.createHash()),
