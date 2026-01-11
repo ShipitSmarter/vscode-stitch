@@ -154,7 +154,7 @@ function _createNavHtml(steps: Record<string, StepResult>): string {
       return `<a href="#${key}">${key}</a>`;
     })
     .join("");
-  return `${stepsNav}<a href="#integration_response">Response</a>`;
+  return `<a href="#integration_context">Context</a>${stepsNav}<a href="#integration_response">Response</a>`;
 }
 
 function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
@@ -452,10 +452,15 @@ function _createHeaderHtml(context: Context) {
     ? context.integrationFilePath.replace(context.rootPath, "")
     : "Untitled";
   if (integrationPath.startsWith(path.sep)) { integrationPath = integrationPath.substring(1); }
-  return `<h1>Stitch Preview</h1>
-    <p>
-      Integration: ${integrationPath} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.openIntegration}, content: '${context.integrationFilePath}' });">Open</button><br />
-      Scenario: ${context.activeScenario ? context.activeScenario.name : 'None'} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.selectScenario} });">Switch</button>
-    </p>`;
+
+  return '<p>&nbsp;</p>' + _createActionHtml(
+    '',
+    'Context',
+    'integration_context',
+    `{ action: ${CommandAction.openIntegration}, content: '${context.integrationFilePath}' }`,
+    `<p>Integration: ${integrationPath}</p>
+    <p>Scenario:  ${context.activeScenario ? context.activeScenario.name : 'None'} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.selectScenario} });">Switch</button></p>`,
+    undefined
+  );
 }
 
