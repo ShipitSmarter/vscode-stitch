@@ -30,7 +30,6 @@ export function isJson(content: string): boolean{
 export function findDirectoryWithinParent(currentFolder: string, folderNameToLookFor: string, maxUp: number) : string | undefined  {
     const pathCheck = path.join(currentFolder, folderNameToLookFor);
     if (maxUp === 0) { return undefined; }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     if (fs.existsSync(pathCheck)) { return pathCheck; }
     else {
         return findDirectoryWithinParent(path.dirname(currentFolder), folderNameToLookFor, --maxUp);

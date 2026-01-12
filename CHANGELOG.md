@@ -4,56 +4,18 @@ All notable changes to the "vscode-stitch" extension will be documented in this 
 
 # 1.10.0 (Unreleased)
 
-## Features
-
 - **Stitch Preview**: The preview is now displayed in the secondary sidebar instead of the editor area
   - Providing a better development experience and more screen real estate for code.
   - Now displays the current integration file path and scenario name at the top of the preview panel for better context.
   - Allows pinning the current integration to prevent automatic updates when switching files
-
-## Build & Performance Improvements
-
-- **Bundled Extension**: Implemented esbuild bundling for significantly improved performance
+- Update all dependencies to latest versions
+- Update to require vscode v1.108.0
+- Implemented esbuild bundling for significantly improved performance
   - Reduced from 1,151 files → **245 files** (79% reduction)
   - Reduced from 3.48 MB → **1.87 MB** (46% reduction)
   - All dependencies bundled into single 483 KB file
   - Faster extension activation and load times
   - Eliminated packaging warnings
-
-- **Optimized PDF.js Library**: Cleaned up unnecessary files
-  - Removed 107 unused locale directories (kept only en-US)
-  - Removed source maps (*.map files)
-  - Removed example HTML files
-  - Reduced PDF.js from 339 → 228 files (33% reduction)
-  - Reduced PDF.js from 15 MB → 6.8 MB (55% reduction)
-
-## Dependencies Update
-
-- **VS Code Engine**: Updated from ^1.80.0 to ^1.96.0
-- **Node.js Types**: Updated from ^18.14.2 to ^20.17.0 (aligned with VS Code 1.96+ Node 20.x runtime)
-- **TypeScript**: Updated from ^5.1.6 to ^5.7.2
-- **TypeScript ESLint**: Updated from ^6.2.0 to ^8.18.0
-- **ESLint**: Updated from ^8.45.0 to ^8.57.1
-- **Mocha**: Updated from ^10.2.0 to ^10.8.2
-- **Chai**: Updated from ^4.3.7 to ^4.5.0
-- **Axios**: Updated from ^1.4.0 to ^1.7.9
-- **Glob**: Updated from ^7.2.3 to ^11.0.0
-- **YAML**: Updated from 2.3.1 to ^2.6.1
-- **@vscode/test-electron**: Updated from ^2.3.8 to ^2.4.1
-- **@vscode/vsce**: Updated from ^2.19.0 to ^3.2.1
-- **esbuild**: Added ^0.24.2 for extension bundling
-
-## Code Changes
-
-- Converted `StitchPreview` from `WebviewPanel` to `WebviewViewProvider` for secondary sidebar integration
-- Refactored `StitchPreviewHtmlBuilder` and `StitchPreview` to accept the current context and display integration/scenario info
-- Updated `ContextHandler` and preview logic to propagate context to the preview HTML builder
-- Improved type safety for context propagation in preview rendering
-- Removed `chai-subset` dependency (functionality now native in Chai v5)
-- Migrated from `glob.sync()` to `globSync()` for Glob v11 compatibility
-- Converted CommonJS `require()` imports to ES6 imports for better compatibility
-- Fixed ESLint rule configurations for TypeScript ESLint v8
-- Improved error handling and removed unused variables
 
 # 1.9.0
 
