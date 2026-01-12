@@ -1,10 +1,8 @@
 import { fail } from "assert";
 import * as chai from "chai";
-import * as chaiSubset from "chai-subset";
 import { TreeBuilder } from "../../../utils/TreeBuilder";
 
 suite('TreeBuilder Tests', () => {
-    chai.use(chaiSubset);
 
     suite('generateTreeItemInput()', () => {
 
@@ -38,7 +36,7 @@ suite('TreeBuilder Tests', () => {
 
             chai.expect(textChild.name).equal('texts');
             chai.expect(textChild.path).equal('texts');
-            chai.expect(textChild.isCollection).true;
+            chai.expect(textChild.isCollection).to.equal(true);
             const children = textChild.children;
             if (!children) {
                 fail();

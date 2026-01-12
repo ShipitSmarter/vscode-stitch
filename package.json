@@ -29,16 +29,16 @@
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.9.0",
+	"version": "1.10.0",
 	"engines": {
-		"vscode": "^1.80.0"
+		"vscode": "^1.108.0"
 	},
 	"categories": [
 		"Debuggers",
 		"Visualization"
 	],
 	"icon": "assets/icon.png",
-	"main": "./out/extension.js",
+	"main": "./dist/extension.js",
 	"activationEvents": [],
 	"contributes": {
 		"commands": [
@@ -73,6 +73,18 @@
 					"dark": "assets/open-file-dark.svg",
 					"light": "assets/open-file-light.svg"
 				}
+			},
+			{
+				"command": "stitch.pinIntegration",
+				"title": "Pin Integration",
+				"category": "Stitch",
+				"icon": "$(pin)"
+			},
+			{
+				"command": "stitch.unpinIntegration",
+				"title": "Unpin Integration",
+				"category": "Stitch",
+				"icon": "$(pinned)"
 			}
 		],
 		"menus": {
@@ -102,6 +114,18 @@
 					"command": "stitch.showScenarioSource",
 					"group": "inline@1",
 					"when": "view == stitch.modelTree && viewItem == SCENARIO_FILE"
+				}
+			],
+			"view/title": [
+				{
+					"command": "stitch.pinIntegration",
+					"group": "navigation",
+					"when": "view == stitch.preview && stitch:previewActive && !stitch:integrationPinned"
+				},
+				{
+					"command": "stitch.unpinIntegration",
+					"group": "navigation",
+					"when": "view == stitch.preview && stitch:previewActive && stitch:integrationPinned"
 				}
 			]
 		},
@@ -159,12 +183,30 @@
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.schema.json"
 			}
 		],
+		"viewsContainers": {
+			"secondarySidebar": [
+				{
+					"id": "stitch-preview-panel",
+					"title": "Stitch Preview",
+					"icon": "assets/icon.png"
+				}
+			]
+		},
 		"views": {
 			"explorer": [
 				{
 					"id": "stitch.modelTree",
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
+					"icon": "assets/icon.png",
+					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
+				}
+			],
+			"stitch-preview-panel": [
+				{
+					"id": "stitch.preview",
+					"name": "Stitch Preview",
+					"type": "webview",
 					"icon": "assets/icon.png",
 					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
 				}
@@ -178,42 +220,42 @@
 		]
 	},
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"watch": "tsc -watch -p ./",
+		"vscode:prepublish": "npm run build:production",
+		"compile": "npm run build",
+		"build": "node esbuild.js",
+		"build:production": "node esbuild.js --production",
+		"watch": "node esbuild.js --watch",
 		"package": "vsce package",
-		"pretest": "npm run compile && npm run lint",
+		"pretest": "tsc -p ./ && npm run lint",
 		"lint": "eslint src --ext ts",
 		"test": "node ./out/test/runTest.js",
-		"unittest": "npm run compile && mocha -u tdd ./out/test/suite/unitTests/**.test.js",
+		"unittest": "tsc -p ./ && mocha -u tdd ./out/test/suite/unitTests/**.test.js",
 		"deploy": "vsce publish"
 	},
 	"extensionDependencies": [
 		"redhat.vscode-yaml"
 	],
 	"devDependencies": {
-		"@types/chai": "^4.3.5",
-		"@types/chai-subset": "^1.3.3",
-		"@types/glob": "^8.1.0",
-		"@types/mocha": "^10.0.1",
-		"@types/mock-fs": "^4.13.1",
-		"@types/node": "^18.14.2",
-		"@types/vscode": "^1.80.0",
-		"@typescript-eslint/eslint-plugin": "^6.2.0",
-		"@typescript-eslint/parser": "^6.2.0",
-		"@vscode/test-electron": "^2.3.8",
-		"chai": "^4.3.7",
-		"chai-subset": "^1.6.0",
-		"eslint": "^8.45.0",
-		"mocha": "^10.2.0",
-		"mock-fs": "^5.2.0",
-		"ts-node": "^10.9.1",
-		"typescript": "^5.1.6",
-		"@vscode/vsce": "^2.19.0"
+		"@types/chai": "^5.2.3",
+		"@types/mocha": "^10.0.10",
+		"@types/mock-fs": "^4.13.4",
+		"@types/node": "^24.10.7",
+		"@types/vscode": "^1.108.0",
+		"@typescript-eslint/eslint-plugin": "^8.52.0",
+		"@typescript-eslint/parser": "^8.52.0",
+		"@vscode/test-electron": "^2.5.2",
+		"@vscode/vsce": "^3.7.1",
+		"chai": "^6.2.2",
+		"esbuild": "^0.27.2",
+		"eslint": "^9.39.2",
+		"mocha": "^11.7.5",
+		"mock-fs": "^5.5.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.9.3"
 	},
 	"dependencies": {
-		"axios": "^1.4.0",
-		"glob": "^7.2.3",
-		"yaml": "2.3.1"
+		"axios": "^1.13.2",
+		"glob": "^13.0.0",
+		"yaml": "^2.8.2"
 	}
 }

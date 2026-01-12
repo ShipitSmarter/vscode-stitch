@@ -74,7 +74,6 @@ export class TreeBuilder {
     /* eslint-enable @typescript-eslint/no-unsafe-call */
     /* eslint-enable @typescript-eslint/no-unsafe-argument */
 
-    /* eslint-disable @typescript-eslint/no-explicit-any */
     private static _determinePath(parent: TreeItem, key: string): string {
 
         if (parent.isCollection) {
@@ -87,7 +86,7 @@ export class TreeBuilder {
 
         return this._useArrayIndexerForPath(key) ? `${parent.path}['${key}']` : `${parent.path}.${key}`;
     }
-    /* eslint-enable @typescript-eslint/no-explicit-any */
+     
 
     private static _useArrayIndexerForPath(key: string): boolean {
         return key.indexOf('-') !== -1 ||

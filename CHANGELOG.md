@@ -2,6 +2,21 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.10.0 (Unreleased)
+
+- **Stitch Preview**: The preview is now displayed in the secondary sidebar instead of the editor area
+  - Providing a better development experience and more screen real estate for code.
+  - Now displays the current integration file path and scenario name at the top of the preview panel for better context.
+  - Allows pinning the current integration to prevent automatic updates when switching files
+- Update all dependencies to latest versions
+- Update to require vscode v1.108.0
+- Implemented esbuild bundling for significantly improved performance
+  - Reduced from 1,151 files → **245 files** (79% reduction)
+  - Reduced from 3.48 MB → **1.87 MB** (46% reduction)
+  - All dependencies bundled into single 483 KB file
+  - Faster extension activation and load times
+  - Eliminated packaging warnings
+
 # 1.9.0
 
 - Adding Reply-To visualization in MailStep integration preview

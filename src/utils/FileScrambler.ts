@@ -38,7 +38,7 @@ export class FileScrambler {
                 integration = <Integration>YAML.parse(integrationContent);
             }
         }
-        catch (e) {
+        catch {
             throw new Error(`Integration file ${integrationPath} has invalid JSON/YAML`);     
         }
         

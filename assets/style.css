@@ -81,7 +81,7 @@
   color: var(--vscode-errorForeground);
 }
 
-.action .content .file-btn, .actionerror .content .file-btn {
+.action .content .file-btn, .actionerror .content .file-btn, .action-btn {
   border: 1px solid var(--vscode-textPreformat-foreground);
   background-color: transparent;
   color: var(--vscode-textPreformat-foreground);

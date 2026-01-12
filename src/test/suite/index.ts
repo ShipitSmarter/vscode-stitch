@@ -28,7 +28,7 @@ export function run(): Promise<void> {
 			});
 		} catch (err) {
 			console.error(err);
-			e(err);
+			e(err instanceof Error ? err : new Error(String(err)));
 		}
 	});
 }

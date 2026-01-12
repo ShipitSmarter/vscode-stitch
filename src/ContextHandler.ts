@@ -20,6 +20,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _context?: Context;
     private _preview?: StitchPreview;
+    private _isPinned: boolean = false;
     private _simulationInputHash?: string;
     private _simulationResponse?: ResponseData;
     private _statusBar: vscode.StatusBarItem;
@@ -29,6 +30,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private constructor() {
         super();
+        // Initialize pinned context to false
+        void vscode.commands.executeCommand('setContext', CONSTANTS.integrationPinnedContextKey, false);
+
         this._debouncedTextUpdate = debounce(() => this._updateContext(), this._getConfigDebounceTimeout());
         this._context = this._createContext();
         if (this._context) {
@@ -46,7 +50,9 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         });
 
         const onDidChangeActiveTextEditorListener = vscode.window.onDidChangeActiveTextEditor((e): void => {
-            e && ['file'].includes(e.document.uri.scheme) && this._updateContextOnChangeActiveEditor();
+            if (e && ['file'].includes(e.document.uri.scheme)) {
+                this._updateContextOnChangeActiveEditor();
+            }
         });
 
         const onDidChangeTextEditorListener = vscode.workspace.onDidChangeTextDocument((e): void => {
@@ -102,21 +108,35 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return this._treeProvider;
     }
 
-    public static showPreview(extensionUri: vscode.Uri): void {
+    public static showPreview(preview: StitchPreview): void {
 
         const context = this._ensureContextHandler();
 
-        const currentPreview = context._preview;
-
-        if (currentPreview) {
-            currentPreview.reveal();
-            return;
+        if (!context._preview) {
+            context._preview = preview;
         }
         
-        context._preview = context._register(StitchPreview.create(extensionUri));
-        context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
+        // Focus/reveal the preview in the secondary sidebar
+        void vscode.commands.executeCommand('stitch.preview.focus');
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
         this.requestSimulationResult();
+    }
+
+    public static hidePreview(): void {
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
+    }
+
+    public static togglePinned(): void {
+        if (!this._current) {
+            return;
+        }
+
+        this._current._isPinned = !this._current._isPinned;
+        void vscode.commands.executeCommand('setContext', CONSTANTS.integrationPinnedContextKey, this._current._isPinned);
+        ContextHandler.log(`Preview pinned: ${this._current._isPinned}`);
+        if (!this._current._isPinned) {
+            this._current._updateContext();
+        }
     }
 
     public static requestSimulationResult() {
@@ -143,6 +163,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         const quickPickItems = Object.keys(scenarios).sort();
         void vscode.window.showQuickPick(quickPickItems).then((name): void => {
             if (name && this._current?._context) {
+                ContextHandler.log(`Scenario selected: ${name} for integration file: ${this._current._context.integrationFilename}`);
                 this._current._context.activeScenario = scenarios[name];
                 this._current._updateContext();
             }
@@ -270,13 +291,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         void vscode.window.showInformationMessage(`The Stitch max dirs up to find the root folder has been updated to: ${maxDirsUp}`);
     }
 
-    private static _onPreviewDidDspose() {
-        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
-        if (this._current) {
-            this._current._preview = undefined;
-        }
-    }
-
     private _getConfigDebounceTimeout() : number {
         const debounceTimeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
         if (!debounceTimeout) {
@@ -287,6 +301,11 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     }
 
     private _updateContextOnChangeActiveEditor(): void {
+        // Don't update if preview is pinned
+        if (this._isPinned) {
+            return;
+        }
+        
         const previousContext = this._context;
         const newContext = this._createContext();
         if (previousContext?.integrationFilePath !== newContext?.integrationFilePath){
@@ -296,7 +315,10 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _updateContext(): void {
         const previousContext = this._context;
-        this._context = this._createContext();
+        const newContext = this._createContext();
+
+        // Don't update if preview is pinned
+        this._context = this._isPinned ? previousContext : newContext;
 
         if (!previousContext && !this._context) {
             this._clearContext();
@@ -315,7 +337,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
                 PdfPreview.disposeAll();
             }
 
-            this._preview?.updateTitle(`${CONSTANTS.panelTitlePrefix}${this._context.integrationFilename}`);
             this._simulateIntegration(this._context);
         }
     }
@@ -329,7 +350,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         } catch (error) {
             if (error instanceof Error) {
                 if (this._preview) {
-                    this._preview.handleError(error, 'Collecting files failed');
+                    this._preview.handleError(error, 'Collecting files failed', context);
                 }
                 return; 
             }
@@ -339,7 +360,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
         if (hash === this._simulationInputHash) {
             if (this._simulationResponse) {
-                this._handleResponse(this._simulationResponse);
+                this._handleResponse(this._simulationResponse, context);
             }
             return;
         }
@@ -350,21 +371,21 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         axios.post(simulateIntegrationUrl, model)
             .then(res => {
                 this._simulationResponse = <ResponseData>res.data;
-                this._handleResponse(this._simulationResponse);
+                this._handleResponse(this._simulationResponse, context);
             })
             .catch(err => {
                 if (err instanceof Error) {
-                    this._preview?.handleError(err, 'Request failed');
+                    this._preview?.handleError(err, 'Request failed', context);
                 }
             });
     }
 
-    private _handleResponse(responseData: ResponseData) {
+    private _handleResponse(responseData: ResponseData, context: Context) {
         const okResult = responseData.result;
         if (okResult) {
             const simulationResult = <EditorSimulateIntegrationResponse>responseData;
             
-            this._preview?.showSimulationResult(simulationResult);
+            this._preview?.showSimulationResult(simulationResult, context);
             try {
                 const treeItems = TreeBuilder.generateTree(simulationResult.treeModel);
                 ContextHandler._treeProvider.setTree(treeItems); 
@@ -375,7 +396,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         }
         else {
-            this._preview?.showErrorResult(<ErrorData>responseData);
+            this._preview?.showErrorResult(<ErrorData>responseData, context);
         }
     }
 }
