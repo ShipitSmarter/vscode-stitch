@@ -2,7 +2,14 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
-# 1.10.0 (Unreleased)
+# 1.11.0
+
+- Reverted then `Stitch Preview` back to TextEditor Webview in Column 2
+  - This was done to be able to use `Chat` and `Stitch Preview` simultanious
+- `Pin` and `Unpin` has been moved into the preview as a button
+- Improved error handling in Preview
+
+# 1.10.0
 
 - **Stitch Preview**: The preview is now displayed in the secondary sidebar instead of the editor area
   - Providing a better development experience and more screen real estate for code.

@@ -20,8 +20,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _context?: Context;
     private _preview?: StitchPreview;
-    private _isPinned: boolean = false;
-    private _simulationInputHash?: string;
     private _simulationResponse?: ResponseData;
     private _statusBar: vscode.StatusBarItem;
     private _channel: vscode.OutputChannel;
@@ -108,16 +106,30 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         return this._treeProvider;
     }
 
-    public static showPreview(preview: StitchPreview): void {
+    public static showPreview(extensionUri: vscode.Uri): void {
 
+        const context = this._ensureContextHandler();
+
+        const currentPreview = context._preview;
+
+        if (currentPreview) {
+            currentPreview.reveal();
+            return;
+        }
+        
+        context._preview = context._register(StitchPreview.create(extensionUri));
+        context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+        this.requestSimulationResult();
+    }
+
+    public static onPreviewVisible(preview: StitchPreview): void {
         const context = this._ensureContextHandler();
 
         if (!context._preview) {
             context._preview = preview;
         }
-        
-        // Focus/reveal the preview in the secondary sidebar
-        void vscode.commands.executeCommand('stitch.preview.focus');
+
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
         this.requestSimulationResult();
     }
@@ -127,16 +139,16 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     }
 
     public static togglePinned(): void {
-        if (!this._current) {
+        if (!this._current || !this._current._context) {
             return;
         }
 
-        this._current._isPinned = !this._current._isPinned;
-        void vscode.commands.executeCommand('setContext', CONSTANTS.integrationPinnedContextKey, this._current._isPinned);
-        ContextHandler.log(`Preview pinned: ${this._current._isPinned}`);
-        if (!this._current._isPinned) {
-            this._current._updateContext();
-        }
+        this._current._context.isPinned = !this._current._context.isPinned;
+        const isPinned = this._current._context.isPinned;
+
+        void vscode.commands.executeCommand('setContext', CONSTANTS.integrationPinnedContextKey, isPinned);
+        ContextHandler.log(`Preview pinned: ${isPinned}`);
+        this._current._simulateIntegration(this._current._context);
     }
 
     public static requestSimulationResult() {
@@ -214,7 +226,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     private _clearContext() {
         void vscode.commands.executeCommand('setContext', CONSTANTS.contextAvailableContextKey, false);
         this._context = undefined;
-        this._simulationInputHash = undefined;        
         this._simulationResponse = undefined;
         this._updateStatusBar();
         PdfPreview.disposeAll();
@@ -291,6 +302,13 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         void vscode.window.showInformationMessage(`The Stitch max dirs up to find the root folder has been updated to: ${maxDirsUp}`);
     }
 
+    private static _onPreviewDidDspose() {
+        void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, false);
+        if (this._current) {
+            this._current._preview = undefined;
+        }
+    }
+
     private _getConfigDebounceTimeout() : number {
         const debounceTimeout = vscode.workspace.getConfiguration().get<number>(CONSTANTS.configKeyDebounceTimeout);
         if (!debounceTimeout) {
@@ -302,10 +320,11 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     private _updateContextOnChangeActiveEditor(): void {
         // Don't update if preview is pinned
-        if (this._isPinned) {
+        if (this._context?.isPinned) {
             return;
         }
         
+
         const previousContext = this._context;
         const newContext = this._createContext();
         if (previousContext?.integrationFilePath !== newContext?.integrationFilePath){
@@ -317,10 +336,10 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
         const previousContext = this._context;
         const newContext = this._createContext();
 
-        // Don't update if preview is pinned
-        this._context = this._isPinned ? previousContext : newContext;
+        this._context = newContext;
 
         if (!previousContext && !this._context) {
+            ContextHandler.log(`Context remains undefined, no update performed`);
             this._clearContext();
             return;
         }
@@ -356,16 +375,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             }
         }
 
-        const hash = JSON.stringify(model);
-
-        if (hash === this._simulationInputHash) {
-            if (this._simulationResponse) {
-                this._handleResponse(this._simulationResponse, context);
-            }
-            return;
-        }
-
-        this._simulationInputHash = hash;
         ContextHandler.log(`Simulating integration for ${context.integrationFilename} (activeFile: ${context.activeFile.filepath})`);
         const simulateIntegrationUrl = `${this._endPoint}/editor/simulate/integration`;
         axios.post(simulateIntegrationUrl, model)
@@ -373,9 +382,19 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
                 this._simulationResponse = <ResponseData>res.data;
                 this._handleResponse(this._simulationResponse, context);
             })
-            .catch(err => {
-                if (err instanceof Error) {
+            .catch((err: unknown) => {
+                if (err && err.hasOwnProperty('errors')) {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                    const aggregateError = err as AggregateError;
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+                    const firstErr: Error = aggregateError.errors[0];
+                    ContextHandler.log(`Simulation request failed: ${firstErr.message}`);
+                    this._preview?.handleError(firstErr, 'Request failed', context);
+                } else if (err instanceof Error) {
+                    ContextHandler.log(`Simulation request failed with error: ${err.message}`);
                     this._preview?.handleError(err, 'Request failed', context);
+                } else {
+                    ContextHandler.log(`Simulation request failed with unknown error`);
                 }
             });
     }
