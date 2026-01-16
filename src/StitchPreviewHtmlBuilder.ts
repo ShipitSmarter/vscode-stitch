@@ -458,7 +458,7 @@ function _createHeaderHtml(context: Context) {
     'Context',
     'integration_context',
     `{ action: ${CommandAction.openIntegration}, content: '${context.integrationFilePath}' }`,
-    `<p>Integration: ${integrationPath}</p>
+    `<p>Integration: ${integrationPath} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.togglePinned} });">${context.isPinned ? 'Unpin' : 'Pin'}</button></p>
     <p>Scenario:  ${context.activeScenario ? context.activeScenario.name : 'None'} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.selectScenario} });">Switch</button></p>`,
     undefined
   );

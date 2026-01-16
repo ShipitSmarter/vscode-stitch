@@ -11,6 +11,7 @@ export interface Context {
     integrationFilename: string;
     activeScenario: ScenarioSource;
     rootPath: string;
+    isPinned: boolean;
 }
 
 export interface ScenarioResult {
@@ -45,5 +46,6 @@ export enum CommandAction {
     createHttpRequest = 4,
     createHttpMultipartRequest = 5,
     selectScenario = 6,
-    openIntegration = 7
+    openIntegration = 7,
+    togglePinned = 8
 }

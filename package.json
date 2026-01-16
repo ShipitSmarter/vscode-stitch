@@ -29,7 +29,7 @@
 		"type": "git",
 		"url": "https://github.com/ShipitSmarter/vscode-stitch"
 	},
-	"version": "1.10.0",
+	"version": "1.11.0",
 	"engines": {
 		"vscode": "^1.108.0"
 	},
@@ -78,13 +78,15 @@
 				"command": "stitch.pinIntegration",
 				"title": "Pin Integration",
 				"category": "Stitch",
-				"icon": "$(pin)"
+				"icon": "$(pin)",
+				"enablement": "stitch:previewActive && !stitch:integrationPinned"
 			},
 			{
 				"command": "stitch.unpinIntegration",
 				"title": "Unpin Integration",
 				"category": "Stitch",
-				"icon": "$(pinned)"
+				"icon": "$(pinned)",
+				"enablement": "stitch:previewActive && stitch:integrationPinned"	
 			}
 		],
 		"menus": {
@@ -114,18 +116,6 @@
 					"command": "stitch.showScenarioSource",
 					"group": "inline@1",
 					"when": "view == stitch.modelTree && viewItem == SCENARIO_FILE"
-				}
-			],
-			"view/title": [
-				{
-					"command": "stitch.pinIntegration",
-					"group": "navigation",
-					"when": "view == stitch.preview && stitch:previewActive && !stitch:integrationPinned"
-				},
-				{
-					"command": "stitch.unpinIntegration",
-					"group": "navigation",
-					"when": "view == stitch.preview && stitch:previewActive && stitch:integrationPinned"
 				}
 			]
 		},
@@ -183,30 +173,12 @@
 				"url": "https://raw.githubusercontent.com/ShipitSmarter/stitch-schemas/master/integration.schema.json"
 			}
 		],
-		"viewsContainers": {
-			"secondarySidebar": [
-				{
-					"id": "stitch-preview-panel",
-					"title": "Stitch Preview",
-					"icon": "assets/icon.png"
-				}
-			]
-		},
 		"views": {
 			"explorer": [
 				{
 					"id": "stitch.modelTree",
 					"name": "Stitch Model Tree",
 					"contextualTitle": "Stitch Model Tree",
-					"icon": "assets/icon.png",
-					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
-				}
-			],
-			"stitch-preview-panel": [
-				{
-					"id": "stitch.preview",
-					"name": "Stitch Preview",
-					"type": "webview",
 					"icon": "assets/icon.png",
 					"when": "stitch:contextAvailable || resourceFilename =~ /.integration.(json|yaml|yml)$/"
 				}

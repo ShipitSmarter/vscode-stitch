@@ -133,7 +133,8 @@ export class FileScrambler {
             integrationFilePath,
             integrationFilename,
             activeScenario: scenario,
-            rootPath: this._locateRootFolder(path.dirname(integrationFilePath) + path.sep, ContextHandler.getRootFolderName(), ContextHandler.getMaxDirsUp())
+            rootPath: this._locateRootFolder(path.dirname(integrationFilePath) + path.sep, ContextHandler.getRootFolderName(), ContextHandler.getMaxDirsUp()),
+            isPinned: currentContext?.isPinned ?? false
         };
     }
 
