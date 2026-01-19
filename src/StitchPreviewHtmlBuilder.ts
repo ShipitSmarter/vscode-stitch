@@ -45,9 +45,10 @@ export class StitchPreviewHtmlBuilder {
     );
   }
 
-  public createErrorHtml(context: Context, error: StitchError, extraBody?: string): string {
+  public createErrorHtml(error: StitchError, context?: Context, extraBody?: string): string {
     extraBody = StitchPreviewHtmlBuilder.escapeHtml(extraBody || "");
-    const htmlBody = `${_createHeaderHtml(context)}
+    const header = context ? _createHeaderHtml(context) : "";
+    const htmlBody = `${header}
       <h3 class="error">${error.title}</h3>
       <p>${StitchPreviewHtmlBuilder.escapeHtml(
         error.description
@@ -458,7 +459,7 @@ function _createHeaderHtml(context: Context) {
     'Context',
     'integration_context',
     `{ action: ${CommandAction.openIntegration}, content: '${context.integrationFilePath}' }`,
-    `<p>Integration: ${integrationPath}</p>
+    `<p>Integration: ${integrationPath} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.togglePinned} });">${context.isPinned ? 'Unpin' : 'Pin'}</button></p>
     <p>Scenario:  ${context.activeScenario ? context.activeScenario.name : 'None'} <button class="action-btn" onclick="vscode.postMessage({action: ${CommandAction.selectScenario} });">Switch</button></p>`,
     undefined
   );

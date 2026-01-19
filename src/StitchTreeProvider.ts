@@ -65,6 +65,7 @@ export class StitchTreeProvider implements vscode.TreeDataProvider<TreeItem> {
         } else if (this._tree.length) {
             return Promise.resolve(this._tree);
         } else {
+            ContextHandler.log('StitchTreeProvider: requesting simulation result to build tree');
             ContextHandler.requestSimulationResult(); // this will call setTree one the request comes back
             return Promise.resolve([]);
         }
