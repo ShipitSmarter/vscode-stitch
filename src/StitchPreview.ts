@@ -186,20 +186,21 @@ export class StitchPreview extends Disposable implements vscode.Disposable {
         }
     }
 
-    public handleError(error: Error, title: string, context: Context) {
+    public handleError(error: Error, title: string, context?: Context) {
         if (!this._panel || !this._htmlHelper) { return; }
         
         this._result = undefined;
-        this._panel.webview.html = this._htmlHelper.createErrorHtml(context, {
+        const stitchError: StitchError = {
             title,
-            description: error.message,
-        }, JSON.stringify(error));
+            description: error.message
+        };
+        this._panel.webview.html = this._htmlHelper.createErrorHtml(stitchError, context, JSON.stringify(error));
     }
 
     private _handleStitchError(context: Context, error: StitchError, extraBody?: string) {
         if (!this._panel || !this._htmlHelper) { return; }
         
-        this._panel.webview.html = this._htmlHelper.createErrorHtml(context, error, extraBody);
+        this._panel.webview.html = this._htmlHelper.createErrorHtml(error, context, extraBody);
     }
 }
 

@@ -115,16 +115,14 @@ export class FileScrambler {
     ): Context | undefined {
         const normalizeResult = ScenarioHelper.getScenarios(integrationFilePath);
         if (!normalizeResult.success) {
-            void vscode.window.showErrorMessage(`No scenarios found!\nTo provide a scenario create a "scenarios" directory next to the ${integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`);
-            return;
+            throw new Error(`No scenarios found!\nTo provide a scenario create a "scenarios" directory next to the ${integrationFilename} file, subdirectories within the "scenarios" directory are regarded as scenarios.`);            
         }
 
         let scenario = currentContext?.activeScenario;
         if (!scenario || currentContext?.integrationFilePath !== integrationFilePath){
             scenario = normalizeResult.scenarios[Object.keys(normalizeResult.scenarios)[0]];
             if (!ScenarioHelper.isValidScenario(scenario)) {
-                void vscode.window.showErrorMessage(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.(txt|json|xml)`);
-                return;
+                throw new Error(`Invalid scenario!\nScenario "${scenario.name}" requires at least the following files:\n\tinput.(txt|json|xml)`);
             }
         }
 

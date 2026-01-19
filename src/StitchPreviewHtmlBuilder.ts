@@ -45,9 +45,10 @@ export class StitchPreviewHtmlBuilder {
     );
   }
 
-  public createErrorHtml(context: Context, error: StitchError, extraBody?: string): string {
+  public createErrorHtml(error: StitchError, context?: Context, extraBody?: string): string {
     extraBody = StitchPreviewHtmlBuilder.escapeHtml(extraBody || "");
-    const htmlBody = `${_createHeaderHtml(context)}
+    const header = context ? _createHeaderHtml(context) : "";
+    const htmlBody = `${header}
       <h3 class="error">${error.title}</h3>
       <p>${StitchPreviewHtmlBuilder.escapeHtml(
         error.description

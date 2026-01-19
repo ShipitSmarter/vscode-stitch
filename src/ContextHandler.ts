@@ -108,29 +108,31 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
     public static showPreview(extensionUri: vscode.Uri): void {
 
-        const context = this._ensureContextHandler();
+        const handler = this._ensureContextHandler();
 
-        const currentPreview = context._preview;
+        const currentPreview = handler._preview;
 
         if (currentPreview) {
             currentPreview.reveal();
             return;
         }
         
-        context._preview = context._register(StitchPreview.create(extensionUri));
-        context._register(context._preview.onDidDispose(() => this._onPreviewDidDspose()));
+        handler._preview = handler._register(StitchPreview.create(extensionUri));
+        handler._register(handler._preview.onDidDispose(() => this._onPreviewDidDspose()));
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+        this.log('ContextHandler: showPreview');
         this.requestSimulationResult();
     }
 
     public static onPreviewVisible(preview: StitchPreview): void {
-        const context = this._ensureContextHandler();
+        const handler = this._ensureContextHandler();
 
-        if (!context._preview) {
-            context._preview = preview;
+        if (!handler._preview) {
+            handler._preview = preview;
         }
 
         void vscode.commands.executeCommand('setContext', CONSTANTS.previewActiveContextKey, true);
+        this.log('ContextHandler: onPreviewVisible');
         this.requestSimulationResult();
     }
 
@@ -152,12 +154,7 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
     }
 
     public static requestSimulationResult() {
-        if (!this._current?._context) {
-            this.log(`Unable to request simulation because Context is undefined`);
-            return;
-        }
-
-        this._current._updateContext();
+        this._current?._updateContext();
     }
 
     public static selectScenario(): void {
@@ -252,7 +249,19 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
             filepath: activeEditor.document.fileName,
             filecontent: activeEditor.document.getText()
         };
-        return FileScrambler.determineContext(activeFile, this._context);
+        
+        try {
+            const ctx = FileScrambler.determineContext(activeFile, this._context);
+            return ctx;
+        } 
+        catch (error) {
+            if (error instanceof Error) {
+                ContextHandler.log(`Error determining context: ${error.message}`);
+                void vscode.window.showErrorMessage(`Error determining context: ${error.message}`);
+                this._preview?.handleError(error, 'Determining context failed', undefined);
+            }
+            return;
+        }
     }
 
     private _onUpdateConfiguration(e: vscode.ConfigurationChangeEvent) {
@@ -340,7 +349,6 @@ export class ContextHandler extends Disposable implements vscode.Disposable {
 
         if (!previousContext && !this._context) {
             ContextHandler.log(`Context remains undefined, no update performed`);
-            this._clearContext();
             return;
         }
 
