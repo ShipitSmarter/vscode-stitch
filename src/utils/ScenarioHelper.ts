@@ -15,7 +15,8 @@ export class ScenarioHelper {
             isInvalid = false;
 
         const integrationDir = path.dirname(integrationFilePath);
-        const dirs = globSync(`${integrationDir}/${CONSTANTS.scenariosDirectoryName}/*/`);
+        const dirs = globSync(`${integrationDir}/${CONSTANTS.scenariosDirectoryName}/*/`)
+            .sort((a, b) => a.localeCompare(b, undefined, { numeric: true}));
         if (!dirs || !dirs.length) { isInvalid = true; }
         for (i = 0; i < dirs.length; i++) {
             scenarioPath = dirs[i];

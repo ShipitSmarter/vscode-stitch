@@ -185,12 +185,16 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
           <RenderTemplateStepConfiguration>configuration
         )
       );
-    case CONSTANTS.mailStepResultType:
+    case CONSTANTS.mailStepResultType: {
+      const mailConfig = <MailStepConfiguration>configuration;
       return _createActionStepHtml(
         "Mail",
         configuration,
-        _getMailStepHtml(<MailStepConfiguration>configuration)
+        _getMailStepHtml(mailConfig),
+        "action",
+        _getMailPlainTextHtml(mailConfig)
       );
+    }
     case CONSTANTS.sftpStepResultType:
       return _createActionStepHtml(
         "SFTP",
@@ -259,7 +263,8 @@ function _createActionStepHtml(
   title: string,
   step: StepConfiguration,
   body: string,
-  cssClass: string = "action"
+  cssClass: string = "action",
+  trailingBody: string = ""         
 ) {
   let templateCode = StitchPreviewHtmlBuilder.escapeHtml(step.template);
   if (step.$type === CONSTANTS.httpMultipartStepConfigurationType) {
@@ -274,6 +279,9 @@ function _createActionStepHtml(
         `;
   }
 
+  if (trailingBody) {
+    actionHtmlBody += `<div class="content">${trailingBody}</div>`;
+  }
   return _createActionHtml(
     step.id,
     title,
@@ -383,6 +391,17 @@ function _getMailStepHtml(configuration: MailStepConfiguration) {
                 Reply-To:&nbsp;&nbsp;&nbsp;&nbsp;${configuration.replyToList.join(", ")}<br />
                 To:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${configuration.to.join(", ")}<br />   
             </p>`;
+}
+
+function _getMailPlainTextHtml(configuration: MailStepConfiguration) {
+  const plainText = configuration.plainTextTemplate?.trim();
+  if (!plainText) {
+    return "";
+  }
+
+  return `<p>
+            <pre><p>Plain Text Template:</p><code>${StitchPreviewHtmlBuilder.escapeHtml(plainText)}</code></pre>
+          </p>`;
 }
 
 function _getBase64EncodeStepHtml(

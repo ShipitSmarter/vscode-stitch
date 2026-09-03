@@ -203,6 +203,27 @@ npm run lint -- --fix
 - [ ] No console.log statements in production code
 
 
+### Release Process
+
+Publishing to the VS Marketplace is triggered by pushing a version tag.
+
+1. On a branch, bump `version` in `package.json` and add a matching `CHANGELOG.md` entry
+2. Open a PR with those changes
+3. Get the PR reviewed and approved
+4. Merge the PR into `master`
+5. Pull the latest `master` locally:
+   ```bash
+   git checkout master && git pull
+   ```
+6. Tag the new version and push the tag to publish:
+   ```bash
+   git tag v1.12.0
+   git push origin v1.12.0
+   ```
+
+The `Publish to VS Marketplace` workflow (`.github/workflows/publish.yml`) runs on tags matching `v[0-9]+.[0-9]+.[0-9]+`, verifies the tag is on `master`, then runs `npm run deploy`.
+
+
 ### Getting Help
 
 - **Issues**: https://github.com/ShipitSmarter/vscode-stitch/issues

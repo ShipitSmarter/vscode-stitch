@@ -2,6 +2,11 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.12.0
+
+- Added `PlainTextTemplate` visualization in the MailStep integration preview
+- Scenario folders are now sorted in natural (numeric-aware) order
+
 # 1.11.0
 
 - Reverted then `Stitch Preview` back to TextEditor Webview in Column 2
