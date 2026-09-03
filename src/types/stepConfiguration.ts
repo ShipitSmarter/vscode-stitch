@@ -28,6 +28,7 @@ export interface MailStepConfiguration extends BaseStepConfiguration {
     to: string[];
     subject: string;
     replyToList: string[];
+    plainTextTemplate?: string;
 }
 
 export interface RenderTemplateStepConfiguration extends BaseStepConfiguration {

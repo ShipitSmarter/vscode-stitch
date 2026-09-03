@@ -9,7 +9,8 @@
                 "support@example.com"
             ],
             "Subject": "{{ Model.title }}",
-            "Template": "{{ include 'mail.sbn-html' }}"
+            "Template": "{{ include 'mail.sbn-html' }}",
+            "PlainTextTemplate": "Plain Text: {{ Model.title }}"
         }
     ],
     "Response": {
