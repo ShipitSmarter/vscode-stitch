@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.13.0
+
+- Added an `Editor Log` section to the integration preview, showing messages logged from Scriban templates
+
 # 1.12.0
 
 - Added `PlainTextTemplate` visualization in the MailStep integration preview

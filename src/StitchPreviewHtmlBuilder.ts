@@ -162,8 +162,7 @@ function _createLogHtml(
 
     return `
         <section id="StitchEditorLog" class="action stitch-editor-log">
-        <span class="title">Editor Log</span>
-        <span class="type">Log</span>
+        <span class="type">Debug Log</span>
         <div class="content">
           <ul>${messages}</ul>
         </div>
