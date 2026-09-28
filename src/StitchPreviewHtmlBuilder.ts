@@ -40,6 +40,7 @@ export class StitchPreviewHtmlBuilder {
             ${_createHeaderHtml(context)}
             ${_createStepsHtml(response)}
             ${_createResponseHtml(response)}
+            ${_createLogHtml(response)}
         </div>
         <div class="quicknav"><strong>&nbsp;Nav</strong> ${_createNavHtml(response.integrationContext.steps)}</div>`
     );
@@ -147,6 +148,25 @@ function _createResponseHtml(
               body,
               response.validFormat ?? true ? "action" : "actionerror"
             )}`;
+}
+
+function _createLogHtml(
+  response: EditorSimulateIntegrationResponse): string {
+    if (!response.loggedMessages?.length) {
+        return "";
+    }
+
+    const messages = response.loggedMessages
+        .map(message => `<li>${StitchPreviewHtmlBuilder.escapeHtml(message)}</li>`)
+        .join("");
+
+    return `
+        <section id="StitchEditorLog" class="action stitch-editor-log">
+        <span class="type">Debug Log</span>
+        <div class="content">
+          <ul>${messages}</ul>
+        </div>
+        </section>`;
 }
 
 function _createNavHtml(steps: Record<string, StepResult>): string {

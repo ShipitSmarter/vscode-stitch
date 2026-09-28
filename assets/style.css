@@ -24,6 +24,10 @@
   word-break: break-word;
 }
 
+.stitch-editor-log {
+  padding: 0 .3rem;
+}
+
 .action pre, .actionerror pre {
   max-width: 100%;
   text-overflow: ellipsis;

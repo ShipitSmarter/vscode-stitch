@@ -1,0 +1,21 @@
+{{func sub
+   ret $0 - $1
+end
+
+func modelAddition()
+   Model.newValue = "5555"
+
+   editorlog(Model + " - functionlog")
+   editorlog(Model.newValue + " - functionlog")
+   editorlog(Steps.TrackingXML.Model + " - Step log")
+   
+   ret ""
+end
+
+func getEndpoint()
+   ret "https://www.test.com"
+end
+
+
+
+}}

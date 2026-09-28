@@ -1,0 +1,6 @@
+{{- include 'functions.sbn' -}}
+<root>
+    <node>{{Model.prop1}} - 121 = {{sub Model.prop1 121}}</node>
+    <node>{{Model.prop1}}+1</node>
+    <node>{{editorlog(Model.prop1 + " request-body-log")}}+1</node>
+</root>
