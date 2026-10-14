@@ -456,7 +456,10 @@ function _parseMailAttachmentsTemplate(rendered: string): MailAttachment[] {
     return parsed.map((item) => {
       const get = (key: string) => {
         const value = Object.entries(item ?? {}).find(([k]) => k.toLowerCase() === key)?.[1];
-        return value == null ? undefined : String(value);
+        if (value == null) {
+          return undefined;
+        }
+        return typeof value === "object" ? JSON.stringify(value) : String(value as string | number | boolean);
       };
       return {
         fileName: get("filename") ?? "",
