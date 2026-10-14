@@ -12,6 +12,7 @@ import {
   BaseStepConfiguration,
   HttpMulipartStepConfiguration,
   HttpStepConfiguration,
+  MailAttachment,
   MailStepConfiguration,
   RenderTemplateStepConfiguration,
   SftpStepConfiguration,
@@ -212,7 +213,7 @@ function _createStepHtml(step: StepResult, configuration: StepConfiguration) {
         configuration,
         _getMailStepHtml(mailConfig),
         "action",
-        _getMailPlainTextHtml(mailConfig)
+        _getMailPlainTextHtml(mailConfig) + _getMailAttachmentsHtml(mailConfig)
       );
     }
     case CONSTANTS.sftpStepResultType:
@@ -419,9 +420,53 @@ function _getMailPlainTextHtml(configuration: MailStepConfiguration) {
     return "";
   }
 
-  return `<p>
+  return `<div>
             <pre><p>Plain Text Template:</p><code>${StitchPreviewHtmlBuilder.escapeHtml(plainText)}</code></pre>
-          </p>`;
+          </div>`;
+}
+
+function _getMailAttachmentsHtml(configuration: MailStepConfiguration) {
+  let source = "Attachments";
+  let attachments = configuration.attachments ?? [];
+  if (attachments.length === 0 && configuration.attachmentsTemplate?.trim()) {
+    source = "AttachmentsTemplate";
+    attachments = _parseMailAttachmentsTemplate(configuration.attachmentsTemplate);
+  }
+  if (attachments.length === 0) {
+    return "";
+  }
+
+  const items = attachments
+    .map((a) => {
+      const contentType = a.contentType
+        ? `<br />&nbsp;&nbsp;ContentType:&nbsp;${StitchPreviewHtmlBuilder.escapeHtml(a.contentType)}`
+        : "";
+      return `<p>- FileName:&nbsp;${StitchPreviewHtmlBuilder.escapeHtml(a.fileName)}${contentType}<br />&nbsp;&nbsp;ContentBase64:&nbsp;${StitchPreviewHtmlBuilder.escapeHtml(a.contentBase64)}</p>`;
+    })
+    .join("");
+
+  return `<div>
+            <pre><p>${source}:</p>${items}</pre>
+          </div>`;
+}
+
+function _parseMailAttachmentsTemplate(rendered: string): MailAttachment[] {
+  try {
+    const parsed = JSON.parse(rendered) as (Record<string, unknown> | null)[];
+    return parsed.map((item) => {
+      const get = (key: string) => {
+        const value = Object.entries(item ?? {}).find(([k]) => k.toLowerCase() === key)?.[1];
+        return value == null ? undefined : String(value);
+      };
+      return {
+        fileName: get("filename") ?? "",
+        contentType: get("contenttype"),
+        contentBase64: get("contentbase64") ?? "",
+      };
+    });
+  } catch {
+    return [];
+  }
 }
 
 function _getBase64EncodeStepHtml(

@@ -10,7 +10,29 @@
             ],
             "Subject": "{{ Model.title }}",
             "Template": "{{ include 'mail.sbn-html' }}",
-            "PlainTextTemplate": "Plain Text: {{ Model.title }}"
+            "PlainTextTemplate": "Plain Text: {{ Model.title }}",
+            "Attachments": [
+                {
+                    "FileName": "{{ Model.title }}.txt",
+                    "ContentType": "text/plain",
+                    "ContentBase64": "SGVsbG8gZnJvbSBTdGl0Y2g="
+                },
+                {
+                    "FileName": "no-content-type.bin",
+                    "ContentBase64": "AAECAw=="
+                }
+            ]
+        },
+        {
+            "$type": "Core.Entities.Configs.Steps.MailConfiguration, Core",
+            "Id": "MailTemplateAttachments",
+            "From": "no-reply@example.com",
+            "To": [
+                "info@example.com"
+            ],
+            "Template": "{{ include 'mail.sbn-html' }}",
+            "Subject": "{{ Model.title }}",
+            "AttachmentsTemplate": "{{- include 'functions.sbn' -}}{{ mail_attachments() }}"
         }
     ],
     "Response": {

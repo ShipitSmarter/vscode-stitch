@@ -1,0 +1,6 @@
+{{- func mail_attachments -}}
+[
+    { "FileName": "{{ Model.status }}.json", "ContentType": "application/json", "ContentBase64": "eyJvayI6dHJ1ZX0=" },
+    { "FileName": "no-content-type.bin", "ContentBase64": "AAECAw==" }
+]
+{{- end -}}
