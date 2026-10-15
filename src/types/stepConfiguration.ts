@@ -29,6 +29,14 @@ export interface MailStepConfiguration extends BaseStepConfiguration {
     subject: string;
     replyToList: string[];
     plainTextTemplate?: string;
+    attachments?: MailAttachment[];
+    attachmentsTemplate?: string;
+}
+
+export interface MailAttachment {
+    fileName: string;
+    contentType?: string;
+    contentBase64: string;
 }
 
 export interface RenderTemplateStepConfiguration extends BaseStepConfiguration {

@@ -2,6 +2,10 @@
 
 All notable changes to the "vscode-stitch" extension will be documented in this file.
 
+# 1.14.0
+
+- Added `Attachments` and `AttachmentsTemplate` visualization in the MailStep integration preview
+
 # 1.13.0
 
 - Added an `Editor Log` section to the integration preview, showing messages logged from Scriban templates
